@@ -95,7 +95,8 @@
                         ['icon' => 'mdi:city', 'title' => 'Lokasi Strategis', 'desc' => 'Terletak di jantung kota pendidikan Surakarta.'],
                         ['icon' => 'mdi:heart-outline', 'title' => 'Kampus Ramah', 'desc' => 'Kampus inklusif yang ramah bagi semua kalangan.'],
                         ['icon' => 'mdi:security', 'title' => 'Keamanan Terjamin', 'desc' => 'Keamanan dan ketertiban kampus selalu terjaga.'],
-                        ['icon' => 'mdi:book-multiple-outline', 'title' => 'Buku Digital', 'desc' => 'Akses ke ribuan koleksi e-book terbaru.'], // Total 13 items
+                        ['icon' => 'mdi:book-multiple-outline', 'title' => 'Buku Digital', 'desc' => 'Akses ke ribuan koleksi e-book terbaru.'], // Total 12 items
+                        ['icon' => 'mdi:currency-usd', 'title' => 'Biaya Kompetitif', 'desc' => 'Biaya kuliah terjangkau dengan kualitas premium.'], // Total 13 items
                     ];
                 @endphp
 
@@ -153,8 +154,10 @@
                             // Mengambil hanya testimoni yang sudah disetujui (seharusnya sudah difilter di Controller)
                             $approvedTestimonials = $testimonials ?? collect();
 
-                            // Duplikasi data $testimonials untuk memastikan loop carousel bekerja
+                            // Duplikasi data untuk loop carousel (membuat 2 set data)
                             $carouselTestimonials = $approvedTestimonials->isNotEmpty() ? $approvedTestimonials->merge($approvedTestimonials) : collect();
+                            $actualItems = $approvedTestimonials->count();
+                            $totalSlides = $carouselTestimonials->count();
                         @endphp
 
                         @forelse($carouselTestimonials as $testimonial)
@@ -164,7 +167,7 @@
                                 <img src="{{ $testimonial->foto_path ? Storage::url($testimonial->foto_path) : 'https://placehold.co/150x150/d1d5db/6b7280?text=A' }}"
                                     alt="Alumni Photo"
                                     onerror="this.onerror=null;this.src='https://placehold.co/150x150/d1d5db/6b7280?text=A';"
-                                    class="w-24 h-24 rounded-full mb-4 object-cover border-4 border-green-400 shadow-md transform group-hover:scale-105 transition-transform duration-300">
+                                    class="w-24 h-24 rounded-full mb-4 object-cover border-4 border-green-400 shadow-md transition-transform duration-300">
 
                                 <p class="text-gray-700 italic mb-4 text-center text-base line-clamp-4">"{{ $testimonial->testimonial_quote }}"</p>
 
@@ -201,7 +204,7 @@
         <div class="max-w-4xl mx-auto">
             <h2 class="text-3xl sm:text-4xl font-extrabold text-center mb-14 font-['Poppins'] section-animate">Pertanyaan yang Sering Diajukan (FAQ)</h2>
 
-            <div class="space-y-4">
+            <div class="space-y-4" id="faq-wrapper">
                 <div class="border border-green-200 rounded-xl shadow-md bg-white overflow-hidden section-animate">
                     <button class="flex justify-between items-center w-full p-5 text-left font-semibold text-green-800 bg-green-50 hover:bg-green-100 transition duration-200 accordion-toggle">
                         <span class="flex items-center gap-3"><i data-lucide="help-circle" class="w-5 h-5"></i>Apa itu Tracer Study Alumni?</span>
@@ -266,109 +269,135 @@
         </div>
     </section>
 </div>
+@endsection
 
-{{-- Script for FAQ Accordion and Carousel --}}
+@section('scripts')
+<style>
+    /* CSS untuk Accordion: Menggunakan max-height untuk transisi smooth */
+    .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+    .accordion-content.active {
+        /* Set ke nilai yang besar agar konten selalu terlihat penuh */
+        max-height: 500px;
+    }
+</style>
 <script>
-    // Accordion functionality for FAQ
-    document.querySelectorAll('.accordion-toggle').forEach(button => {
-        button.addEventListener('click', () => {
-            const content = button.nextElementSibling;
-            const icon = button.querySelector('i[data-lucide="chevron-down"]');
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Initialization ---
+        lucide.createIcons();
 
-            // Close other open accordions
-            document.querySelectorAll('.accordion-content.active').forEach(openContent => {
-                if (openContent !== content) {
-                    openContent.classList.remove('active');
-                    openContent.previousElementSibling.querySelector('i[data-lucide="chevron-down"]').classList.remove('rotate-180');
+        // --- Testimonial Carousel Logic (Fixed Infinite Loop) ---
+        const actualItems = {{ $actualItems ?? 0 }}; // Jumlah item asli
+        const totalSlides = {{ $totalSlides ?? 0 }}; // Jumlah item total (asli + duplikasi)
+
+        if (actualItems > 0 && totalSlides >= actualItems * 2) {
+            const carouselContainer = document.getElementById('testimonial-container');
+            const prevBtn = document.getElementById('prevTestimonial');
+            const nextBtn = document.getElementById('nextTestimonial');
+
+            let currentIndex = actualItems; // Mulai dari set duplikasi kedua (visual index 0)
+            let itemWidth = 0;
+
+            const setTransition = (enabled) => {
+                carouselContainer.style.transition = enabled ? 'transform 0.5s ease-in-out' : 'none';
+            };
+
+            const updateCarouselWidth = () => {
+                const carouselWrapper = document.getElementById('testimonial-carousel');
+                if (carouselWrapper) {
+                    itemWidth = carouselWrapper.clientWidth;
+                }
+            };
+
+            const updateCarousel = (smooth = true) => {
+                updateCarouselWidth();
+                setTransition(smooth);
+                carouselContainer.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
+            };
+
+            const checkBoundary = () => {
+                // Jika indeks melewati set duplikasi pertama, langsung lompat ke set kedua tanpa transisi
+                if (currentIndex >= actualItems * 2) {
+                    currentIndex = actualItems;
+                    updateCarousel(false);
+                }
+                // Jika indeks mundur ke sebelum set duplikasi pertama, lompat ke set terakhir tanpa transisi
+                else if (currentIndex < actualItems) {
+                    currentIndex = actualItems * 2 - 1;
+                    updateCarousel(false);
+                }
+            };
+
+            // Set posisi awal ke set duplikasi kedua (index `actualItems`)
+            updateCarouselWidth();
+            updateCarousel(false);
+
+            // Navigasi
+            prevBtn.addEventListener('click', () => {
+                currentIndex--;
+                updateCarousel();
+                // Tunggu transisi selesai sebelum cek batas
+                if (currentIndex < actualItems) {
+                    setTimeout(checkBoundary, 500);
                 }
             });
 
-            // Toggle current accordion
-            content.classList.toggle('active');
-            icon.classList.toggle('rotate-180');
-        });
-    });
+            nextBtn.addEventListener('click', () => {
+                currentIndex++;
+                updateCarousel();
+                // Tunggu transisi selesai sebelum cek batas
+                if (currentIndex >= actualItems * 2) {
+                    setTimeout(checkBoundary, 500);
+                }
+            });
 
-    // Testimonial Carousel Logic
-    const totalApprovedTestimonials = {{ ($testimonials ?? collect())->count() }};
-    const carouselContainer = document.getElementById('testimonial-container');
-    const testimonialItems = document.querySelectorAll('.testimonial-item');
-    const prevBtn = document.getElementById('prevTestimonial');
-    const nextBtn = document.getElementById('nextTestimonial');
+            window.addEventListener('resize', () => {
+                currentIndex = actualItems; // Reset ke posisi awal set duplikasi
+                updateCarousel(false);
+            });
 
-    const actualItems = totalApprovedTestimonials;
-    const totalSlides = testimonialItems.length;
-
-    let currentIndex = 0;
-    let itemWidth = 0;
-
-    function updateCarouselWidth() {
-            const carouselWrapper = document.getElementById('testimonial-carousel');
-            if(carouselWrapper && testimonialItems.length > 0) {
-                // Use clientWidth for the width of the viewport
-                itemWidth = carouselWrapper.clientWidth;
-            }
-    }
-
-    function updateCarousel() {
-        if (actualItems === 0) return;
-        updateCarouselWidth();
-
-        // Check if we are past the duplicated set (first set ends at index actualItems - 1)
-        if (currentIndex >= actualItems) {
-             // Instantaneous jump back to the start of the duplicated set (index 0 of the second copy)
-             setTimeout(() => {
-                carouselContainer.style.transition = 'none';
-                currentIndex = actualItems; // Reset index to the start of the duplicated set
-                carouselContainer.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
-                setTimeout(() => {
-                    carouselContainer.style.transition = 'transform 0.5s ease-in-out';
-                }, 50);
-             }, 500); // 500ms should match the CSS transition duration
-        } else if (currentIndex < 0) {
-            // Instantaneous jump forward to the end of the duplicated set (index actualItems - 1 of the second copy)
-            setTimeout(() => {
-                carouselContainer.style.transition = 'none';
-                currentIndex = actualItems - 1;
-                carouselContainer.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
-                setTimeout(() => {
-                    carouselContainer.style.transition = 'transform 0.5s ease-in-out';
-                }, 50);
-             }, 500);
+            // Auto-advance
+            // setInterval(() => {
+            //     nextBtn.click();
+            // }, 5000);
         }
 
-        // Apply the transform (this runs first unless inside a setTimeout for transition reset)
-        carouselContainer.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
-    }
+        // --- FAQ Accordion Functionality (Improved Max-Height Handling) ---
+        document.querySelectorAll('.accordion-toggle').forEach(button => {
+            const content = button.nextElementSibling;
 
-    if (carouselContainer) {
-        prevBtn.addEventListener('click', () => {
-            if (currentIndex > 0) {
-                currentIndex--;
-            } else {
-                // If at the beginning of the first set (index 0), jump to the last element of the second set
-                currentIndex = totalSlides - 1;
-            }
-            updateCarousel();
+            // Atur agar konten tertutup secara default
+            content.style.maxHeight = '0';
+
+            button.addEventListener('click', () => {
+                const icon = button.querySelector('i[data-lucide="chevron-down"]');
+                const isOpen = content.classList.contains('active');
+
+                // Tutup semua yang terbuka kecuali yang sedang diklik
+                document.querySelectorAll('#faq-wrapper .accordion-content.active').forEach(openContent => {
+                    if (openContent !== content) {
+                        openContent.classList.remove('active');
+                        openContent.style.maxHeight = '0';
+                        openContent.previousElementSibling.querySelector('i[data-lucide="chevron-down"]').classList.remove('rotate-180');
+                    }
+                });
+
+                // Toggle current accordion
+                if (!isOpen) {
+                    content.classList.add('active');
+                    // Setting max-height ke scrollHeight untuk transisi yang akurat
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    icon.classList.add('rotate-180');
+                } else {
+                    content.classList.remove('active');
+                    content.style.maxHeight = '0';
+                    icon.classList.remove('rotate-180');
+                }
+            });
         });
-
-        nextBtn.addEventListener('click', () => {
-             // If we are at the end of the first set (index actualItems - 1), moving next will start the jump logic
-            if (currentIndex < totalSlides) {
-                currentIndex++;
-            }
-            updateCarousel();
-        });
-
-        window.addEventListener('resize', () => {
-            // Reinitialize widths and reset index on resize to prevent visual misalignment
-            currentIndex = 0;
-            updateCarousel();
-        });
-
-
-        // Initial update and auto-advance setup
-        updateCarousel();
-    }
+    });
 </script>
 @endsection

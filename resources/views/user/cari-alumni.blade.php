@@ -41,7 +41,7 @@
                     class="border border-gray-300 rounded-lg px-4 py-3 text-gray-700 shadow-sm hover:shadow-md focus:ring-2 focus:ring-emerald-400 transition-all duration-300">
                     <option value="" {{ request('fakultas') == '' ? 'selected' : '' }}>Semua Fakultas</option>
                     <option value="Fakultas Syariah" {{ request('fakultas') == 'Fakultas Syariah' ? 'selected' : '' }}>Fakultas Syariah</option>
-                    <option value="Fakultas Ilmu Tarbiyah dan Keguruan" {{ request('fakultas') == 'Fakultas Ilmu Tarbiyah dan Keguruan' ? 'selected' : '' }}>Fakultas Ilmu Tarbiyah dan Keguruan</option>
+                    <option value="Fakultas Ilmu Tarbiyah" {{ request('fakultas') == 'Fakultas Ilmu Tarbiyah' ? 'selected' : '' }}>Fakultas Ilmu Tarbiyah</option>
                     <option value="Fakultas Ekonomi dan Bisnis Islam" {{ request('fakultas') == 'Fakultas Ekonomi dan Bisnis Islam' ? 'selected' : '' }}>Fakultas Ekonomi dan Bisnis Islam</option>
                     <option value="Fakultas Ushuluddin dan Dakwah" {{ request('fakultas') == 'Fakultas Ushuluddin dan Dakwah' ? 'selected' : '' }}>Fakultas Ushuluddin dan Dakwah</option>
                 </select>

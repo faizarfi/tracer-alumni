@@ -6,18 +6,19 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\KuisionerController;
 use App\Http\Controllers\GalleryController;
-use App\Http\Controllers\KaprodiController; // DITAMBAHKAN: Controller baru untuk Kaprodi
+use App\Http\Controllers\KaprodiController;
 
 Route::get('/', fn() => redirect()->route('login'));
 
-// --- Authentication Routes ---
+// ====================  AUTH ROUTES  ====================
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// --- Admin Routes ---
+
+// ====================  ADMIN ROUTES  ====================
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
@@ -25,39 +26,40 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 
-        // Manajemen Alumni
+        // --- Manajemen Alumni ---
         Route::get('/alumni', [AlumniController::class, 'index'])->name('alumni');
         Route::get('/alumni/export-csv', [AlumniController::class, 'exportCsv'])->name('alumni.exportCsv');
         Route::get('/alumni/{user}/edit', [AlumniController::class, 'edit'])->name('alumni.edit');
         Route::put('/alumni/{user}', [AlumniController::class, 'update'])->name('alumni.update');
         Route::delete('/alumni/{user}', [AlumniController::class, 'destroy'])->name('alumni.destroy');
 
-        // Manajemen Kuisioner
+        // --- Manajemen Kuisioner ---
         Route::get('/kuisioner', [KuisionerController::class, 'adminIndex'])->name('kuisioner');
         Route::get('/kuisioner/{id}/detail', [KuisionerController::class, 'show'])->name('kuisioner.detail');
         Route::delete('/kuisioner/{id}', [KuisionerController::class, 'destroy'])->name('kuisioner.destroy');
         Route::get('/kuisioner/export-csv', [KuisionerController::class, 'exportCsv'])->name('kuisioner.exportCsv');
 
-        // Manajemen Gallery
+        // --- Manajemen Gallery ---
         Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
         Route::post('/gallery', [GalleryController::class, 'store'])->name('gallery.store');
         Route::put('/gallery/{id}', [GalleryController::class, 'update'])->name('gallery.update');
         Route::delete('/gallery/{id}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
 
-        // Manajemen Kaprodi (BARU)
+        // --- Manajemen Kaprodi ---
         Route::get('/kaprodi', [KaprodiController::class, 'index'])->name('kaprodi');
-        Route::get('/kaprodi/create', [KaprodiController::class, 'create'])->name('kaprodi.create'); // DITAMBAHKAN: Route untuk formulir pembuatan
+        Route::get('/kaprodi/create', [KaprodiController::class, 'create'])->name('kaprodi.create');
         Route::post('/kaprodi', [KaprodiController::class, 'store'])->name('kaprodi.store');
         Route::get('/kaprodi/{id}/edit', [KaprodiController::class, 'edit'])->name('kaprodi.edit');
         Route::put('/kaprodi/{id}', [KaprodiController::class, 'update'])->name('kaprodi.update');
         Route::delete('/kaprodi/{id}', [KaprodiController::class, 'destroy'])->name('kaprodi.destroy');
 
-        // Statistik
+        // --- Statistik ---
         Route::get('/statistics', [AlumniController::class, 'statistics'])->name('statistics');
 
-        // Testimoni Alumni
+        // --- Testimoni Alumni ---
         Route::prefix('testimonials')->name('testimonials.')->group(function () {
-            // Halaman Daftar Testimoni
+
+            // List Testimoni
             Route::get('/review', [AlumniController::class, 'reviewTestimonials'])->name('review');
             Route::get('/approved', [AlumniController::class, 'approvedTestimonials'])->name('approved');
             Route::get('/rejected', [AlumniController::class, 'rejectedTestimonials'])->name('rejected');
@@ -66,9 +68,31 @@ Route::middleware(['auth', 'role:admin'])
             Route::put('/{user_id}/approve', [AlumniController::class, 'approveTestimonial'])->name('approve');
             Route::delete('/{user_id}/reject', [AlumniController::class, 'rejectTestimonial'])->name('reject');
         });
+
     });
 
-// --- User Routes ---
+
+// ====================  KAPRODI ROUTES  ====================
+Route::middleware(['auth', 'role:kaprodi'])
+    ->prefix('kaprodi')
+    ->name('kaprodi.')
+    ->group(function () {
+
+        Route::get('/dashboard', [DashboardController::class, 'kaprodi'])->name('dashboard');
+
+        Route::get('/laporan-kuisioner', [KuisionerController::class, 'kaprodiReport'])->name('kuisioner.report');
+        Route::get('/data-alumni', [AlumniController::class, 'kaprodiAlumni'])->name('alumni');
+
+        // Perbaiki error RouteNotFound
+        Route::get('/alumni/{alumni_id}/detail', [KuisionerController::class, 'showKaprodiDetail'])->name('alumni.detail');
+
+        Route::get('/export-kuisioner-csv', [KuisionerController::class, 'exportKaprodiCsv'])->name('kuisioner.exportCsv');
+
+        Route::get('/help', [DashboardController::class, 'kaprodiHelp'])->name('help');
+    });
+
+
+// ====================  USER ROUTES  ====================
 Route::middleware(['auth', 'role:user'])
     ->prefix('user')
     ->name('user.')
@@ -76,7 +100,7 @@ Route::middleware(['auth', 'role:user'])
 
         Route::get('/dashboard', [DashboardController::class, 'user'])->name('dashboard');
 
-        // Profil Alumni
+        // Profil
         Route::get('/profil', [AlumniController::class, 'form'])->name('profil');
         Route::put('/profil', [AlumniController::class, 'save'])->name('profil.update');
         Route::post('/profil', [AlumniController::class, 'save'])->name('profil.save');

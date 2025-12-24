@@ -170,23 +170,28 @@
                 <h2 class="text-xl font-extrabold tracking-wide font-['Poppins']">Admin Panel</h2>
             </div>
             <nav class="px-4 py-6 flex flex-col space-y-3 flex-1">
-                {{-- Navigation Links (Mock Data) --}}
-                <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
+                {{-- Navigation Links --}}
+                <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
+                    {{ Request::routeIs('admin.dashboard') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
                     <iconify-icon icon="mdi:view-dashboard" class="w-5 h-5 text-green-300"></iconify-icon>
                     <span>Dashboard</span>
                 </a>
-                <a href="{{ route('admin.kuisioner') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
+                <a href="{{ route('admin.kuisioner') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
+                    {{ Request::routeIs('admin.kuisioner') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
                     <iconify-icon icon="mdi:clipboard-text-outline" class="w-5 h-5 text-yellow-300"></iconify-icon>
                     <span>Manajemen Kuesioner</span>
                 </a>
 
-                {{-- **ACTIVE LINK: Manajemen Testimoni (Dynamic Sub-Menu)** --}}
+                {{-- Manajemen Testimoni (Dynamic Sub-Menu) --}}
+                @php
+                    $isTestimoniActive = Request::routeIs('admin.testimonials.*');
+                @endphp
                 <div class="space-y-1">
-                    <a href="javascript:void(0)" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group active-parent">
+                    <a href="javascript:void(0)" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group {{ $isTestimoniActive ? 'bg-white/10' : '' }}">
                         <iconify-icon icon="mdi:message-badge-outline" class="w-5 h-5 text-red-300"></iconify-icon>
                         <span>Manajemen Testimoni</span>
                     </a>
-                    <div class="pl-6 space-y-1 border-l ml-3 border-red-500">
+                    <div class="pl-6 space-y-1 border-l ml-3 {{ $isTestimoniActive ? 'border-red-500' : 'border-red-800/50' }}">
                         {{-- Link 1: Review --}}
                         <a href="{{ route('admin.testimonials.review') }}"
                             class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs hover:bg-white/10
@@ -194,9 +199,10 @@
                             <i data-lucide="bell" class="w-4 h-4 text-red-400"></i>
                             <span>Menunggu Review</span>
                         </a>
-                        {{-- Link 2: Disetujui (ACTIVE) --}}
+                        {{-- Link 2: Disetujui --}}
                         <a href="{{ route('admin.testimonials.approved') }}"
-                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs bg-white bg-opacity-20 shadow-md font-semibold">
+                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs hover:bg-white/10
+                            {{ Request::routeIs('admin.testimonials.approved') ? 'bg-white bg-opacity-20 shadow-md font-semibold' : '' }}">
                             <i data-lucide="check-circle" class="w-4 h-4 text-green-300"></i>
                             <span>Testimoni Disetujui</span>
                         </a>
@@ -209,15 +215,22 @@
                         </a>
                     </div>
                 </div>
-                {{-- **AKHIR ACTIVE LINK** --}}
 
-                <a href="{{ route('admin.alumni') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
+                <a href="{{ route('admin.alumni') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
+                    {{ Request::routeIs('admin.alumni') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
                     <iconify-icon icon="mdi:account-multiple-outline" class="w-5 h-5 text-blue-300"></iconify-icon>
                     <span>Manajemen Alumni</span>
                 </a>
-                <a href="{{ route('admin.gallery') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
+                <a href="{{ route('admin.gallery') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
+                    {{ Request::routeIs('admin.gallery') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
                     <iconify-icon icon="mdi:image-multiple-outline" class="w-5 h-5 text-purple-300"></iconify-icon>
                     <span>Manajemen Gallery</span>
+                </a>
+
+                <a href="{{ route('admin.kaprodi') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
+                    {{ Request::routeIs('admin.kaprodi') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
+                    <iconify-icon icon="mdi:account-tie" class="w-5 h-5 text-pink-300"></iconify-icon>
+                    <span>Manajemen Kaprodi</span>
                 </a>
 
                 {{-- Logout Button --}}

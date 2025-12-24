@@ -49,13 +49,13 @@
     {{-- Main wrapper for sidebar and content --}}
     <div class="flex flex-1 flex-col md:flex-row">
 
-        {{-- Sidebar --}}
+       {{-- Sidebar --}}
         <aside id="sidebar" class="bg-gradient-to-b from-green-900 via-green-800 to-green-700 text-white">
             <div class="p-5 border-b border-green-700 text-center select-none bg-green-950">
                 <h2 class="text-xl font-extrabold tracking-wide font-['Poppins']">Admin Panel</h2>
             </div>
             <nav class="px-4 py-6 flex flex-col space-y-3 flex-1">
-                {{-- Navigation Links (Mock Data) --}}
+                {{-- Navigation Links --}}
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
                     <iconify-icon icon="mdi:view-dashboard" class="w-5 h-5 text-green-300"></iconify-icon>
                     <span>Dashboard</span>
@@ -105,6 +105,13 @@
                     <span>Manajemen Gallery</span>
                 </a>
 
+                {{-- NEW LINK: Manajemen Kaprodi --}}
+                <a href="{{ route('admin.kaprodi') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
+                    <iconify-icon icon="mdi:account-tie" class="w-5 h-5 text-pink-300"></iconify-icon>
+                    <span>Manajemen Kaprodi</span>
+                </a>
+                {{-- END NEW LINK --}}
+
                 {{-- Logout Button --}}
                 <form action="{{ route('logout') }}" method="POST" class="mt-auto pt-6">
                     @csrf
@@ -116,7 +123,6 @@
                 </form>
             </nav>
         </aside>
-
         {{-- Sidebar Overlay for Mobile --}}
         <div id="sidebar-overlay" class="md:hidden"></div>
 

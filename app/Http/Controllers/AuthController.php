@@ -24,8 +24,8 @@ class AuthController extends Controller
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             } elseif ($user->role === 'kaprodi') {
-                // REDIRECT UNTUK KAPRODI
-                return redirect()->route('admin.kaprodi'); // Arahkan ke halaman manajemen kaprodi, atau buat 'kaprodi.dashboard'
+                // REDIRECT UNTUK KAPRODI (DIKOREKSI)
+                return redirect()->route('kaprodi.dashboard');
             } else {
                 return redirect()->route('user.dashboard');
             }

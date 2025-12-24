@@ -140,6 +140,52 @@ class AlumniController extends Controller
         }
     }
 
+    // =========================================================
+    // METODE BARU UNTUK KAPRODI
+    // =========================================================
+
+    /**
+     * Menampilkan data alumni yang difilter khusus untuk Program Studi Kaprodi.
+     */
+    public function kaprodiAlumni(Request $request)
+    {
+        // Mendapatkan Program Studi Kaprodi yang sedang login
+        $prodi = Auth::user()->prodi ?? 'Program Studi Tidak Ditemukan';
+
+        // Hanya ambil data alumni dari Program Studi yang bersangkutan (kolom: jurusan)
+        $query = Alumni::where('jurusan', $prodi);
+
+        // Filter: Pencarian berdasarkan nama atau NIM
+        if ($request->filled('cari')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->cari . '%')
+                  ->orWhere('nim', 'like', '%' . $request->cari . '%');
+            });
+        }
+
+        // Filter: Berdasarkan tahun lulus
+        if ($request->filled('tahun')) {
+            $query->where('tahun_keluar', $request->tahun);
+        }
+
+        // Ambil data untuk pagination
+        $alumniData = $query->orderBy('tahun_keluar', 'desc')->paginate(15)->appends($request->query());
+
+        // Mengambil daftar unik tahun lulus untuk filter dropdown
+        $availableYears = Alumni::select('tahun_keluar')
+            ->distinct()
+            ->where('jurusan', $prodi) // Tetap filter berdasarkan prodi yang login
+            ->orderBy('tahun_keluar', 'desc')
+            ->pluck('tahun_keluar');
+
+        // Menggunakan view yang sudah dibuat (kaprodi/data-alumni.blade.php)
+        return view('kaprodi.data-alumni', compact('alumniData', 'prodi', 'availableYears'));
+    }
+
+    // =========================================================
+    // METODE LAMA (ADMIN & USER)
+    // =========================================================
+
     // Menampilkan daftar alumni untuk admin
     public function index(Request $request)
     {
@@ -416,8 +462,8 @@ class AlumniController extends Controller
             // Menentukan redirect: Jika sebelumnya approved (aksi Tarik Publikasi),
             // redirect kembali ke halaman Approved. Jika tidak, redirect ke Rejected.
             $redirectTo = ($previousStatus === 'approved')
-                                ? 'admin.testimonials.approved'
-                                : 'admin.testimonials.rejected';
+                                    ? 'admin.testimonials.approved'
+                                    : 'admin.testimonials.rejected';
 
             $message = ($previousStatus === 'approved')
                         ? 'Publikasi testimoni berhasil ditarik dan dipindahkan ke daftar Ditolak.'
@@ -428,4 +474,4 @@ class AlumniController extends Controller
             return redirect()->back()->with('error', 'Gagal menolak testimoni. Debug: ' . $e->getMessage());
         }
     }
-}   
+}

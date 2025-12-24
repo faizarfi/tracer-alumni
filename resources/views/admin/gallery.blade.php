@@ -163,13 +163,13 @@
     {{-- Main wrapper for sidebar and content --}}
     <div class="flex flex-1 flex-col md:flex-row">
 
-        {{-- Sidebar --}}
+       {{-- Sidebar --}}
         <aside id="sidebar" class="bg-gradient-to-b from-green-900 via-green-800 to-green-700 text-white">
             <div class="p-5 border-b border-green-700 text-center select-none bg-green-950">
                 <h2 class="text-xl font-extrabold tracking-wide font-['Poppins']">Admin Panel</h2>
             </div>
             <nav class="px-4 py-6 flex flex-col space-y-3 flex-1">
-                {{-- Navigation Links (Mock Data) --}}
+                {{-- Navigation Links --}}
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
                     <iconify-icon icon="mdi:view-dashboard" class="w-5 h-5 text-green-300"></iconify-icon>
                     <span>Dashboard</span>
@@ -179,7 +179,7 @@
                     <span>Manajemen Kuesioner</span>
                 </a>
 
-                {{-- **Manajemen Testimoni (Dynamic Sub-Menu)** --}}
+                {{-- **ACTIVE LINK: Manajemen Testimoni (Dynamic Sub-Menu)** --}}
                 <div class="space-y-1">
                     <a href="javascript:void(0)" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group active-parent">
                         <iconify-icon icon="mdi:message-badge-outline" class="w-5 h-5 text-red-300"></iconify-icon>
@@ -208,17 +208,23 @@
                         </a>
                     </div>
                 </div>
-                {{-- **AKHIR Manajemen Testimoni** --}}
+                {{-- **AKHIR ACTIVE LINK** --}}
 
                 <a href="{{ route('admin.alumni') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
                     <iconify-icon icon="mdi:account-multiple-outline" class="w-5 h-5 text-blue-300"></iconify-icon>
                     <span>Manajemen Alumni</span>
                 </a>
-                <a href="{{ route('admin.gallery') }}"
-                   class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm bg-white bg-opacity-20 shadow-md group">
+                <a href="{{ route('admin.gallery') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
                     <iconify-icon icon="mdi:image-multiple-outline" class="w-5 h-5 text-purple-300"></iconify-icon>
                     <span>Manajemen Gallery</span>
                 </a>
+
+                {{-- NEW LINK: Manajemen Kaprodi --}}
+                <a href="{{ route('admin.kaprodi') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
+                    <iconify-icon icon="mdi:account-tie" class="w-5 h-5 text-pink-300"></iconify-icon>
+                    <span>Manajemen Kaprodi</span>
+                </a>
+                {{-- END NEW LINK --}}
 
                 {{-- Logout Button --}}
                 <form action="{{ route('logout') }}" method="POST" class="mt-auto pt-6">
@@ -256,7 +262,7 @@
                     </h1>
                     <p class="text-green-700 text-lg mt-1" id="currentDateTime"></p>
                 </div>
-               
+
             </header>
 
             {{-- Notifikasi (Success/Error) --}}

@@ -49,7 +49,7 @@
     {{-- Main wrapper for sidebar and content --}}
     <div class="flex flex-1 flex-col md:flex-row">
 
-        {{-- Sidebar --}}
+       {{-- Sidebar --}}
         <aside id="sidebar" class="bg-gradient-to-b from-green-900 via-green-800 to-green-700 text-white">
             <div class="p-5 border-b border-green-700 text-center select-none bg-green-950">
                 <h2 class="text-xl font-extrabold tracking-wide font-['Poppins']">Admin Panel</h2>
@@ -67,22 +67,21 @@
 
                 {{-- **ACTIVE LINK: Manajemen Testimoni (Dynamic Sub-Menu)** --}}
                 <div class="space-y-1">
-                    {{-- Parent link: Hapus border-red-600 yang lama --}}
-                    <a href="javascript:void(0)" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm bg-white bg-opacity-10 shadow-sm group active-parent">
+                    <a href="javascript:void(0)" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group active-parent">
                         <iconify-icon icon="mdi:message-badge-outline" class="w-5 h-5 text-red-300"></iconify-icon>
                         <span>Manajemen Testimoni</span>
                     </a>
                     <div class="pl-6 space-y-1 border-l ml-3 border-red-500">
-                        {{-- Link 1: Review (ACTIVE) --}}
+                        {{-- Link 1: Review --}}
                         <a href="{{ route('admin.testimonials.review') }}"
-                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs {{ Request::routeIs('admin.testimonials.review') ? 'bg-white bg-opacity-20 shadow-md font-semibold border border-red-600' : 'hover:bg-white/10' }}">
+                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs hover:bg-white/10
+                            {{ Request::routeIs('admin.testimonials.review') ? 'bg-white bg-opacity-20 shadow-md font-semibold' : '' }}">
                             <i data-lucide="bell" class="w-4 h-4 text-red-400"></i>
                             <span>Menunggu Review</span>
                         </a>
-                        {{-- Link 2: Disetujui --}}
+                        {{-- Link 2: Disetujui (ACTIVE) --}}
                         <a href="{{ route('admin.testimonials.approved') }}"
-                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs hover:bg-white/10
-                            {{ Request::routeIs('admin.testimonials.approved') ? 'bg-white bg-opacity-20 shadow-md font-semibold' : '' }}">
+                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs bg-white bg-opacity-20 shadow-md font-semibold">
                             <i data-lucide="check-circle" class="w-4 h-4 text-green-300"></i>
                             <span>Testimoni Disetujui</span>
                         </a>
@@ -106,6 +105,13 @@
                     <span>Manajemen Gallery</span>
                 </a>
 
+                {{-- NEW LINK: Manajemen Kaprodi --}}
+                <a href="{{ route('admin.kaprodi') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group">
+                    <iconify-icon icon="mdi:account-tie" class="w-5 h-5 text-pink-300"></iconify-icon>
+                    <span>Manajemen Kaprodi</span>
+                </a>
+                {{-- END NEW LINK --}}
+
                 {{-- Logout Button --}}
                 <form action="{{ route('logout') }}" method="POST" class="mt-auto pt-6">
                     @csrf
@@ -117,7 +123,6 @@
                 </form>
             </nav>
         </aside>
-
         {{-- Sidebar Overlay for Mobile --}}
         <div id="sidebar-overlay" class="md:hidden"></div>
 
