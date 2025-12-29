@@ -1,191 +1,222 @@
-@extends('layouts.kaprodi') {{-- Menggunakan template utama --}}
+@extends('layouts.kaprodi') {{-- Menggunakan template utama Anda --}}
 
 @section('title', 'Panduan & Bantuan')
 
 @section('head_extras')
 <style>
-    /* Styling untuk FAQ Accordion */
-    .faq-item { margin-bottom: 1rem; border-radius: 0.5rem; }
-    .faq-question {
-        background-color: #f0fdf4; /* green-50 */
-        border: 1px solid #d1fae5; /* green-100 */
-        padding: 1rem;
-        cursor: pointer;
-        font-weight: 600;
-        color: #065f46; /* green-700 */
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: background-color 0.2s;
-    }
-    .faq-question:hover {
-        background-color: #d1fae5; /* green-100 */
-    }
+    /* FAQ Animation & Accordion Logic */
     .faq-answer {
-        padding: 1rem;
-        border: 1px solid #d1fae5;
-        border-top: none;
-        background-color: white;
-        display: none;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, padding 0.3s ease;
     }
-    /* Style untuk rotasi ikon */
-    .rotate-180 {
+    .faq-item.active .faq-answer {
+        max-height: 1000px; /* Nilai besar agar konten panjang tidak terpotong */
+        padding: 1.25rem;
+        border-top: 1px solid #d1fae5;
+    }
+    .faq-item.active .faq-icon {
         transform: rotate(180deg);
     }
+    .faq-item.active .faq-question {
+        background-color: #ecfdf5; /* emerald-50 */
+    }
+
+    /* Smooth Scroll Padding */
+    html { scroll-padding-top: 100px; }
 </style>
 @endsection
 
 @section('content')
 
-    {{-- Header/Title Section --}}
-    <header class="mb-6 p-4 bg-white rounded-xl shadow-md flex items-center justify-between">
-        <button id="sidebarToggle" class="mr-3 text-green-700 md:hidden p-2 rounded hover:bg-green-100 transition duration-150" aria-label="Toggle Menu">
-            <i data-lucide="menu" class="w-5 h-5"></i>
-        </button>
-        <div class="flex-grow">
-            <h1 class="text-xl lg:text-2xl font-extrabold text-green-800 tracking-tight font-['Poppins']">
-                <i data-lucide="life-buoy" class="inline-block w-6 h-6 mr-2 text-green-600"></i> Panduan Penggunaan
-            </h1>
-            <p class="text-gray-600 text-sm mt-1">FAQ, petunjuk, dan cara interpretasi data untuk Program Studi Anda.</p>
+    {{-- Header Section Responsif --}}
+    <header class="mb-6 p-4 bg-white rounded-xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fade-in">
+        <div class="flex items-center">
+            {{-- Tombol Menu untuk HP --}}
+            <button id="sidebarToggle" class="mr-3 text-green-700 md:hidden p-2 rounded-lg hover:bg-green-100 transition duration-150">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+            <div>
+                <h1 class="text-xl lg:text-2xl font-extrabold text-green-800 tracking-tight font-['Poppins']">
+                    Pusat Bantuan Kaprodi
+                </h1>
+                <p class="text-gray-600 text-xs md:text-sm mt-1 uppercase font-bold tracking-wider opacity-70">Sistem Tracer Study UIN RMS</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-full border border-green-100 w-fit self-center">
+            <i data-lucide="help-circle" class="w-4 h-4 text-green-600"></i>
+            <span class="text-[10px] font-bold text-green-700 uppercase">Dokumentasi Sistem</span>
         </div>
     </header>
 
-    {{-- Bagian Sumber Daya Cepat --}}
-    <section class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <a href="#faq-accordion" class="flex flex-col p-4 bg-white rounded-xl shadow-md border-l-4 border-indigo-500 hover:shadow-lg transition">
-            <span class="text-xs font-semibold text-indigo-600 uppercase">Akses Cepat</span>
-            <span class="text-lg font-bold text-gray-700">Tanya Jawab (FAQ)</span>
+    {{-- Navigasi Cepat (Tombol-Tombol Shortcut) --}}
+    <section class="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <a href="#faq-section" class="group flex flex-col p-5 bg-white rounded-2xl shadow-sm border-l-4 border-indigo-500 hover:shadow-md transition-all">
+            <span class="text-[10px] font-bold text-indigo-600 uppercase mb-1">Butuh Jawaban?</span>
+            <span class="text-base font-bold text-gray-700 flex items-center justify-between">
+                Tanya Jawab (FAQ) <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all"></i>
+            </span>
         </a>
-            <a href="#interpretasi" class="flex flex-col p-4 bg-white rounded-xl shadow-md border-l-4 border-yellow-500 hover:shadow-lg transition">
-            <span class="text-xs font-semibold text-yellow-600 uppercase">Data Literacy</span>
-            <span class="text-lg font-bold text-gray-700">Interpretasi Metrik Kunci</span>
+        <a href="#interpretasi-section" class="group flex flex-col p-5 bg-white rounded-2xl shadow-sm border-l-4 border-yellow-500 hover:shadow-md transition-all">
+            <span class="text-[10px] font-bold text-yellow-600 uppercase mb-1">Pahami Grafik</span>
+            <span class="text-base font-bold text-gray-700 flex items-center justify-between">
+                Cara Baca Data <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all"></i>
+            </span>
         </a>
-            <a href="{{ route('kaprodi.alumni') ?? '#' }}" class="flex flex-col p-4 bg-white rounded-xl shadow-md border-l-4 border-blue-500 hover:shadow-lg transition">
-            <span class="text-xs font-semibold text-blue-600 uppercase">Data Mentah</span>
-            <span class="text-lg font-bold text-gray-700">Lihat Semua Data Alumni</span>
+        <a href="{{ route('kaprodi.alumni') }}" class="group flex flex-col p-5 bg-white rounded-2xl shadow-sm border-l-4 border-emerald-500 hover:shadow-md transition-all">
+            <span class="text-[10px] font-bold text-emerald-600 uppercase mb-1">Lihat Profil</span>
+            <span class="text-base font-bold text-gray-700 flex items-center justify-between">
+                Manajemen Alumni <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all"></i>
+            </span>
         </a>
     </section>
 
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-    <section class="bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+        {{-- Kolom Utama: Dokumentasi & FAQ --}}
+        <div class="lg:col-span-2 space-y-8">
 
-        {{-- Bagian FAQ --}}
-        <h2 class="text-2xl font-bold text-gray-800 mb-5 border-b pb-3 flex items-center gap-2">
-            <i data-lucide="messages-square" class="w-6 h-6 text-indigo-600"></i> Pertanyaan Umum (FAQ)
-        </h2>
+            {{-- Bagian FAQ --}}
+            <section id="faq-section" class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-gray-100 animate-fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <i data-lucide="messages-square" class="w-6 h-6 text-indigo-600"></i> Pertanyaan Umum (FAQ)
+                </h2>
 
-        <div class="space-y-4" id="faq-accordion">
+                <div class="space-y-4">
+                    {{-- Item 1 --}}
+                    <div class="faq-item border border-gray-100 rounded-2xl overflow-hidden transition-all duration-300">
+                        <div class="faq-question flex items-center justify-between p-5 bg-gray-50/50 cursor-pointer hover:bg-green-50/50 transition-colors">
+                            <span class="text-sm font-bold text-gray-700 leading-tight">Apa perbedaan antara 'Total Alumni' dan 'Total Responden'?</span>
+                            <i data-lucide="chevron-down" class="faq-icon w-4 h-4 text-gray-400 transition-transform"></i>
+                        </div>
+                        <div class="faq-answer bg-white">
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                <b class="text-green-700 font-extrabold">Total Alumni</b> adalah seluruh jumlah lulusan yang terdaftar di database sistem prodi Anda. <br><br>
+                                <b class="text-green-700 font-extrabold">Total Responden</b> adalah jumlah alumni yang sudah **mengisi Kuesioner**. Grafik statistik hanya akan muncul berdasarkan data dari Responden ini.
+                            </p>
+                        </div>
+                    </div>
 
-            {{-- FAQ 1 --}}
-            <div class="faq-item rounded-lg overflow-hidden">
-                <div class="faq-question">
-                    Apa perbedaan antara 'Total Alumni' dan 'Total Responden'?
-                    <i data-lucide="chevron-down" class="w-5 h-5 transition-transform transform"></i>
-                </div>
-                <div class="faq-answer">
-                    <p class="text-gray-700">
-                        <span class="font-bold text-green-700">Total Alumni</span> merujuk pada jumlah keseluruhan lulusan Program Studi Anda yang tercatat dalam database sistem. Angka ini adalah dasar untuk menghitung tingkat partisipasi dan metrik umum lainnya yang diperlukan untuk laporan akademik dan akreditasi.
-                        <br><br>
-                        <span class="font-bold text-green-700">Total Responden</span> adalah metrik yang lebih spesifik, yaitu jumlah lulusan yang telah secara aktif berpartisipasi dan menyelesaikan pengisian Kuesioner Tracer Study. Semakin tinggi angka ini, semakin valid dan representatif data analisis yang Anda miliki di dashboard.
-                    </p>
-                </div>
-            </div>
+                    {{-- Item 2 --}}
+                    <div class="faq-item border border-gray-100 rounded-2xl overflow-hidden transition-all duration-300">
+                        <div class="faq-question flex items-center justify-between p-5 bg-gray-50/50 cursor-pointer hover:bg-green-50/50 transition-colors">
+                            <span class="text-sm font-bold text-gray-700 leading-tight">Mengapa grafik saya terlihat kosong atau data tidak muncul?</span>
+                            <i data-lucide="chevron-down" class="faq-icon w-4 h-4 text-gray-400 transition-transform"></i>
+                        </div>
+                        <div class="faq-answer bg-white">
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Hal ini biasanya terjadi jika **belum ada alumni** di program studi Anda yang mengisi kuesioner. Sistem membutuhkan minimal 1 data kuesioner untuk mulai membangun visualisasi grafik.
+                            </p>
+                        </div>
+                    </div>
 
-            {{-- FAQ 2 --}}
-            <div class="faq-item rounded-lg overflow-hidden">
-                <div class="faq-question">
-                    Bagaimana cara data di grafik 'Alumni Berdasarkan Tahun Keluar' dihitung?
-                    <i data-lucide="chevron-down" class="w-5 h-5 transition-transform transform"></i>
+                    {{-- Item 3 --}}
+                    <div class="faq-item border border-gray-100 rounded-2xl overflow-hidden transition-all duration-300">
+                        <div class="faq-question flex items-center justify-between p-5 bg-gray-50/50 cursor-pointer hover:bg-green-50/50 transition-colors">
+                            <span class="text-sm font-bold text-gray-700 leading-tight">Bagaimana cara mengunduh laporan kuesioner prodi saya?</span>
+                            <i data-lucide="chevron-down" class="faq-icon w-4 h-4 text-gray-400 transition-transform"></i>
+                        </div>
+                        <div class="faq-answer bg-white">
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Anda dapat mengklik tombol <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-bold text-[10px]">EXPORT CSV</span> yang ada di header halaman Laporan Kuesioner. File tersebut dapat dibuka menggunakan Microsoft Excel.
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div class="faq-answer">
-                    <p class="text-gray-700">
-                        Grafik ini dihasilkan dengan mengelompokkan dan menghitung semua alumni berdasarkan kolom Tahun Keluar (`tahun_keluar`) mereka. Ini memberikan visualisasi tren demografi kelulusan dari tahun ke tahun.
-                        <br><br>
-                        Interpretasi: Dengan grafik ini, Anda dapat mengidentifikasi periode dengan jumlah lulusan tertinggi atau terendah. Data ini penting untuk membandingkan efisiensi studi dan memproyeksikan kapasitas alumni di masa mendatang.
-                    </p>
-                </div>
-            </div>
+            </section>
 
-            {{-- FAQ 3 --}}
-            <div class="faq-item rounded-lg overflow-hidden">
-                <div class="faq-question">
-                    Apa yang diukur oleh grafik 'Status Serapan Kerja'?
-                    <i data-lucide="chevron-down" class="w-5 h-5 transition-transform transform"></i>
+            {{-- Bagian Interpretasi Data --}}
+            <section id="interpretasi-section" class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-gray-100 animate-fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-yellow-600"></i> Cara Membaca Grafik (Literasi Data)
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-5 bg-blue-50 rounded-2xl border border-blue-100">
+                        <h3 class="text-xs font-black text-blue-700 uppercase tracking-widest mb-2">Relevansi Kerja (P1)</h3>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            Mengukur tingkat keselarasan antara ilmu yang dipelajari di prodi dengan pekerjaan alumni saat ini.
+                            <span class="block mt-2 font-bold text-blue-800 italic">Target Akreditasi: > 70% Relevan.</span>
+                        </p>
+                    </div>
+
+                    <div class="p-5 bg-emerald-50 rounded-2xl border border-emerald-100">
+                        <h3 class="text-xs font-black text-emerald-700 uppercase tracking-widest mb-2">Employability Rate</h3>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            Persentase alumni yang bekerja atau melanjutkan studi. Semakin cepat waktu tunggu kerja, semakin baik kualitas lulusan.
+                        </p>
+                    </div>
                 </div>
-                <div class="faq-answer">
-                    <p class="text-gray-700">
-                        Grafik ini memvisualisasikan proporsi alumni yang terdata dengan status telah bekerja atau melanjutkan studi (`sudah_bekerja = 1`) berbanding dengan yang belum bekerja (`sudah_bekerja = 0`).
-                        <br><br>
-                        Status Serapan Kerja (Employability Rate) adalah indikator kinerja utama Program Studi. Persentase yang tinggi menunjukkan keberhasilan program dalam mempersiapkan lulusan untuk pasar kerja segera setelah lulus. Data ini juga sering menjadi syarat penting dalam laporan akreditasi.
-                    </p>
-                </div>
-            </div>
+            </section>
         </div>
 
-        {{-- Bagian Interpretasi Data Laporan Kuesioner --}}
-        <h2 class="text-2xl font-bold text-gray-800 mt-10 mb-5 border-b pb-3 flex items-center gap-2" id="interpretasi">
-            <i data-lucide="trending-up" class="w-6 h-6 text-yellow-600"></i> Interpretasi Laporan Kuesioner
-        </h2>
+        {{-- Kolom Kanan: Support & Navigasi --}}
+        <aside class="space-y-6">
+            <div class="bg-gray-900 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
+                {{-- Dekorasi Latar --}}
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-green-500/20 rounded-full blur-3xl group-hover:bg-green-500/40 transition-all duration-500"></div>
 
-        <div class="space-y-4 text-gray-700">
-            <div class="p-4 border border-blue-200 bg-blue-50 rounded-lg">
-                <h3 class="font-semibold text-blue-800 mb-1">P1: Relevansi Pekerjaan (Job Match)</h3>
-                <p class="text-sm">
-                    Metrik ini mengukur tingkat kecocokan pekerjaan alumni dengan latar belakang pendidikan mereka. Nilai tinggi pada "Ya, Relevan" mengindikasikan keberhasilan kurikulum dalam memenuhi kebutuhan industri yang sesuai dengan bidang Program Studi. Jika nilai "Tidak Relevan" tinggi, ini dapat memicu inisiatif peninjauan kurikulum, peningkatan layanan karir, atau penyesuaian fokus keahlian agar lebih sejalan dengan tuntutan pasar.
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="life-buoy" class="w-5 h-5 text-green-400"></i> Bantuan Teknis
+                </h2>
+                <p class="text-xs text-gray-400 leading-relaxed mb-6">
+                    Jika Anda menemukan kendala akses data atau kesalahan pada nama Program Studi, silakan hubungi administrator pusat.
                 </p>
+                <div class="space-y-3">
+                    <a href="mailto:it-tracer@uinsaid.ac.id" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition border border-white/10">
+                        <i data-lucide="mail" class="w-4 h-4 text-green-400"></i>
+                        <span class="text-xs font-medium">it-tracer@uinsaid.ac.id</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition border border-white/10">
+                        <i data-lucide="phone" class="w-4 h-4 text-green-400"></i>
+                        <span class="text-xs font-medium">(0271) 781-XXX</span>
+                    </a>
+                </div>
             </div>
 
-            <div class="p-4 border border-indigo-200 bg-indigo-50 rounded-lg">
-                <h3 class="font-semibold text-indigo-800 mb-1">Waktu Tunggu Mendapatkan Pekerjaan</h3>
-                <p class="text-sm">
-                    Data ini (ditemukan di halaman Detail Kuesioner) diukur dalam bulan, dari tanggal kelulusan hingga alumni mendapatkan pekerjaan pertama. Waktu tunggu yang singkat (ideal < 6 bulan) menunjukkan efektivitas Program Studi dalam membangun jaringan profesional dan relevansi lulusan di mata pemberi kerja. Ini adalah metrik kunci untuk daya saing Program Studi.
-                </p>
+            {{-- Card Info Status --}}
+            <div class="bg-white p-6 rounded-3xl shadow-lg border border-gray-100">
+                <h2 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-widest opacity-50">Status Sistem</h2>
+                <div class="flex items-center gap-3 p-3 bg-green-50 rounded-2xl border border-green-100">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                    <span class="text-xs font-bold text-green-800 uppercase">Server Online</span>
+                </div>
             </div>
+        </aside>
+    </div>
 
-            <div class="p-4 border border-purple-200 bg-purple-50 rounded-lg">
-                <h3 class="font-semibold text-purple-800 mb-1">Indeks Kepuasan Rata-rata</h3>
-                <p class="text-sm">
-                    Indeks Kepuasan adalah skor rata-rata (biasanya 1 hingga 5) yang diberikan responden terhadap kualitas fasilitas kampus atau proses akademik tertentu. Skor yang mendekati 5 menunjukkan kepuasan tinggi. Kaprodi harus fokus pada skor yang rendah (di bawah 3) untuk memprioritaskan alokasi sumber daya perbaikan.
-                </p>
-            </div>
+    <footer class="text-center text-gray-400 text-[10px] mt-12 mb-8 uppercase tracking-widest">
+        &copy; {{ date('Y') }} UIN Raden Mas Said Surakarta &bull; Tracer Study Support
+    </footer>
 
-            <div class="p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
-                <h3 class="font-semibold text-yellow-800 mb-1">P3 & P4: Proses Pendidikan dan Fasilitas (Skala Penilaian)</h3>
-                <p class="text-sm">
-                    Grafik Grouped Bar P3 (Proses Pendidikan) dan P4 (Fasilitas) menggunakan skala penilaian (Likert). Fokus analisis harus diarahkan pada komponen spesifik yang mendapat skor tinggi pada kategori negatif ("Kurang" atau "Tidak Sama Sekali"). Area-area tersebut (misalnya 'Magang' di P3 atau 'Laboratorium' di P4) adalah prioritas utama untuk perbaikan strategis, baik itu kurikulum atau infrastruktur.
-                </p>
-            </div>
-        </div>
-
-    </section>
 @endsection
 
 @section('scripts')
     <script>
-        // Logika FAQ Accordion (Perbaikan)
-        const faqItems = document.querySelectorAll('.faq-item');
-        faqItems.forEach(item => {
-            const question = item.querySelector('.faq-question');
-            const answer = item.querySelector('.faq-answer');
-            const icon = question.lastElementChild;
+        document.addEventListener('DOMContentLoaded', () => {
+            const faqItems = document.querySelectorAll('.faq-item');
 
-            question.addEventListener('click', () => {
-                // Close all other open answers
-                faqItems.forEach(i => {
-                    const otherAnswer = i.querySelector('.faq-answer');
-                    const otherIcon = i.querySelector('.faq-question').lastElementChild;
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
 
-                    if (i !== item) {
-                        otherAnswer.style.display = 'none';
-                        otherIcon.classList.remove('rotate-180');
+                question.addEventListener('click', () => {
+                    const isActive = item.classList.contains('active');
+
+                    // Tutup FAQ yang sedang terbuka lainnya (Mode Accordion)
+                    faqItems.forEach(i => i.classList.remove('active'));
+
+                    // Buka yang baru saja diklik jika sebelumnya tidak aktif
+                    if (!isActive) {
+                        item.classList.add('active');
                     }
                 });
-
-                // Toggle current answer
-                const isVisible = answer.style.display === 'block';
-                answer.style.display = isVisible ? 'none' : 'block';
-                icon.classList.toggle('rotate-180');
             });
+
+            // Inisialisasi Ikon Lucide
+            lucide.createIcons();
         });
     </script>
 @endsection

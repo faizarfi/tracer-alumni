@@ -9,7 +9,6 @@
     <link rel="icon" type="image/png" href="{{ asset('img/uin.png') }}" />
 
     <script src="https://cdn.tailwindcss.com"></script>
-
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,196 +16,162 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* Base font for body */
         body {
             font-family: 'Inter', sans-serif;
-            @apply text-gray-800; /* Default text color */
         }
-        /* Poppins for headings and strong elements */
         h1, h2, h3, h4, .font-poppins {
             font-family: 'Poppins', sans-serif;
         }
 
-        /* Custom transitions for input fields */
         .input-field {
             transition: all 0.3s ease-in-out;
-            @apply focus:ring-green-500 focus:border-green-500; /* Consistent focus style */
         }
 
-        /* Custom transitions for submit button */
         .btn-submit {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* More refined cubic-bezier */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .btn-submit:hover {
-            transform: translateY(-2px) scale(1.01); /* Slight lift and scale */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
-        }
-        .btn-submit:active {
-            transform: translateY(0) scale(0.98); /* Slight press effect */
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        /* Eye icon hover effect */
-        .eye-icon {
-            cursor: pointer;
-            transition: color 0.2s ease-in-out;
-        }
-        .eye-icon:hover {
-            color: #047857; /* Darker green on hover */
-        }
-
-        /* Animation for the register card */
         @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .animate-slide-in-up {
-            animation: slideInUp 0.7s ease-out forwards;
+        .animate-card {
+            animation: slideInUp 0.8s ease-out forwards;
         }
 
-        /* Background image subtle animation */
-        @keyframes pulse-bg {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
+        @keyframes bgScroll {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
-        .animate-bg-pulse {
-            animation: pulse-bg 30s infinite alternate;
-            background-size: 200% 200%; /* Make background larger to allow movement */
+        .bg-animate {
+            animation: bgScroll 40s linear infinite alternate;
+            background-size: 150% 150%;
         }
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-green-100 via-white to-green-100 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+<body class="bg-green-50 min-h-screen relative overflow-x-hidden overflow-y-auto">
 
-    <div class="absolute inset-0 bg-cover bg-center opacity-15 animate-bg-pulse"
-        style="background-image: url('https://uinsaid.ac.id/files/post/cover/profil-universitas-1708058171.jpeg');"></div>
+    <div class="fixed inset-0 z-0 bg-animate opacity-10 pointer-events-none"
+        style="background-image: url('https://uinsaid.ac.id/files/post/cover/profil-universitas-1708058171.jpeg'); background-repeat: no-repeat; background-size: cover;">
+    </div>
 
-    <div class="z-10 bg-white rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-w-4xl w-full animate-slide-in-up">
-        <div class="relative bg-gradient-to-br from-green-800 to-emerald-700 md:w-1/2 flex flex-col items-center justify-center p-8 text-white text-center">
-            <img src="{{ asset('img/uin.png') }}" alt="UIN Logo" class="w-32 h-32 md:w-40 md:h-40 object-contain rounded-full bg-white p-2 shadow-lg mb-4 transform hover:scale-105 transition-transform duration-300">
-            <h1 class="text-3xl md:text-4xl font-bold font-poppins mb-2 tracking-tight">Tracer Alumni</h1>
-            <p class="text-green-200 text-lg md:text-xl font-medium">UIN Raden Mas Said Surakarta</p>
-            <div class="absolute bottom-4 left-0 right-0 text-xs text-green-300">
-                Membangun Jejaring, Menginspirasi Masa Depan
+    <div class="relative z-10 min-h-screen w-full flex items-center justify-center p-4 py-10 md:py-20">
+
+        <div class="bg-white rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-w-4xl w-full animate-card">
+
+            <div class="relative bg-gradient-to-br from-green-800 to-emerald-700 md:w-5/12 flex flex-col items-center justify-center p-8 md:p-10 text-white text-center">
+                <div class="bg-white p-3 rounded-full shadow-2xl mb-6 transform hover:scale-110 transition-transform duration-500">
+                    <img src="{{ asset('img/uin.png') }}" alt="UIN Logo" class="w-20 h-20 md:w-32 md:h-32 object-contain">
+                </div>
+                <h1 class="text-xl md:text-3xl font-bold mb-2 tracking-tight leading-tight">Tracer Alumni</h1>
+                <p class="text-green-100 text-xs md:text-sm font-light leading-relaxed">
+                    UIN Raden Mas Said Surakarta
+                </p>
+
+                <div class="hidden md:block mt-8 pt-8 border-t border-green-600/50 text-[10px] text-green-300 uppercase tracking-widest leading-relaxed">
+                    Membangun Jejaring <br> Menginspirasi Masa Depan
+                </div>
             </div>
+
+            <form method="POST" action="{{ route('register') }}" class="w-full md:w-7/12 p-6 sm:p-10 lg:p-12 space-y-4">
+                @csrf
+                <div class="mb-6 text-center md:text-left">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Daftar Akun</h2>
+                    <p class="text-gray-500 text-sm">Lengkapi data Anda untuk bergabung</p>
+                </div>
+
+                <div class="space-y-1">
+                    <label for="name" class="block text-gray-700 text-sm font-semibold ml-1">Nama Lengkap</label>
+                    <div class="relative group">
+                        <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-green-600"></i>
+                        <input type="text" name="name" id="name" value="{{ old('name') }}" required
+                            placeholder="Nama lengkap Anda"
+                            class="input-field w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm text-gray-800">
+                    </div>
+                    @error('name') <p class="text-red-500 text-[10px] mt-1 ml-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="space-y-1">
+                    <label for="email" class="block text-gray-700 text-sm font-semibold ml-1">Email Kampus</label>
+                    <div class="relative group">
+                        <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-green-600"></i>
+                        <input type="email" name="email" id="email" value="{{ old('email') }}" required
+                            placeholder="nama@student.uin.ac.id"
+                            class="input-field w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm text-gray-800">
+                    </div>
+                    @error('email') <p class="text-red-500 text-[10px] mt-1 ml-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="space-y-1">
+                    <label for="password" class="block text-gray-700 text-sm font-semibold ml-1">Password</label>
+                    <div class="relative group">
+                        <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-green-600"></i>
+                        <input type="password" name="password" id="password" required
+                            placeholder="Min. 8 karakter"
+                            class="input-field w-full pl-10 pr-12 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm text-gray-800">
+                        <button type="button" class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-green-600 transition-colors" data-input="password">
+                            <i data-lucide="eye" class="w-4 h-4 eye-icon"></i>
+                        </button>
+                    </div>
+                    @error('password') <p class="text-red-500 text-[10px] mt-1 ml-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="space-y-1">
+                    <label for="password_confirmation" class="block text-gray-700 text-sm font-semibold ml-1">Konfirmasi Password</label>
+                    <div class="relative group">
+                        <i data-lucide="check-circle" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-green-600"></i>
+                        <input type="password" name="password_confirmation" id="password_confirmation" required
+                            placeholder="Ulangi password"
+                            class="input-field w-full pl-10 pr-12 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm text-gray-800">
+                        <button type="button" class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-green-600 transition-colors" data-input="password_confirmation">
+                            <i data-lucide="eye" class="w-4 h-4 eye-icon"></i>
+                        </button>
+                    </div>
+                    @error('password_confirmation') <p class="text-red-500 text-[10px] mt-1 ml-1">{{ $message }}</p> @enderror
+                </div>
+
+                <button type="submit"
+                    class="btn-submit w-full py-3.5 bg-green-600 text-white rounded-xl font-bold text-base shadow-lg shadow-green-200 hover:bg-green-700 focus:ring-4 focus:ring-green-200 outline-none transition-all">
+                    Daftar Sekarang
+                </button>
+
+                <p class="text-center text-sm text-gray-500 pt-2">
+                    Sudah memiliki akun?
+                    <a href="{{ route('login') }}" class="text-green-700 font-bold hover:underline">Login di sini</a>
+                </p>
+            </form>
         </div>
-
-        <form method="POST" action="{{ route('register') }}" class="w-full md:w-1/2 p-8 sm:p-10 lg:p-12 space-y-4">
-            @csrf
-            <h2 class="text-3xl font-bold text-center text-green-700 font-poppins mb-6">Daftar Akun Alumni</h2>
-
-            <div>
-                <label for="name" class="block text-gray-700 text-sm font-semibold mb-2">Nama Lengkap</label>
-                <div class="relative">
-                    <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
-                    <input type="text" name="name" id="name" value="{{ old('name') }}" required
-                        placeholder="Nama lengkap Anda"
-                        class="input-field w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-gray-800">
-                </div>
-                @error('name')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="email" class="block text-gray-700 text-sm font-semibold mb-2">Email Kampus (@student.uin.ac.id)</label>
-                <div class="relative">
-                    <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
-                    <input type="email" name="email" id="email" value="{{ old('email') }}" required
-                        placeholder="nama@student.uin.ac.id"
-                        class="input-field w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-gray-800">
-                </div>
-                @error('email')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Password</label>
-                <div class="relative">
-                    <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
-                    <input type="password" name="password" id="password" required
-                        placeholder="••••••••"
-                        class="input-field w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-gray-800">
-                    <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 hover:text-green-800 focus:outline-none eye-icon p-1">
-                        <i id="eyeIcon" data-lucide="eye" class="w-5 h-5"></i>
-                    </button>
-                </div>
-                @error('password')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="password_confirmation" class="block text-gray-700 text-sm font-semibold mb-2">Konfirmasi Password</label>
-                <div class="relative">
-                    <i data-lucide="lock-keyhole" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"></i>
-                    <input type="password" name="password_confirmation" id="password_confirmation" required
-                        placeholder="Ulangi password Anda"
-                        class="input-field w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-gray-800">
-                    <button type="button" id="toggleConfirmPassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 hover:text-green-800 focus:outline-none eye-icon p-1">
-                        <i id="eyeConfirmIcon" data-lucide="eye" class="w-5 h-5"></i>
-                    </button>
-                </div>
-                @error('password_confirmation')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <button type="submit"
-                class="btn-submit w-full py-3 text-white bg-green-600 rounded-lg hover:bg-green-700 font-semibold text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2">
-                Daftar
-            </button>
-
-            <p class="text-center text-sm text-gray-600 mt-4">
-                Sudah punya akun?
-                <a href="{{ route('login') }}" class="text-green-700 hover:underline font-medium">Login di sini</a>
-            </p>
-        </form>
     </div>
 
     <script>
-        // Initialize Lucide icons on page load
+        // Inisialisasi awal ikon Lucide
         lucide.createIcons();
 
-        // Toggle Password functionality for 'password' field
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-        const eyeIcon = document.getElementById('eyeIcon');
+        // Logika Toggle Password yang lebih bersih dan mendukung banyak input
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const inputId = this.getAttribute('data-input');
+                const input = document.getElementById(inputId);
+                const icon = this.querySelector('i');
 
-        togglePassword.addEventListener('click', () => {
-            const isPassword = passwordInput.type === 'password';
-            passwordInput.type = isPassword ? 'text' : 'password';
-            eyeIcon.innerHTML = isPassword ? '<i data-lucide="eye-off" class="w-5 h-5"></i>' : '<i data-lucide="eye" class="w-5 h-5"></i>';
-            lucide.createIcons(); // Re-render Lucide icon
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.setAttribute('data-lucide', 'eye-off');
+                } else {
+                    input.type = 'password';
+                    icon.setAttribute('data-lucide', 'eye');
+                }
+
+                // Render ulang hanya ikon yang berubah agar efisien
+                lucide.createIcons();
+            });
         });
-        // Set initial icon for password field
-        eyeIcon.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
-
-
-        // Toggle Password functionality for 'password_confirmation' field
-        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-        const confirmPasswordInput = document.getElementById('password_confirmation');
-        const eyeConfirmIcon = document.getElementById('eyeConfirmIcon');
-
-        toggleConfirmPassword.addEventListener('click', () => {
-            const isPassword = confirmPasswordInput.type === 'password';
-            confirmPasswordInput.type = isPassword ? 'text' : 'password';
-            eyeConfirmIcon.innerHTML = isPassword ? '<i data-lucide="eye-off" class="w-5 h-5"></i>' : '<i data-lucide="eye" class="w-5 h-5"></i>';
-            lucide.createIcons(); // Re-render Lucide icon
-        });
-        // Set initial icon for confirm password field
-        eyeConfirmIcon.innerHTML = '<i data-lucide="eye" class="w-5 h-5"></i>';
-
-        // Ensure all icons are rendered after initial DOM load
-        lucide.createIcons();
     </script>
 
 </body>
-
 </html>

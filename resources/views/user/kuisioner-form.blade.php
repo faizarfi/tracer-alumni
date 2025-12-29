@@ -4,7 +4,15 @@
 
 @section('content')
 <div class="py-10 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-5xl mx-auto bg-white p-8 sm:p-12 rounded-3xl shadow-2xl">
+    <div class="max-w-5xl mx-auto bg-white p-8 sm:p-12 rounded-3xl shadow-2xl relative">
+
+        <div class="mb-8">
+            <a href="{{ route('user.dashboard') }}" class="inline-flex items-center gap-2 text-gray-600 hover:text-green-700 font-medium transition-colors duration-200 group">
+                <span class="iconify" data-icon="mdi:arrow-left" class="transition-transform group-hover:-translate-x-1"></span>
+                Kembali ke Dashboard
+            </a>
+        </div>
+
         <div class="text-center mb-12">
             <img src="{{ asset('img/uin.png') }}" class="w-32 h-32 mx-auto rounded-full object-cover shadow-xl transition-transform transform hover:scale-110" alt="Logo UIN">
             <h2 class="text-4xl font-extrabold text-green-800 mt-6 tracking-tight font-['Poppins']">Kuesioner Alumni</h2>
@@ -101,7 +109,6 @@
             <div id="section3" class="hidden">
                 <h3 class="text-3xl font-semibold text-green-700 mb-6 font-['Poppins']">3. Informasi Pekerjaan <span class="text-gray-500 text-xl">(Opsional, jika bekerja)</span></h3>
                 <div class="grid gap-8 sm:grid-cols-2">
-                    {{-- Added new fields for consistency with admin detail view --}}
                     <div class="bg-green-50 p-6 rounded-lg shadow-sm border border-green-200">
                         <label class="font-medium text-gray-800 text-lg mb-2 block" for="nama_perusahaan">Nama Perusahaan</label>
                         <input type="text" id="nama_perusahaan" name="nama_perusahaan" value="{{ old('nama_perusahaan') }}" placeholder="Contoh: PT. Maju Bersama" class="w-full p-3 rounded-lg border-green-300 shadow-md focus:ring-green-500 focus:border-green-500 transition-all duration-200">
@@ -159,7 +166,6 @@
 </div>
 
 <script>
-    // Kuesioner multi-step logic
     document.addEventListener('DOMContentLoaded', () => {
         const sections = ['section1', 'section2', 'section3', 'section4'];
         let current = 0;
@@ -171,24 +177,25 @@
             document.getElementById('backBtn').disabled = current === 0;
             document.getElementById('nextBtn').classList.toggle('hidden', current === sections.length - 1);
             document.getElementById('submitBtn').classList.toggle('hidden', current !== sections.length - 1);
+
+            // Auto scroll to top when changing section
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         const validateSection = () => {
             const currentSection = document.getElementById(sections[current]);
-            // Select only directly required fields that are visible and not disabled
             const requiredFields = currentSection.querySelectorAll('.required-field:not([disabled])');
 
             for (let field of requiredFields) {
                 if (field.type === 'radio') {
                     const name = field.name;
-                    // Check if any radio button with this name in the current section is checked
                     const checked = currentSection.querySelector(`input[name="${name}"]:checked`);
                     if (!checked) {
-                        alert(`Mohon pilih salah satu opsi untuk pertanyaan: ${field.closest('div').querySelector('label')?.textContent.trim() || ''}`);
+                        alert(`Mohon pilih salah satu opsi.`);
                         return false;
                     }
                 } else if (field.value.trim() === '') {
-                    alert(`Mohon lengkapi bidang: ${field.previousElementSibling?.textContent.trim() || field.placeholder || ''}`);
+                    alert(`Mohon lengkapi bidang yang wajib diisi.`);
                     field.focus();
                     return false;
                 }
@@ -197,20 +204,15 @@
         };
 
         document.getElementById('nextBtn').addEventListener('click', () => {
-            if (!validateSection()) {
-                return; // Stop if validation fails
-            }
+            if (!validateSection()) return;
 
             if (sections[current] === 'section2') {
                 const status = document.getElementById('status_pekerjaan').value;
-                // If not working or continuing study, skip section 3
                 if (status.includes('Tidak bekerja') || status.includes('Melanjutkan studi')) {
-                    current = 3; // Jump to section4
-                    // Disable section3 fields when skipping to prevent validation issues later
+                    current = 3;
                     document.getElementById('section3').querySelectorAll('input, select, textarea').forEach(field => field.setAttribute('disabled', 'true'));
                 } else {
                     current++;
-                    // Ensure section3 fields are enabled if previously disabled
                     document.getElementById('section3').querySelectorAll('input, select, textarea').forEach(field => field.removeAttribute('disabled'));
                 }
             } else {
@@ -221,22 +223,20 @@
 
         document.getElementById('backBtn').addEventListener('click', () => {
             if (sections[current] === 'section4') {
-                // Check if we skipped section 3 previously to go back correctly
                 const status = document.getElementById('status_pekerjaan').value;
                 if (status.includes('Tidak bekerja') || status.includes('Melanjutkan studi')) {
-                    current = 1; // Go back to section2
+                    current = 1;
                 } else {
-                    current = 2; // Go back to section3
+                    current = 2;
                 }
             } else {
                 current--;
             }
-            // Always re-enable section3 fields when navigating back from section4 or before it
             document.getElementById('section3').querySelectorAll('input, select, textarea').forEach(field => field.removeAttribute('disabled'));
             updateUI();
         });
 
-        updateUI(); // Initial UI setup
+        updateUI();
     });
 </script>
 @endsection

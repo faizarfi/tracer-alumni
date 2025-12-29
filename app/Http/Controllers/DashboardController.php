@@ -66,15 +66,13 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         // Ambil nama program studi dari user. Ganti 'prodi' jika nama kolom berbeda.
-        // Fallback digunakan jika kolom 'prodi' tidak ada/kosong.
-        $prodiName = $user->prodi ?? 'Program Studi Tidak Ditemukan';
-
-        // Base query untuk menyaring Alumni berdasarkan Program Studi
-        $alumniProdiQuery = Alumni::where('jurusan', $prodiName);
+        // Menambahkan trim untuk memastikan tidak ada spasi tersembunyi yang membuat query gagal.
+        $prodiName = trim($user->prodi) ?? 'Program Studi Tidak Ditemukan';
 
         // 1. Metrik Utama
-        $totalAlumni = $alumniProdiQuery->count();
-        $alumniUserIds = $alumniProdiQuery->pluck('user_id');
+        // Menggunakan query langsung agar data benar-benar sinkron dengan filter prodi.
+        $totalAlumni = Alumni::where('jurusan', $prodiName)->count();
+        $alumniUserIds = Alumni::where('jurusan', $prodiName)->pluck('user_id');
 
         // Jumlah Responden Kuisioner dari Prodi ini
         $totalResponden = Kuisioner::whereIn('user_id', $alumniUserIds)
@@ -82,25 +80,27 @@ class DashboardController extends Controller
                                      ->count();
 
         // 2. Data Grafik 1: Alumni Berdasarkan Tahun Keluar
-        $alumniByYear = $alumniProdiQuery
+        // Diubah menjadi ASC (urut naik) agar grafik tahun tampil dari lama ke baru.
+        $alumniByYear = Alumni::where('jurusan', $prodiName)
             ->whereNotNull('tahun_keluar')
             ->select('tahun_keluar', DB::raw('count(*) as total'))
             ->groupBy('tahun_keluar')
-            ->orderBy('tahun_keluar', 'desc')
+            ->orderBy('tahun_keluar', 'asc')
             ->pluck('total', 'tahun_keluar')
             ->toArray();
 
         // 3. Data Grafik 2: Distribusi Status Kerja
-        $statusKerjaResult = $alumniProdiQuery
+        $statusKerjaResult = Alumni::where('jurusan', $prodiName)
             ->select('sudah_bekerja', DB::raw('count(*) as total'))
             ->groupBy('sudah_bekerja')
             ->pluck('total', 'sudah_bekerja')
             ->toArray();
 
-        // Memastikan array memiliki kunci '0' (Belum Bekerja) dan '1' (Bekerja) untuk visualisasi
+        // Memastikan array memiliki kunci '0' dan '1' agar chart tidak error jika salah satu data kosong.
+        // Menangani kemungkinan key berupa string atau integer dari database.
         $statusKerja = [
-            '1' => $statusKerjaResult[1] ?? 0, // Bekerja
-            '0' => $statusKerjaResult[0] ?? 0, // Belum Bekerja
+            '1' => (int)($statusKerjaResult[1] ?? $statusKerjaResult['1'] ?? 0), // Bekerja
+            '0' => (int)($statusKerjaResult[0] ?? $statusKerjaResult['0'] ?? 0), // Belum Bekerja
         ];
 
         // 4. Agregasi data yang akan dikirim ke view
@@ -119,10 +119,6 @@ class DashboardController extends Controller
 
     /**
      * Tampilkan halaman bantuan/panduan untuk pengguna Kaprodi.
-     * Metode ini ditambahkan untuk menyediakan halaman bantuan.
-     *
-     * @param Request $request
-     * @return \Illuminate\View\View
      */
     public function kaprodiHelp(Request $request)
     {
@@ -139,7 +135,6 @@ class DashboardController extends Controller
     public function user()
     {
         // Statistik publik
-        // $totalAlumni = Alumni::count(); // Dihapus karena tidak terpakai di compact
         $bekerja = Alumni::where('sudah_bekerja', 1)->count();
         $isiKuisioner = Kuisioner::distinct('user_id')->count();
 
