@@ -243,92 +243,116 @@
     </div>
 
     {{-- Footer --}}
-    <footer class="bg-gradient-to-r from-green-900 to-emerald-800 text-white mt-16 pt-16 pb-8 shadow-inner">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-sm">
-            <div>
-                <h2 class="text-xl font-bold mb-4 font-['Poppins']">Tracer Alumni UIN RMS</h2>
-                <p class="text-green-200 leading-relaxed text-sm">
-                    Sistem Tracer Alumni ini dirancang untuk menghimpun data alumni, mendukung peningkatan mutu pendidikan, dan akreditasi kampus.
-                    Partisipasi Anda sangat berarti!
-                </p>
+{{-- Footer --}}
+    <footer class="relative bg-[#044e3a] text-white mt-16 overflow-hidden">
+        {{-- Dekorasi Latar Belakang (Soft Glow) --}}
+        <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 translate-y-12 -translate-x-12 w-64 h-64 bg-green-500/10 rounded-full blur-3xl"></div>
+
+        <div class="max-w-7xl mx-auto px-6 pt-16 pb-8 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-sm">
+
+                {{-- Kolom 1: Branding --}}
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ asset('img/uin.png') }}" alt="Logo UIN" class="w-14 h-14 brightness-0 invert">
+                        <div>
+                            <h2 class="text-xl font-bold tracking-tight font-['Poppins'] leading-tight">
+                                Tracer Study
+                            </h2>
+                            <p class="text-emerald-400 font-semibold text-xs uppercase tracking-wider">UIN Raden Mas Said</p>
+                        </div>
+                    </div>
+                    <p class="text-emerald-100/70 leading-relaxed italic">
+                        "Menghubungkan Alumni, Membangun Masa Depan Pendidikan Islam yang Unggul dan Inovatif."
+                    </p>
+                    {{-- Sosial Media Resmi --}}
+                    <div class="flex gap-3">
+                        <a href="https://www.facebook.com/uinsaid" target="_blank" class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center hover:bg-blue-600 transition-all duration-300 group">
+                            <i data-lucide="facebook" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                        </a>
+                        <a href="https://www.instagram.com/uinsaid_official" target="_blank" class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center hover:bg-pink-600 transition-all duration-300 group">
+                            <i data-lucide="instagram" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                        </a>
+                        <a href="https://twitter.com/uinsaid" target="_blank" class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center hover:bg-sky-500 transition-all duration-300 group">
+                            <i data-lucide="twitter" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                        </a>
+                        <a href="https://www.youtube.com/@UINRadenMasSaidSurakarta" target="_blank" class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center hover:bg-red-600 transition-all duration-300 group">
+                            <i data-lucide="youtube" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Kolom 2: Tautan Cepat --}}
+                <div>
+                    <h3 class="text-lg font-bold mb-6 relative inline-block">
+                        Tautan Terkait
+                        <span class="absolute -bottom-2 left-0 w-12 h-1 bg-emerald-400 rounded-full"></span>
+                    </h3>
+                    <ul class="space-y-4 text-emerald-100/80 font-medium">
+                        <li>
+                            <a href="https://uinsaid.ac.id" target="_blank" class="hover:text-emerald-400 hover:translate-x-1 flex items-center gap-3 transition-all duration-200">
+                                <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i> Website Resmi
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://pmb.uinsaid.ac.id" target="_blank" class="hover:text-emerald-400 hover:translate-x-1 flex items-center gap-3 transition-all duration-200">
+                                <i data-lucide="graduation-cap" class="w-4 h-4 text-emerald-400"></i> PMB Kampus
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://e-journal.uinsaid.ac.id/" target="_blank" class="hover:text-emerald-400 hover:translate-x-1 flex items-center gap-3 transition-all duration-200">
+                                <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i> Digital Library
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                {{-- Kolom 3 & 4: Informasi Kontak --}}
+                <div class="lg:col-span-2">
+                    <h3 class="text-lg font-bold mb-6 relative inline-block">
+                        Kontak & Lokasi
+                        <span class="absolute -bottom-2 left-0 w-12 h-1 bg-emerald-400 rounded-full"></span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <ul class="space-y-4 text-emerald-100/80">
+                            <li class="flex items-center gap-3 group">
+                                <div class="p-2 rounded-lg bg-white/5 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                    <i data-lucide="mail" class="w-4 h-4"></i>
+                                </div>
+                                <a href="mailto:tracer@uinsaid.ac.id" class="hover:text-emerald-400 transition-colors">tracer@uinsaid.ac.id</a>
+                            </li>
+                            <li class="flex items-center gap-3 group">
+                                <div class="p-2 rounded-lg bg-white/5 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                    <i data-lucide="phone" class="w-4 h-4"></i>
+                                </div>
+                                <span>(0271) 678901</span>
+                            </li>
+                        </ul>
+                        <ul class="space-y-4 text-emerald-100/80">
+                            <li class="flex items-start gap-3 group">
+                                <div class="p-2 rounded-lg bg-white/5 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                </div>
+                                <span class="leading-relaxed">
+                                    Jl. Pandawa, Pucangan, Kartasura, Sukoharjo, Jawa Tengah 57168
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 font-['Poppins']" aria-label="Navigasi Cepat">
-                    <i data-lucide="compass" class="w-5 h-5 text-green-300"></i> Navigasi Cepat
-                </h2>
-                <ul class="space-y-3 text-green-200">
-                    <li>
-                        <a href="{{ route('user.dashboard') }}#beranda" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="info" class="w-4 h-4"></i> Beranda (User)
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.dashboard') }}#tentang" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="info" class="w-4 h-4"></i> Tentang Tracer
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.kuisioner') }}" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="clipboard-check" class="w-4 h-4"></i> Isi Kuesioner
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.cari-alumni') }}" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="search" class="w-4 h-4"></i> Cari Alumni
-                        </a>
-                    </li>
-                </ul>
+            {{-- Bottom Footer --}}
+            <div class="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-emerald-100/40 uppercase tracking-[2px]">
+                <p>&copy; {{ date('Y') }} UIN Raden Mas Said Surakarta. All Rights Reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                </div>
             </div>
-
-            <div>
-                <h2 class="text-xl font-bold mb-4 font-['Poppins']">Tautan Terkait</h2>
-                <ul class="space-y-3 text-green-200">
-                    <li>
-                        <a href="https://uinsaid.ac.id" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-2">
-                            <i data-lucide="globe" class="w-4 h-4"></i> Website Resmi UIN RMS
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://pmb.uinsaid.ac.id" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-2">
-                            <i data-lucide="graduation-cap" class="w-4 h-4"></i> PMB UIN RMS
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://e-journal.uinsaid.ac.id/" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-2">
-                            <i data-lucide="book-text" class="w-4 h-4"></i> E-Journal UIN RMS
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div>
-                <h2 class="text-xl font-bold mb-4 font-['Poppins']">Kontak Kami</h2>
-                <ul class="text-green-200 space-y-3">
-                    <li>
-                        <i data-lucide="mail" class="inline-block w-4 h-4 mr-2"></i>
-                        <a href="mailto:tracer@uinsaid.ac.id" class="hover:underline" target="_blank">tracer@uinsaid.ac.id</a>
-                    </li>
-                    <li>
-                        <i data-lucide="phone" class="inline-block w-4 h-4 mr-2"></i> (0271) 678901
-                    </li>
-                    <li>
-                        <i data-lucide="instagram" class="inline-block w-4 h-4 mr-2"></i>
-                        <a href="#" class="hover:underline" target="_blank">@traceruinrms</a>
-                    </li>
-                    <li>
-                        <i data-lucide="map-pin" class="inline-block w-4 h-4 mr-2"></i>
-                        Jl. Pandawa, Pucangan, Kartasura, Sukoharjo, Jawa Tengah 57168
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="text-center text-green-300 text-xs border-t border-green-800 py-6 mt-12">
-            &copy; {{ date('Y') }} UIN Raden Mas Said Surakarta. Hak Cipta Dilindungi Undang-Undang.
         </div>
     </footer>
-
     {{-- Scroll to Top Button --}}
     <button id="scrollTop" aria-label="Scroll to top"
         class="fixed bottom-6 right-6 z-50 hidden bg-green-700 hover:bg-green-800 text-white p-3 rounded-full shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500">
