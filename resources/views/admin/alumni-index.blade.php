@@ -4,23 +4,41 @@
 
 @section('content')
 <style>
-    /* Premium Table & Filter Styling - Kontras Diperkuat */
+    /* Premium Table & Filter Styling - Soft green background for readability */
     .glass-card-table {
-        background: #ffffff; /* Putih Solid agar tidak transparan berlebih */
-        border: 1px solid #cbd5e1; /* Border abu-abu tegas */
-        border-radius: 1.5rem;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(180deg, rgba(236, 253, 245, 0.9) 0%, rgba(255,255,255,0.85) 60%);
+        border: 1px solid rgba(6,78,59,0.06);
+        border-radius: 1.25rem;
+        box-shadow: 0 14px 30px -12px rgba(2,6,23,0.06);
+        padding: 0.75rem;
     }
 
     /* Input dengan Border Tegas dan Teks Gelap */
     .input-premium {
-        @apply w-full bg-slate-50 border border-slate-400 rounded-xl px-4 py-3 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm font-bold text-slate-900 appearance-none;
-        /* text-slate-900 memastikan teks sangat hitam/gelap */
+        width: 100%;
+        background: #f8faf8;
+        border: 1px solid rgba(148,163,184,0.35);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        outline: none;
+        transition: border-color .18s ease, box-shadow .18s ease;
+        font-size: 0.875rem;
+        font-weight: 800;
+        color: #0f172a;
+        appearance: none;
     }
+    .input-premium:focus { border-color:#10b981; box-shadow: 0 6px 18px rgba(16,185,129,0.06); }
 
     /* Label yang lebih terlihat */
     .filter-label {
-        @apply text-[11px] font-black uppercase tracking-widest text-slate-700 mb-2 block ml-1;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #0f172a;
+        margin-bottom: 0.5rem;
+        display: block;
+        margin-left: 0.25rem;
     }
 
     .tr-hover {
@@ -34,7 +52,12 @@
 
     /* Header Tabel Gelap agar kontras */
     .table-header-dark {
-        @apply bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest;
+        background: linear-gradient(90deg,#064e3b,#0b6b4f);
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
     }
 </style>
 
@@ -55,6 +78,9 @@
         <div class="flex gap-3">
             <a href="{{ route('admin.alumni.exportCsv') }}" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-indigo-700 transition-all active:scale-95">
                 <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export CSV
+            </a>
+            <a href="{{ route('admin.alumni.exportPdf') }}" class="flex items-center gap-2 px-6 py-3 bg-emerald-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-emerald-800 transition-all active:scale-95">
+                <i data-lucide="file-text" class="w-4 h-4"></i> Unduh PDF
             </a>
         </div>
     </header>

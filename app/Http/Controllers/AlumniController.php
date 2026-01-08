@@ -182,6 +182,59 @@ class AlumniController extends Controller
         return view('kaprodi.data-alumni', compact('alumniData', 'prodi', 'availableYears'));
     }
 
+    /**
+     * Ekspor data alumni khusus untuk Kaprodi (filter berdasarkan prodi yang login)
+     */
+    public function kaprodiExportPdf(Request $request)
+    {
+        $prodi = Auth::user()->prodi ?? null;
+
+        $query = Alumni::query();
+        if ($prodi) {
+            $query->where('jurusan', $prodi);
+        }
+
+        $alumnis = $query->orderBy('nama')->get();
+
+        $data = compact('alumnis', 'prodi');
+
+        try {
+            if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+                \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.alumni-pdf', $data)->setPaper('a4', 'portrait');
+                return $pdf->download('data_alumni_' . date('Ymd_His') . '.pdf');
+            }
+
+            if (app()->bound('dompdf.wrapper')) {
+                $pdf = app('dompdf.wrapper');
+                if (method_exists($pdf, 'setOptions')) {
+                    $pdf->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+                }
+                $pdf->loadView('admin.alumni-pdf', $data);
+                return $pdf->download('data_alumni_' . date('Ymd_His') . '.pdf');
+            }
+
+            if (class_exists(\Dompdf\Dompdf::class)) {
+                $html = view('admin.alumni-pdf', $data)->render();
+                $options = new \Dompdf\Options();
+                $options->set('isRemoteEnabled', true);
+                $dompdf = new \Dompdf\Dompdf($options);
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+                $output = $dompdf->output();
+                return response($output, 200, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'attachment; filename="data_alumni_' . date('Ymd_His') . '.pdf"',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // ignore and fallback to error message below
+        }
+
+        return redirect()->back()->with('error', 'Fitur PDF belum tersedia. Jalankan: composer require barryvdh/laravel-dompdf.');
+    }
+
     // =========================================================
     // METODE LAMA (ADMIN & USER)
     // =========================================================
@@ -377,6 +430,55 @@ class AlumniController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Ekspor data alumni menjadi PDF.
+     * Menggunakan package barryvdh/laravel-dompdf jika tersedia.
+     */
+    public function exportPdf(Request $request)
+    {
+        $alumnis = Alumni::orderBy('nama')->get();
+
+        $data = compact('alumnis');
+
+        try {
+            // Coba gunakan facade PDF jika tersedia
+            if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+                \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.alumni-pdf', $data)->setPaper('a4', 'portrait');
+                return $pdf->download('data_alumni_' . date('Ymd_His') . '.pdf');
+            }
+
+            if (app()->bound('dompdf.wrapper')) {
+                $pdf = app('dompdf.wrapper');
+                if (method_exists($pdf, 'setOptions')) {
+                    $pdf->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+                }
+                $pdf->loadView('admin.alumni-pdf', $data);
+                return $pdf->download('data_alumni_' . date('Ymd_His') . '.pdf');
+            }
+
+            if (class_exists(\Dompdf\Dompdf::class)) {
+                $html = view('admin.alumni-pdf', $data)->render();
+                $options = new \Dompdf\Options();
+                $options->set('isRemoteEnabled', true);
+                $dompdf = new \Dompdf\Dompdf($options);
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+                $output = $dompdf->output();
+                return response($output, 200, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'attachment; filename="data_alumni_' . date('Ymd_His') . '.pdf"',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // lanjut ke fallback
+        }
+
+        // Jika package belum terpasang berikan petunjuk instalasi
+        return redirect()->back()->with('error', 'Fitur PDF belum tersedia. Jalankan: composer require barryvdh/laravel-dompdf lalu tambah alias Service Provider jika perlu.');
     }
 
     // =========================================================

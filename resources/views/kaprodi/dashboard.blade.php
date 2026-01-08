@@ -4,33 +4,55 @@
 
 @section('content')
 <style>
-    /* Efek Glassmorphism Khusus Konten */
+    /* Improved contrast and softer card backgrounds for readability */
     .glass-card-premium {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        color: #0f172a;
     }
 
     .glass-card-premium:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        border-color: #10b981;
+        transform: translateY(-6px);
+        box-shadow: 0 18px 30px -12px rgba(2,6,23,0.12);
+        border-color: rgba(16,185,129,0.18);
     }
 
+    /* Metric icon box with clearer contrast */
     .metric-icon-box {
-        @apply p-4 rounded-2xl flex items-center justify-center transition-all duration-300;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .25s;
+        box-shadow: 0 6px 18px rgba(2,6,23,0.04);
     }
+
+    /* Quick access cards (override white bg to subtle tint for contrast) */
+    a.p-6.bg-white {
+        background: linear-gradient(180deg,#fbfdff 0%, #ffffff 100%);
+        border: 1px solid rgba(15,23,42,0.04);
+        color: #0f172a;
+    }
+    a.p-6.bg-white h4 { color: #0f172a; }
+    a.p-6.bg-white p { color: #475569; }
+
+    /* Activity panel tweaks */
+    #activityList p.text-sm { color: #0f172a; }
+    #activityList p.text-xs { color: #64748b; }
+
+    /* Make muted labels slightly darker for legibility */
+    .text-slate-400 { color: #64748b !important; }
+    .text-slate-500 { color: #475569 !important; }
+
+    /* Button adjustments inside cards */
+    .glass-card-premium .text-xs { color: #475569; }
 
     /* Animasi Entry */
-    .fade-up {
-        animation: fadeUp 0.6s ease-out forwards;
-    }
-
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+    .fade-up { animation: fadeUp 0.6s ease-out forwards; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
 <div class="space-y-8 font-['Plus_Jakarta_Sans']">
@@ -49,7 +71,10 @@
         {{-- Tombol Quick Action --}}
         <div class="flex gap-3">
             <a href="{{ route('kaprodi.kuisioner.exportCsv') }}" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-lg shadow-emerald-900/20 hover:bg-emerald-700 transition-all active:scale-95">
-                <i data-lucide="download" class="w-4 h-4"></i> EXPORT DATA
+                <i data-lucide="download" class="w-4 h-4"></i> EXPORT CSV
+            </a>
+            <a href="{{ route('kaprodi.alumni.exportPdf') }}" class="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-xs shadow-lg shadow-slate-900/20 hover:bg-slate-700 transition-all active:scale-95">
+                <i data-lucide="file-text" class="w-4 h-4"></i> EXPORT PDF
             </a>
         </div>
     </div>
@@ -83,6 +108,84 @@
             </div>
             <div class="metric-icon-box bg-yellow-100 text-yellow-700 group-hover:bg-yellow-500 group-hover:text-white relative z-10">
                 <i data-lucide="clipboard-list" class="w-10 h-10"></i>
+            </div>
+        </div>
+    </section>
+
+    {{-- 5. INSIGHTS & RECENT ACTIVITY --}}
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-up" style="animation-delay: 0.35s">
+        <div class="lg:col-span-2 space-y-4">
+            <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Insights Cepat</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="glass-card-premium p-4 rounded-2xl flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-wider">Rata-rata Waktu Mendapat Kerja</p>
+                            <p class="text-2xl font-extrabold text-slate-900">{{ $kaprodiData['avg_time_to_job'] ?? '-'}} <span class="text-sm font-bold text-slate-500">bln</span></p>
+                        </div>
+                        <div class="metric-icon-box bg-indigo-50 text-indigo-600">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <p class="text-[12px] text-slate-500">Dihitung dari responden yang melaporkan waktu mendapatkan pekerjaan.</p>
+                </div>
+
+                <div class="glass-card-premium p-4 rounded-2xl flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-wider">Tingkat Serapan Kerja</p>
+                            <p class="text-2xl font-extrabold text-slate-900">{{ $kaprodiData['employability_rate'] ?? '-'}}<span class="text-sm font-bold text-slate-500">%</span></p>
+                        </div>
+                        <div class="metric-icon-box bg-emerald-50 text-emerald-600">
+                            <i data-lucide="briefcase" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <p class="text-[12px] text-slate-500">Persentase lulusan yang sudah bekerja saat survei.</p>
+                </div>
+
+                <div class="glass-card-premium p-4 rounded-2xl flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-wider">Responden Baru (30 hari)</p>
+                            <p class="text-2xl font-extrabold text-slate-900">{{ $kaprodiData['recent_respondents_30d'] ?? '0' }}</p>
+                        </div>
+                        <div class="metric-icon-box bg-yellow-50 text-yellow-600">
+                            <i data-lucide="refresh-cw" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <p class="text-[12px] text-slate-500">Jumlah responden yang mengisi dalam 30 hari terakhir.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Aktivitas Terbaru</h3>
+            <div class="glass-card-premium p-4 rounded-2xl">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="text-xs text-slate-500 font-bold">Daftar aksi & perubahan terbaru</div>
+                    <div class="flex items-center gap-2">
+                        <button id="refreshActivity" class="text-xs bg-slate-100 px-3 py-1 rounded-lg">Refresh</button>
+                        <button id="copyActivity" class="text-xs bg-slate-100 px-3 py-1 rounded-lg">Copy</button>
+                    </div>
+                </div>
+
+                <ul id="activityList" class="space-y-3 max-h-64 overflow-auto custom-scrollbar">
+                    @if(!empty($kaprodiData['recent_activity']))
+                        @foreach($kaprodiData['recent_activity'] as $act)
+                            <li class="flex items-start gap-3">
+                                <div class="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center text-slate-600">
+                                    <i data-lucide="user-check" class="w-5 h-5"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-bold text-slate-800">{!! $act['text'] !!}</p>
+                                    <p class="text-xs text-slate-400 mt-1">{{ $act['time'] ?? '' }}</p>
+                                </div>
+                            </li>
+                        @endforeach
+                    @else
+                        <li class="text-slate-400 text-sm">Belum ada aktivitas terbaru.</li>
+                    @endif
+                </ul>
             </div>
         </div>
     </section>
@@ -155,7 +258,7 @@
         <div class="glass-card-premium p-8 rounded-[2.5rem]">
             <div class="flex items-center justify-between mb-8">
                 <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-2 h-2 bg-pink-500 rounded-full"></span> Status Serapan Kerja
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> Status Serapan Kerja
                 </h3>
             </div>
             <div class="h-72 flex justify-center items-center">
@@ -224,7 +327,7 @@
         if (statusCtx && Object.keys(data.status_kerja).length > 0) {
             const rawKeys = Object.keys(data.status_kerja);
             const mappedLabels = rawKeys.map(key => key == '1' ? 'Bekerja' : 'Belum Bekerja');
-            const mappedColors = rawKeys.map(key => key == '1' ? '#10B981' : '#F43F5E');
+            const mappedColors = rawKeys.map(key => key == '1' ? '#10B981' : '#f59e0b');
 
             new Chart(statusCtx, {
                 type: 'doughnut',
@@ -261,6 +364,26 @@
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
         initCharts(kaprodiData);
+        // Activity controls
+        const refreshBtn = document.getElementById('refreshActivity');
+        const copyBtn = document.getElementById('copyActivity');
+        const activityList = document.getElementById('activityList');
+
+        if (refreshBtn) refreshBtn.addEventListener('click', () => {
+            // Small visual refresh: re-run chart init (data should be updated from server on real app)
+            initCharts(kaprodiData);
+            refreshBtn.textContent = 'Updated';
+            setTimeout(()=> refreshBtn.textContent = 'Refresh', 1200);
+        });
+
+        if (copyBtn) copyBtn.addEventListener('click', () => {
+            if (!activityList) return;
+            const lines = Array.from(activityList.querySelectorAll('p.text-sm')).map(el => el.textContent.trim()).join('\n');
+            navigator.clipboard?.writeText(lines).then(()=>{
+                copyBtn.textContent = 'Copied';
+                setTimeout(()=> copyBtn.textContent = 'Copy', 1200);
+            }).catch(()=>{ copyBtn.textContent = 'Failed'; setTimeout(()=> copyBtn.textContent = 'Copy', 1200); });
+        });
     });
 </script>
 @endsection

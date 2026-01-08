@@ -6,50 +6,28 @@
 <style>
     /* Styling Visualisasi Chart yang Responsif */
     .chart-container-wrapper {
-        background-color: #fff;
+        background-color: #ffffff;
         padding: 1rem;
         border-radius: 1rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e5e7eb;
+        box-shadow: 0 8px 24px rgba(2,6,23,0.06);
+        border: 1px solid #eef2f6;
         display: flex;
         flex-direction: column;
         height: 100%;
     }
 
-    @media (min-width: 768px) {
-        .chart-container-wrapper { padding: 1.5rem; }
-    }
+    @media (min-width: 768px) { .chart-container-wrapper { padding: 1.25rem; } }
 
     .chart-title-box {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #f3f4f6;
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 0.9rem; padding-bottom: 0.5rem; border-bottom: 1px solid #f3f4f6;
     }
 
-    .chart-loader {
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #059669;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .chart-loader { width: 22px; height: 22px; border-radius: 999px; border: 3px solid #f3f4f6; border-top-color: #10b981; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Container Canvas yang fleksibel */
-    .chart-canvas-area {
-        position: relative;
-        flex-grow: 1;
-        width: 100%;
-        min-height: 300px;
-    }
-
-    @media (min-width: 1024px) {
-        .chart-canvas-area { min-height: 350px; }
-    }
+    .chart-canvas-area { position: relative; flex-grow: 1; width: 100%; min-height: 300px; }
+    @media (min-width: 1024px) { .chart-canvas-area { min-height: 340px; } }
 </style>
 @endsection
 
@@ -71,8 +49,11 @@
             </div>
         </div>
         <div class="w-full md:w-auto flex gap-2">
-            <a href="{{ route('kaprodi.kuisioner.exportCsv') ?? '#' }}" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-md transition duration-150 text-xs md:text-sm">
+            <a href="{{ route('kaprodi.kuisioner.exportCsv') ?? '#' }}" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-md transition duration-150 text-xs md:text-sm">
                 <i data-lucide="file-down" class="w-4 h-4"></i> Export CSV
+            </a>
+            <a href="{{ route('kaprodi.kuisioner.exportPdf') ?? '#' }}" class="flex-1 md:flex-none inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-5 rounded-lg shadow-md transition duration-150 text-xs md:text-sm">
+                <i data-lucide="file-text" class="w-4 h-4"></i> Export PDF
             </a>
         </div>
     </header>
@@ -99,8 +80,8 @@
 
     {{-- Grafik Section --}}
     <section class="bg-white p-4 md:p-8 rounded-2xl shadow-xl border border-gray-100">
-        <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2 border-l-4 border-indigo-500 pl-3">
-            <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-600"></i> Distribusi Jawaban
+        <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2 border-l-4 border-emerald-500 pl-3">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-emerald-600"></i> Distribusi Jawaban
         </h2>
 
         <div id="chart-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -165,12 +146,6 @@
             if (ctx) ctx.classList.remove('hidden');
         }
 
-        function aggregate(data, field) {
-            const res = {};
-            data.forEach(i => { const v = i[field] ?? 'N/A'; res[v] = (res[v] || 0) + 1; });
-            return res;
-        }
-
         function aggregateJson(data, field) {
             const res = {};
             data.forEach(item => {
@@ -187,25 +162,21 @@
             });
             return res;
         }
-
-        function createPie(ctxId, labels, data, colors, isDoughnut = false) {
-            const canvas = document.getElementById(ctxId);
-            if(!canvas) return;
-            showChart(ctxId);
-            new Chart(canvas, {
-                type: isDoughnut ? 'doughnut' : 'pie',
-                data: {
-                    labels,
-                    datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 }, padding: 15 } }
+        function aggregateJson(data, field) {
+            const res = {};
+            data.forEach(item => {
+                let obj = item[field];
+                if (typeof obj === 'string') try { obj = JSON.parse(obj); } catch(e) { return; }
+                if (obj && typeof obj === 'object') {
+                    for (let q in obj) {
+                        const cleanQ = q.replace(/\\/g, '').trim();
+                        const ans = String(obj[q]);
+                        if (!res[cleanQ]) res[cleanQ] = {};
+                        res[cleanQ][ans] = (res[cleanQ][ans] || 0) + 1;
                     }
                 }
             });
+            return res;
         }
 
         function createStacked(ctxId, aggData, isHorizontal = false) {

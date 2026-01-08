@@ -32,6 +32,7 @@ Route::middleware(['auth', 'role:admin'])
         // --- Manajemen Alumni ---
         Route::get('/alumni', [AlumniController::class, 'index'])->name('alumni');
         Route::get('/alumni/export-csv', [AlumniController::class, 'exportCsv'])->name('alumni.exportCsv');
+        Route::get('/alumni/export-pdf', [AlumniController::class, 'exportPdf'])->name('alumni.exportPdf');
         Route::get('/alumni/{user}/edit', [AlumniController::class, 'edit'])->name('alumni.edit');
         Route::put('/alumni/{user}', [AlumniController::class, 'update'])->name('alumni.update');
         Route::delete('/alumni/{user}', [AlumniController::class, 'destroy'])->name('alumni.destroy');
@@ -86,6 +87,10 @@ Route::middleware(['auth', 'role:kaprodi'])
 
         Route::get('/laporan-kuisioner', [KuisionerController::class, 'kaprodiReport'])->name('kuisioner.report');
         Route::get('/data-alumni', [AlumniController::class, 'kaprodiAlumni'])->name('alumni');
+        Route::get('/export-kuisioner-pdf', [KuisionerController::class, 'exportKaprodiPdf'])->name('kuisioner.exportPdf');
+
+        // Ekspor PDF khusus Kaprodi (menggunakan DomPDF jika tersedia)
+        Route::get('/alumni/export-pdf', [AlumniController::class, 'kaprodiExportPdf'])->name('alumni.exportPdf');
 
         // Perbaiki error RouteNotFound
         Route::get('/alumni/{alumni_id}/detail', [KuisionerController::class, 'showKaprodiDetail'])->name('alumni.detail');
@@ -93,6 +98,7 @@ Route::middleware(['auth', 'role:kaprodi'])
         Route::get('/export-kuisioner-csv', [KuisionerController::class, 'exportKaprodiCsv'])->name('kuisioner.exportCsv');
 
         Route::get('/help', [DashboardController::class, 'kaprodiHelp'])->name('help');
+        Route::get('/help/checklist-pdf', [DashboardController::class, 'kaprodiHelpPdf'])->name('help.checklistPdf');
     });
 
 

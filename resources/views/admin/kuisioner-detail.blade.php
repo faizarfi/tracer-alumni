@@ -14,19 +14,41 @@
     }
 
     .info-label {
-        @apply text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 block;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        color: #475569;
+        margin-bottom: .375rem;
+        display: block;
     }
 
     .info-value {
-        @apply text-sm font-bold text-slate-700 leading-tight;
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.1;
     }
 
     .answer-pill {
-        @apply p-4 rounded-2xl border transition-all duration-300 bg-white shadow-sm flex justify-between items-center;
+        padding: 1rem;
+        border-radius: 16px;
+        border: 1px solid rgba(15,23,42,0.04);
+        transition: all .28s ease;
+        background: #ffffff;
+        box-shadow: 0 6px 18px rgba(2,6,23,0.04);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: .5rem;
     }
 
     .section-divider {
-        @apply flex items-center gap-3 px-8 py-5 border-b border-slate-50;
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        padding: 1.25rem 2rem;
+        border-bottom: 1px solid rgba(148,163,184,0.06);
     }
 
     /* Logic Sentimen Warna */
@@ -52,14 +74,14 @@
         </div>
 
         @if ($kuisioner->created_at)
-        <div class="bg-green-50 px-6 py-3 rounded-2xl border border-green-100 flex items-center gap-4 shadow-sm">
+        <div class="bg-emerald-50 px-6 py-3 rounded-2xl border border-emerald-100 flex items-center gap-4 shadow-sm">
             <div class="text-right">
                 <p class="text-[9px] font-black text-green-400 uppercase tracking-widest leading-none mb-1">Waktu Submit</p>
                 <p class="text-xs font-black text-green-700 leading-none">
                     {{ $kuisioner->created_at->translatedFormat('d F Y, H:i') }} WIB
                 </p>
             </div>
-            <i data-lucide="check-circle-2" class="w-8 h-8 text-green-300"></i>
+            <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600"></i>
         </div>
         @endif
     </header>
@@ -73,7 +95,7 @@
         <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
                 <span class="info-label">User ID System</span>
-                <p class="text-lg font-black text-indigo-600 font-mono tracking-tighter">#{{ $kuisioner->user_id }}</p>
+                <p class="text-lg font-black text-emerald-700 font-mono tracking-tighter">#{{ $kuisioner->user_id }}</p>
             </div>
             <div class="md:border-x border-slate-100 md:px-8">
                 <span class="info-label">Nama Alumni</span>
@@ -90,15 +112,15 @@
 
     {{-- 2. INFORMASI PEKERJAAN --}}
     <section class="glass-card-detail overflow-hidden">
-        <div class="section-divider bg-blue-50/30">
-            <i data-lucide="briefcase" class="w-5 h-5 text-blue-600"></i>
+        <div class="section-divider bg-emerald-50/30">
+            <i data-lucide="briefcase" class="w-5 h-5 text-emerald-600"></i>
             <h2 class="text-[11px] font-black text-slate-800 uppercase tracking-widest">Informasi Karir & Institusi</h2>
         </div>
         <div class="p-8 space-y-8">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="p-6 rounded-3xl bg-blue-50 border border-blue-100 shadow-sm group">
-                    <span class="info-label text-blue-400">Status Saat Ini</span>
-                    <p class="text-base font-black text-blue-900">{{ $kuisioner->status_pekerjaan ?? '-' }}</p>
+                <div class="p-6 rounded-3xl bg-emerald-50 border border-emerald-100 shadow-sm group">
+                    <span class="info-label text-emerald-600">Status Saat Ini</span>
+                    <p class="text-base font-black text-emerald-800">{{ $kuisioner->status_pekerjaan ?? '-' }}</p>
                 </div>
                 <div class="p-6 rounded-3xl bg-slate-50 border border-slate-100 shadow-sm">
                     <span class="info-label">Waktu Tunggu Lulus</span>
@@ -113,18 +135,18 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm flex items-start gap-4">
+                <div class="p-6 bg-slate-50 border border-slate-100 rounded-3xl shadow-sm flex items-start gap-4">
                     <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center shrink-0">
-                        <i data-lucide="building" class="w-5 h-5 text-slate-400"></i>
+                        <i data-lucide="building" class="w-5 h-5 text-emerald-500"></i>
                     </div>
                     <div>
                         <span class="info-label">Nama Perusahaan</span>
                         <p class="font-bold text-slate-700">{{ $kuisioner->nama_perusahaan ?? '-' }}</p>
                     </div>
                 </div>
-                <div class="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm flex items-start gap-4">
+                <div class="p-6 bg-slate-50 border border-slate-100 rounded-3xl shadow-sm flex items-start gap-4">
                     <div class="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center shrink-0">
-                        <i data-lucide="map-pin" class="w-5 h-5 text-slate-400"></i>
+                        <i data-lucide="map-pin" class="w-5 h-5 text-emerald-500"></i>
                     </div>
                     <div>
                         <span class="info-label">Alamat Perusahaan</span>
@@ -134,10 +156,10 @@
             </div>
 
             <div class="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden group">
-                <div class="absolute right-0 top-0 w-64 h-64 bg-green-500/10 rounded-full blur-3xl group-hover:bg-green-500/20 transition-all duration-700"></div>
+                <div class="absolute right-0 top-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
                 <div class="relative z-10 grid grid-cols-3 gap-4 text-center">
                     <div>
-                        <p class="text-3xl font-black text-blue-400">{{ $kuisioner->jumlah_lamaran ?? 0 }}</p>
+                        <p class="text-3xl font-black text-emerald-300">{{ $kuisioner->jumlah_lamaran ?? 0 }}</p>
                         <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-2">Total Lamaran</p>
                     </div>
                     <div class="border-x border-white/10">
@@ -145,7 +167,7 @@
                         <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-2">Respon Balik</p>
                     </div>
                     <div>
-                        <p class="text-3xl font-black text-yellow-400">{{ $kuisioner->jumlah_wawancara ?? 0 }}</p>
+                        <p class="text-3xl font-black text-emerald-200">{{ $kuisioner->jumlah_wawancara ?? 0 }}</p>
                         <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-2">Interview</p>
                     </div>
                 </div>
@@ -156,7 +178,7 @@
     {{-- 3. DETAIL JAWABAN (PENDIDIKAN & FASILITAS) --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         @foreach(['pendidikan' => ['label' => 'Proses Pendidikan', 'icon' => 'graduation-cap', 'color' => 'emerald'],
-                  'fasilitas' => ['label' => 'Fasilitas Kampus', 'icon' => 'server', 'color' => 'indigo']] as $key => $meta)
+              'fasilitas' => ['label' => 'Fasilitas Kampus', 'icon' => 'server', 'color' => 'emerald']] as $key => $meta)
         <section class="glass-card-detail overflow-hidden flex flex-col">
             <div class="section-divider bg-{{ $meta['color'] }}-50/30">
                 <i data-lucide="{{ $meta['icon'] }}" class="w-5 h-5 text-{{ $meta['color'] }}-600"></i>
@@ -185,14 +207,14 @@
     </div>
 
     {{-- 4. KRITIK & SARAN --}}
-    <section class="glass-card-detail overflow-hidden border-t-4 border-t-orange-500">
-        <div class="section-divider bg-orange-50/20">
-            <i data-lucide="message-square" class="w-5 h-5 text-orange-500"></i>
+    <section class="glass-card-detail overflow-hidden border-t-4 border-t-emerald-500">
+        <div class="section-divider bg-emerald-50/20">
+            <i data-lucide="message-square" class="w-5 h-5 text-emerald-500"></i>
             <h2 class="text-[11px] font-black text-slate-800 uppercase tracking-widest">Kritik & Saran Alumni</h2>
         </div>
         <div class="p-10">
             <div class="relative bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-inner">
-                <i data-lucide="quote" class="absolute -top-4 -left-4 w-12 h-12 text-orange-100 opacity-50"></i>
+                <i data-lucide="quote" class="absolute -top-4 -left-4 w-10 h-10 text-emerald-100 opacity-60"></i>
                 <p class="text-lg font-medium text-slate-600 leading-relaxed italic relative z-10">
                     "{{ $kuisioner->jawaban ?? 'Responden tidak memberikan kritik atau saran tambahan.' }}"
                 </p>

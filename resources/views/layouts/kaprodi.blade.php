@@ -56,6 +56,13 @@
 
         #sidebar.open { transform: translateX(0); }
 
+        /* Collapsed sidebar for desktop */
+        #sidebar.collapsed { width: 88px; }
+        #sidebar.collapsed .px-4 span { display: none; }
+        #sidebar.collapsed .px-4 { padding-left: 0.9rem; padding-right: 0.9rem; justify-content: center; }
+        #sidebar.collapsed .w-16 { width: 40px; height: 40px; }
+        #sidebar.collapsed .mt-auto { padding-left: 0; padding-right: 0; }
+
         @media (min-width: 768px) {
             #sidebar {
                 position: sticky;
@@ -172,6 +179,11 @@
                         <button id="sidebarToggle" class="md:hidden text-white bg-green-700 p-2.5 rounded-xl shadow-lg hover:bg-green-800 active:scale-95 transition-all">
                             <iconify-icon icon="heroicons:bars-3-bottom-left-20-solid" class="text-2xl"></iconify-icon>
                         </button>
+
+                        <!-- Desktop collapse toggle -->
+                        <button id="sidebarCollapse" title="Sembunyikan Sidebar" class="hidden md:inline-flex text-gray-700 bg-white/90 p-2 rounded-lg shadow-sm hover:bg-white active:scale-95 transition-all">
+                            <iconify-icon icon="heroicons:chevron-double-left-20-solid" class="text-xl"></iconify-icon>
+                        </button>
                         <div class="hidden sm:block">
                             <h2 class="text-sm font-bold text-gray-800">Selamat Datang, Kaprodi</h2>
                             <p class="text-[10px] text-gray-500 font-medium tracking-wide uppercase">Monitoring Lulusan & Alumni</p>
@@ -244,6 +256,13 @@
             const toggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
+            const collapseBtn = document.getElementById('sidebarCollapse');
+
+            // Apply persisted collapsed state
+            if (sidebar && localStorage.getItem('sidebar-collapsed') === '1') {
+                sidebar.classList.add('collapsed');
+                if (collapseBtn) collapseBtn.setAttribute('title', 'Tampilkan Sidebar');
+            }
 
             function toggleMenu() {
                 sidebar.classList.toggle('open');
@@ -255,6 +274,16 @@
                     document.body.style.overflow = '';
                 }
             }
+
+            // Desktop collapse/expand
+            function toggleCollapse() {
+                sidebar.classList.toggle('collapsed');
+                const collapsed = sidebar.classList.contains('collapsed');
+                try { localStorage.setItem('sidebar-collapsed', collapsed ? '1' : '0'); } catch(e) {}
+                if (collapseBtn) collapseBtn.setAttribute('title', collapsed ? 'Tampilkan Sidebar' : 'Sembunyikan Sidebar');
+            }
+
+            if (collapseBtn) collapseBtn.addEventListener('click', toggleCollapse);
 
             if(toggle) toggle.addEventListener('click', toggleMenu);
             if(overlay) overlay.addEventListener('click', toggleMenu);

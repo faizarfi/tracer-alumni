@@ -13,19 +13,35 @@
     }
 
     .info-label {
-        @apply text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 block;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        color: #94a3b8; /* slate-400 */
+        margin-bottom: .25rem;
+        display: block;
     }
 
     .info-value {
-        @apply text-sm font-bold text-slate-700 leading-tight;
+        font-size: .875rem; /* text-sm */
+        font-weight: 700;
+        color: #334155; /* slate-700 */
+        line-height: 1.1;
     }
 
     .answer-pill {
-        @apply p-4 rounded-2xl border transition-all duration-300;
+        padding: 1rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(241, 245, 249, 1);
+        transition: all 0.25s ease;
     }
 
     .section-header {
-        @apply flex items-center gap-3 px-8 py-5 border-b border-slate-50;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #f8fafc; /* slate-50 */
     }
 
     /* Animasi Entry */
@@ -48,20 +64,20 @@
                 <i data-lucide="arrow-left" class="w-5 h-5 text-slate-600 group-hover:-translate-x-1 transition-transform"></i>
             </a>
             <div>
-                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Review <span class="text-indigo-600">Kuesioner</span></h1>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Review <span class="text-emerald-600">Kuesioner</span></h1>
                 <p class="text-slate-500 mt-1 font-medium italic text-[10px] tracking-widest uppercase">Detail Jawaban Responden Alumni</p>
             </div>
         </div>
 
         @if ($kuesioner)
-        <div class="bg-indigo-50 px-6 py-3 rounded-2xl border border-indigo-100 flex items-center gap-4 shadow-sm">
+        <div class="bg-emerald-50 px-6 py-3 rounded-2xl border border-emerald-100 flex items-center gap-4 shadow-sm">
             <div class="text-right">
-                <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Tanggal Submit</p>
-                <p class="text-xs font-black text-indigo-700 leading-none">
+                <p class="text-[9px] font-black text-emerald-400 uppercase tracking-widest leading-none mb-1">Tanggal Submit</p>
+                <p class="text-xs font-black text-emerald-700 leading-none">
                     {{ $kuesioner->updated_at->translatedFormat('d F Y, H:i') }} WIB
                 </p>
             </div>
-            <i data-lucide="calendar-check" class="w-8 h-8 text-indigo-300"></i>
+            <i data-lucide="calendar-check" class="w-8 h-8 text-emerald-300"></i>
         </div>
         @endif
     </header>
@@ -83,8 +99,8 @@
                     </div>
                 </div>
                 <div>
-                    <span class="info-label">NIM / ID</span>
-                    <p class="info-value text-indigo-600 font-mono">{{ $alumni->nim ?? '-' }}</p>
+                        <span class="info-label">NIM / ID</span>
+                        <p class="info-value text-emerald-600 font-mono">{{ $alumni->nim ?? '-' }}</p>
                 </div>
                 <div>
                     <span class="info-label">Program Studi</span>
@@ -95,16 +111,16 @@
 
         {{-- 2. INFORMASI PEKERJAAN --}}
         <section class="glass-card-detail overflow-hidden fade-up" style="animation-delay: 0.2s">
-            <div class="section-header bg-blue-50/30">
-                <i data-lucide="briefcase" class="w-6 h-6 text-blue-600"></i>
+                <div class="section-header bg-emerald-50/30">
+                <i data-lucide="briefcase" class="w-6 h-6 text-emerald-600"></i>
                 <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Karir & Profesional</h2>
             </div>
             <div class="p-8 space-y-8">
                 {{-- Status Bar --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="p-5 rounded-3xl bg-blue-50 border border-blue-100">
-                        <span class="info-label text-blue-400">Status Pekerjaan</span>
-                        <p class="text-lg font-black text-blue-900 leading-tight">{{ $kuesioner->status_pekerjaan ?? '-' }}</p>
+                    <div class="p-5 rounded-3xl bg-emerald-50 border border-emerald-100">
+                        <span class="info-label text-emerald-400">Status Pekerjaan</span>
+                        <p class="text-lg font-black text-emerald-900 leading-tight">{{ $kuesioner->status_pekerjaan ?? '-' }}</p>
                     </div>
                     <div class="p-5 rounded-3xl bg-slate-50 border border-slate-100">
                         <span class="info-label">Waktu Tunggu</span>
@@ -141,19 +157,19 @@
                 </div>
 
                 {{-- Recap Stats --}}
-                <div class="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden group">
-                    <div class="absolute right-0 top-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all duration-700"></div>
+                    <div class="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
                     <div class="relative z-10 grid grid-cols-3 gap-4 text-center">
                         <div>
-                            <p class="text-3xl font-black text-blue-400">{{ $kuesioner->jumlah_lamaran ?? 0 }}</p>
+                            <p class="text-3xl font-black text-emerald-400">{{ $kuesioner->jumlah_lamaran ?? 0 }}</p>
                             <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Lamaran</p>
                         </div>
                         <div class="border-x border-white/10">
-                            <p class="text-3xl font-black text-emerald-400">{{ $kuesioner->jumlah_respon ?? 0 }}</p>
+                            <p class="text-3xl font-black text-emerald-300">{{ $kuesioner->jumlah_respon ?? 0 }}</p>
                             <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Respon</p>
                         </div>
                         <div>
-                            <p class="text-3xl font-black text-yellow-400">{{ $kuesioner->jumlah_wawancara ?? 0 }}</p>
+                            <p class="text-3xl font-black text-amber-400">{{ $kuesioner->jumlah_wawancara ?? 0 }}</p>
                             <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Interview</p>
                         </div>
                     </div>
@@ -163,7 +179,7 @@
 
         {{-- 3. DISTRIBUSI PENILAIAN --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 fade-up" style="animation-delay: 0.3s">
-            @foreach(['pendidikan' => ['label' => 'Proses Pendidikan', 'icon' => 'graduation-cap', 'color' => 'indigo'],
+            @foreach(['pendidikan' => ['label' => 'Proses Pendidikan', 'icon' => 'graduation-cap', 'color' => 'emerald'],
                       'fasilitas' => ['label' => 'Sarana Prasarana', 'icon' => 'building', 'color' => 'emerald']] as $key => $meta)
             <section class="glass-card-detail overflow-hidden flex flex-col">
                 <div class="section-header bg-{{ $meta['color'] }}-50/30">
@@ -176,7 +192,7 @@
                         @php
                             $colorClass = match($ans) {
                                 'Sangat Besar', 'Besar' => 'bg-emerald-50 border-emerald-100 text-emerald-700',
-                                'Cukup Besar' => 'bg-yellow-50 border-yellow-100 text-yellow-700',
+                                'Cukup Besar' => 'bg-amber-50 border-amber-100 text-amber-700',
                                 'Kurang', 'Tidak Sama Sekali' => 'bg-rose-50 border-rose-100 text-rose-700',
                                 default => 'bg-slate-50 border-slate-100 text-slate-500',
                             };

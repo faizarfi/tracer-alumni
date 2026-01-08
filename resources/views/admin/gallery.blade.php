@@ -59,11 +59,33 @@
 
     /* Input & Label (Kontras Tinggi & Jarak) */
     .input-premium {
-        @apply w-full bg-slate-50 border border-slate-300 rounded-2xl px-5 py-4 outline-none focus:border-green-600 focus:ring-4 focus:ring-green-500/10 transition-all text-sm font-bold text-slate-800 shadow-inner;
+        width: 100%;
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 1rem;
+        padding: 1rem 1.25rem;
+        outline: none;
+        font-size: 0.875rem;
+        font-weight: 800;
+        color: #0f172a;
+        transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.08s ease;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+
+    .input-premium:focus {
+        border-color: #10b981;
+        box-shadow: 0 0 0 6px rgba(16,185,129,0.06);
     }
 
     .label-premium {
-        @apply text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mb-3 block ml-1;
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #64748b;
+        margin-bottom: 0.75rem;
+        display: block;
+        margin-left: 0.25rem;
     }
 
     /* Form Upload Wrapper dengan Jarak */
@@ -99,35 +121,41 @@
 
     /* Modal Divider & Header */
     .modal-header-divider {
-        @apply border-b border-slate-100 px-8 py-6 flex items-center justify-between bg-slate-50/80 backdrop-blur-md;
+        border-bottom: 1px solid #eef2f7;
+        padding: 1.5rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(248,250,252,0.8);
+        backdrop-filter: blur(6px);
     }
 </style>
 
 <div class="space-y-10 font-['Plus_Jakarta_Sans'] pb-12">
 
     {{-- HEADER SECTION --}}
-    <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-fade-in">
-        <div class="flex items-center gap-5">
-            <div class="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-purple-200">
-                <i data-lucide="image" class="w-8 h-8"></i>
+    <header class="w-full mb-8 animate-fade-in">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center gap-5">
+                <div class="w-16 h-16 bg-gradient-to-tr from-emerald-600 to-emerald-400 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-emerald-200">
+                    <i data-lucide="image" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-black text-slate-900 tracking-tight">Manajemen <span class="text-emerald-600">Galeri</span></h1>
+                    <p class="text-slate-500 mt-1 font-bold uppercase text-[11px] tracking-[0.2em] flex items-center gap-2">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                        {{ $galleries->count() }} Media Terkatalog
+                    </p>
+                </div>
             </div>
-            <div>
-                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Manajemen <span class="text-purple-600">Galeri</span></h1>
-                <p class="text-slate-500 mt-1 font-bold uppercase text-[11px] tracking-[0.2em] flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    {{ $galleries->count() }} Media Terkatalog
-                </p>
+
+            <div class="flex items-center md:justify-end">
+                <button onclick="openModal('add-photo-modal')" class="flex items-center gap-3 px-6 py-3 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-900/20 hover:bg-emerald-700 transition-all active:scale-95">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-white"></i> Unggah Foto Baru
+                </button>
             </div>
         </div>
-
-        <button onclick="openModal('add-photo-modal')" class="flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-black transition-all active:scale-95">
-            <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-400"></i> Unggah Foto Baru
-        </button>
     </header>
-
-    {{-- Flash messages handled by layout (SweetAlert) --}}
-
-    {{-- GRID FOTO DENGAN JARAK --}}
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         @forelse($galleries as $gallery)
         <div class="glass-gallery-card group">
@@ -135,15 +163,15 @@
                 <img src="{{ Storage::url($gallery->image_path) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
 
                 <div class="action-overlay">
-                    <button type="button"
+                        <button type="button"
                             onclick="openEditModal({{ $gallery->id }}, '{{ addslashes($gallery->title) }}', '{{ addslashes($gallery->description) }}')"
-                            class="btn-action bg-amber-500 hover:bg-amber-600 hover:scale-110 shadow-lg shadow-amber-900/20">
+                            class="btn-action bg-emerald-500 hover:bg-emerald-600 hover:scale-110 shadow-lg shadow-emerald-900/20">
                         <i data-lucide="edit-3" class="w-6 h-6"></i>
                     </button>
 
                     <form action="{{ route('admin.gallery.destroy', $gallery->id) }}" method="POST" class="swal-confirm" data-confirm="Hapus data ini secara permanen?">
                         @csrf @method('DELETE')
-                        <button type="submit" class="btn-action bg-rose-600 hover:bg-rose-700 hover:scale-110 shadow-lg shadow-rose-900/20">
+                        <button type="submit" class="btn-action bg-red-600 hover:bg-red-700 hover:scale-110 shadow-lg shadow-red-900/20">
                             <i data-lucide="trash-2" class="w-6 h-6"></i>
                         </button>
                     </form>
@@ -152,7 +180,7 @@
 
             <div class="p-8">
                 <div class="flex items-center gap-3 mb-4">
-                    <span class="w-10 h-1 bg-purple-500 rounded-full"></span>
+                    <span class="w-10 h-1 bg-emerald-500 rounded-full"></span>
                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $gallery->created_at->translatedFormat('d M Y') }}</span>
                 </div>
                 <h3 class="font-black text-slate-800 text-base uppercase truncate mb-2 tracking-tight">{{ $gallery->title }}</h3>
@@ -175,9 +203,9 @@
     <div class="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in-up">
         <div class="modal-header-divider">
             <h3 class="font-black text-slate-800 uppercase text-sm tracking-widest flex items-center gap-3">
-                <i data-lucide="upload-cloud" class="text-green-600"></i> Media Uploader
+                <i data-lucide="upload-cloud" class="text-emerald-600"></i> Media Uploader
             </h3>
-            <button onclick="closeModal('add-photo-modal')" class="w-10 h-10 flex items-center justify-center rounded-2xl hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition-all"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <button onclick="closeModal('add-photo-modal')" class="w-10 h-10 flex items-center justify-center rounded-2xl hover:bg-slate-50 text-slate-400 hover:text-slate-700 transition-all"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
         <form action="{{ route('admin.gallery.store') }}" method="POST" enctype="multipart/form-data" class="p-10 space-y-8">
             @csrf
@@ -199,7 +227,7 @@
                     </div>
                 </div>
             </div>
-            <button type="submit" class="w-full py-5 bg-green-700 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-green-900/20 hover:bg-green-800 active:scale-95 transition-all flex items-center justify-center gap-3">
+            <button type="submit" class="w-full py-5 bg-emerald-700 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-900/20 hover:bg-emerald-800 active:scale-95 transition-all flex items-center justify-center gap-3">
                 <i data-lucide="send" class="w-4 h-4"></i> Submit Media
             </button>
         </form>
@@ -208,12 +236,12 @@
 
 {{-- MODAL EDIT DENGAN SKAT DAN JARAK --}}
 <div id="edit-photo-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden border-t-[8px] border-amber-500 animate-fade-in-up">
+    <div class="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden border-t-[8px] border-emerald-500 animate-fade-in-up">
         <div class="modal-header-divider">
             <h3 class="font-black text-slate-800 uppercase text-sm tracking-widest flex items-center gap-3">
-                <i data-lucide="edit-3" class="text-amber-600"></i> Update Content
+                <i data-lucide="edit-3" class="text-emerald-600"></i> Update Content
             </h3>
-            <button onclick="closeModal('edit-photo-modal')" class="w-10 h-10 flex items-center justify-center rounded-2xl hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition-all"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <button onclick="closeModal('edit-photo-modal')" class="w-10 h-10 flex items-center justify-center rounded-2xl hover:bg-slate-50 text-slate-400 hover:text-slate-700 transition-all"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
         <form id="edit-gallery-form" method="POST" enctype="multipart/form-data" class="p-10 space-y-8">
             @csrf @method('PUT')

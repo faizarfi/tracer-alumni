@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Admin Overview')
+@section('title', 'Ikhtisar Admin')
 
 @push('chart-libs')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,8 +24,18 @@
     }
 
     .metric-icon-gradient {
-        @apply w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        box-shadow: 0 8px 22px rgba(2,6,23,0.08);
+        transition: transform .36s cubic-bezier(.2,.9,.2,1), box-shadow .36s;
     }
+    .metric-icon-gradient i { transform: translateY(0); transition: transform .36s; }
+    .glass-card-admin:hover .metric-icon-gradient { transform: translateY(-6px) rotate(-6deg); box-shadow: 0 18px 40px rgba(2,6,23,0.12); }
 
     /* Animasi Entry */
     .fade-up {
@@ -43,13 +53,13 @@
     {{-- 1. HEADER SECTION --}}
     <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 fade-up">
         <div>
-            <h1 class="text-3xl font-black text-slate-900 tracking-tight">System <span class="text-green-600">Overview</span></h1>
-            <p class="text-slate-500 mt-1 font-medium italic uppercase text-[10px] tracking-widest">Selamat Datang Kembali, {{ Auth::user()->name ?? 'Administrator' }}</p>
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Gambaran <span class="text-green-600">Sistem</span></h1>
+            <p class="text-slate-500 mt-1 font-medium uppercase text-[10px] tracking-widest">Selamat datang, {{ Auth::user()->name ?? 'Administrator' }}</p>
         </div>
 
         <div class="bg-white px-6 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
             <div class="text-right">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Server Time</p>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Waktu Server</p>
                 <p id="currentDateTime" class="text-xs font-black text-green-700 leading-none"></p>
             </div>
             <div class="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center">
@@ -79,7 +89,7 @@
                     </div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{{ $stat['label'] }}</p>
                     <h3 class="text-4xl font-black text-slate-900 tracking-tighter">{{ $stat['value'] }}</h3>
-                    <p class="text-[9px] font-bold text-slate-400 mt-2 italic uppercase tracking-wider">{{ $stat['desc'] }}</p>
+                    <p class="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-wider">{{ $stat['desc'] }}</p>
                 </div>
             </div>
         @endforeach
@@ -103,15 +113,15 @@
         <section class="glass-card-admin p-8 lg:col-span-2 rounded-[2.5rem]">
             <div class="mb-10">
                 <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Analisis Persentase</h2>
-                <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-tighter italic">Berdasarkan data kuesioner terkini</p>
+                <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-tighter">Berdasarkan data kuesioner terkini</p>
             </div>
 
             @php
                 $total = $totalAlumni ?? 1;
                 $rates = [
-                    ['label' => 'Employment Rate', 'rate' => round((($bekerja ?? 0) / $total) * 100, 1), 'icon' => 'award', 'color' => 'bg-blue-600', 'text' => 'text-blue-600', 'bg' => 'bg-blue-50'],
-                    ['label' => 'Unemployment Rate', 'rate' => round((($belumBekerja ?? 0) / $total) * 100, 1), 'icon' => 'alert-circle', 'color' => 'bg-rose-600', 'text' => 'text-rose-600', 'bg' => 'bg-rose-50'],
-                    ['label' => 'Questionnaire Participation', 'rate' => round((($isiKuisioner ?? 0) / $total) * 100, 1), 'icon' => 'check-square', 'color' => 'bg-emerald-600', 'text' => 'text-emerald-600', 'bg' => 'bg-emerald-50']
+                    ['label' => 'Tingkat Bekerja', 'rate' => round((($bekerja ?? 0) / $total) * 100, 1), 'icon' => 'award', 'color' => 'bg-blue-600', 'text' => 'text-blue-600', 'bg' => 'bg-blue-50'],
+                    ['label' => 'Tingkat Pengangguran', 'rate' => round((($belumBekerja ?? 0) / $total) * 100, 1), 'icon' => 'alert-circle', 'color' => 'bg-rose-600', 'text' => 'text-rose-600', 'bg' => 'bg-rose-50'],
+                    ['label' => 'Partisipasi Kuesioner', 'rate' => round((($isiKuisioner ?? 0) / $total) * 100, 1), 'icon' => 'check-square', 'color' => 'bg-emerald-600', 'text' => 'text-emerald-600', 'bg' => 'bg-emerald-50']
                 ];
             @endphp
 
@@ -138,8 +148,8 @@
 
     {{-- 4. LATEST ALUMNI TABLE --}}
     <section class="glass-card-admin overflow-hidden rounded-[2.5rem] shadow-xl fade-up" style="animation-delay: 0.3s">
-        <div class="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-            <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Record Alumni Terbaru</h2>
+            <div class="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Rekor Alumni Terbaru</h2>
             <a href="{{ route('admin.alumni') }}" class="text-[10px] font-black text-green-600 hover:text-green-700 uppercase tracking-[0.2em] transition-all">Lihat Semua &rarr;</a>
         </div>
 
@@ -172,7 +182,7 @@
                             <span class="text-xs font-bold text-slate-500 uppercase tracking-tighter">{{ $alumni->jurusan }}</span>
                         </td>
                         <td class="px-8 py-4 text-right">
-                            <span class="text-[10px] font-black text-slate-400 uppercase italic">{{ $alumni->fakultas }}</span>
+                            <span class="text-[10px] font-black text-slate-400 uppercase">{{ $alumni->fakultas }}</span>
                         </td>
                     </tr>
                     @endforeach
@@ -218,32 +228,37 @@
                 data: {
                     labels: ['Bekerja', 'Belum Bekerja', 'Isi Kuesioner'],
                     datasets: [{
-                        data: [statsData.bekerja, statsData.belum, statsData.kuesioner],
-                        backgroundColor: ['#3b82f6', '#f43f5e', '#f59e0b'],
-                        borderWidth: 8,
-                        borderColor: '#ffffff',
-                        hoverOffset: 20
+                                data: [statsData.bekerja, statsData.belum, statsData.kuesioner],
+                                /* Modern, cool palette: cyan / emerald / violet */
+                                backgroundColor: ['#06b6d4', '#10b981', '#7c3aed'],
+                                borderWidth: 6,
+                                borderColor: '#ffffff',
+                                hoverOffset: 18
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '75%',
+                            cutout: '70%',
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 30,
-                                usePointStyle: true,
-                                font: { size: 11, weight: '800' },
-                                color: '#1e293b'
-                            }
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 24,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle',
+                                        boxWidth: 10,
+                                        font: { size: 12, weight: '800' },
+                                        color: '#0f172a'
+                                    }
                         },
-                        tooltip: {
-                            backgroundColor: '#1e293b',
-                            padding: 12,
-                            titleFont: { size: 14, weight: 'bold' }
-                        }
+                                tooltip: {
+                                    backgroundColor: '#064e3b',
+                                    padding: 12,
+                                    titleFont: { size: 13, weight: '800' },
+                                    bodyFont: { size: 12 },
+                                    cornerRadius: 8
+                                }
                     }
                 }
             });

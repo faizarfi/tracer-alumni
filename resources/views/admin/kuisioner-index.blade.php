@@ -4,27 +4,47 @@
 
 @section('content')
 <style>
-    /* Premium Table Styling */
+    /* Premium Table / Card Styling */
     .glass-card-table {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+        background: linear-gradient(180deg, rgba(240,253,244,0.85), rgba(255,255,255,0.95));
         border: 1px solid rgba(226, 232, 240, 0.8);
-        border-radius: 2rem;
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        border-radius: 1.75rem;
+        box-shadow: 0 12px 40px -18px rgba(2,6,23,0.08);
+        padding: 0.75rem;
     }
 
     .tr-hover {
-        transition: all 0.2s ease;
+        transition: all 0.18s ease;
     }
 
     .tr-hover:hover {
-        background-color: #f8fafc;
-        transform: scale(1.002);
+        transform: translateY(-3px);
     }
 
+    /* Make table rows render as modern cards while preserving semantics */
+    .glass-card-table table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .glass-card-table thead { display: grid; grid-template-columns: 1fr 140px 220px 180px; gap: 12px; padding: 1rem; }
+    .glass-card-table thead tr { display: contents; }
+    .glass-card-table thead th { background: transparent; padding: 0.75rem 1rem; color: #94a3b8; }
+    .glass-card-table tbody { display: grid; gap: 1rem; padding: 1rem; }
+    .glass-card-table tbody tr { display: grid; grid-template-columns: 1fr 140px 220px 180px; gap: 12px; background: #ffffff; border-radius: 1rem; padding: 1rem; align-items: center; box-shadow: 0 8px 24px -16px rgba(2,6,23,0.06); border-left: 4px solid rgba(16,185,129,0.08); }
+    .glass-card-table td { padding: 0; }
+
+    .record-accent { border-left-color: #10b981 !important; }
+
     .input-premium {
-        @apply w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all text-sm font-medium text-slate-700;
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #e6edf0;
+        border-radius: 0.75rem;
+        padding: 0.65rem 1rem;
+        outline: none;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #0f172a;
+        transition: border-color 0.12s ease, box-shadow 0.12s ease;
     }
+    .input-premium:focus { border-color: #10b981; box-shadow: 0 0 0 6px rgba(16,185,129,0.06); }
 </style>
 
 <div class="space-y-8 font-['Plus_Jakarta_Sans']">
@@ -79,11 +99,16 @@
     {{-- MAIN TABLE SECTION --}}
     <section class="glass-card-table overflow-hidden shadow-xl shadow-slate-200/50">
         {{-- Status Bar --}}
-        <div class="px-8 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Record Kuesioner Terdata</span>
-            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-black uppercase tracking-tighter">
-                Total: {{ $kuisioners->total() }} Responden
-            </span>
+        <div class="px-6 py-4 bg-transparent border-b border-slate-100 flex justify-between items-center">
+            <div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Record Kuesioner Terdata</span>
+                <p class="text-xs text-slate-500 mt-1">Daftar responden lengkap dengan tanggal pengisian dan tindakan manajemen.</p>
+            </div>
+            <div>
+                <span class="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-tighter">
+                    Total: {{ $kuisioners->total() }} Responden
+                </span>
+            </div>
         </div>
 
         {{-- Desktop View --}}
@@ -101,22 +126,22 @@
                     @forelse ($kuisioners as $kuisioner)
                     <tr class="tr-hover">
                         <td class="px-8 py-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-bold text-slate-400 uppercase">
-                                    {{ substr($kuisioner->user->name ?? '?', 0, 1) }}
-                                </div>
-                                <div>
-                                    <p class="font-bold text-slate-900 text-sm leading-tight uppercase">{{ $kuisioner->user->name ?? 'User Tidak Ditemukan' }}</p>
-                                    <p class="text-[10px] font-medium text-slate-400 mt-0.5 tracking-tighter">Alumni UIN Raden Mas Said</p>
-                                </div>
-                            </div>
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center font-black text-base uppercase border border-emerald-100">
+                                                {{ substr($kuisioner->user->name ?? '?', 0, 1) }}
+                                            </div>
+                                            <div>
+                                                <p class="font-black text-slate-900 text-sm leading-tight uppercase">{{ $kuisioner->user->name ?? 'User Tidak Ditemukan' }}</p>
+                                                <p class="text-[11px] font-medium text-slate-500 mt-0.5 tracking-tight">Alumni UIN Raden Mas Said</p>
+                                            </div>
+                                        </div>
                         </td>
                         <td class="px-8 py-4 text-center">
-                            <span class="px-3 py-1 bg-slate-100 rounded-lg font-mono text-xs text-slate-500 font-bold">#{{ $kuisioner->user_id }}</span>
+                            <span class="px-3 py-1 bg-emerald-50 border border-emerald-100 rounded-lg font-mono text-xs text-emerald-600 font-bold">#{{ $kuisioner->user_id }}</span>
                         </td>
                         <td class="px-8 py-4 text-center">
                             <div class="inline-flex items-center gap-2 text-slate-600">
-                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-300"></i>
+                                <i data-lucide="calendar" class="w-4 h-4 text-emerald-300"></i>
                                 <span class="text-xs font-bold">{{ $kuisioner->created_at->format('d M Y') }}</span>
                                 <span class="text-[10px] text-slate-400 font-medium tracking-tighter">/ {{ $kuisioner->created_at->format('H:i') }}</span>
                             </div>
@@ -124,12 +149,12 @@
                         <td class="px-8 py-4 text-right">
                             <div class="flex justify-end items-center gap-2">
                                 <a href="{{ route('admin.kuisioner.detail', $kuisioner->id) }}"
-                                   class="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                   class="inline-flex items-center gap-2 bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
                                     <i data-lucide="eye" class="w-3.5 h-3.5"></i> Detail
                                 </a>
                                 <form action="{{ route('admin.kuisioner.destroy', $kuisioner->id) }}" method="POST" class="swal-confirm" data-confirm="Hapus data kuesioner ini?">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all">
+                                    <button type="submit" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                 </form>

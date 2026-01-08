@@ -132,6 +132,45 @@
                 </div>
             </section>
 
+            {{-- PANDUAN PENGURUS — RINGKAS DAN PRAKTIS --}}
+            <section id="panduan-pengurus" class="glass-card-help p-6 shadow-md">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-1 h-8 bg-emerald-500 rounded-full"></div>
+                        <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight">Panduan Singkat untuk Kaprodi</h2>
+                    </div>
+                    <div>
+                        <a href="{{ route('kaprodi.help.checklistPdf') }}" class="inline-flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-md text-[13px] font-bold shadow-sm hover:bg-emerald-700">Download Checklist (PDF)</a>
+                    </div>
+                </div>
+
+                <div class="text-sm text-slate-700 space-y-3">
+                    <p class="font-bold">Tujuan:</p>
+                    <p>Prosedur ringkas agar Kaprodi dapat membaca hasil tracer study dan melakukan tindak lanjut.</p>
+
+                    <p class="font-bold">Langkah Utama:</p>
+                    <ol class="list-decimal list-inside pl-4 space-y-1">
+                        <li>Login dengan akun Kaprodi.</li>
+                        <li>Buka <b>Alumni</b> → gunakan filter (prodi, angkatan) untuk seleksi.</li>
+                        <li>Klik nama alumni → lihat <b>Detail Kuesioner</b> (format: Question = Answer).</li>
+                        <li>Ekspor data bila perlu: gunakan <b>EXPORT CSV</b> untuk data mentah, <b>EXPORT PDF</b> untuk laporan per-responden.</li>
+                        <li>Catat temuan penting dan agendakan rapat evaluasi prodi.</li>
+                    </ol>
+
+                    <p class="font-bold">Interpretasi Cepat:</p>
+                    <ul class="list-disc list-inside pl-4 space-y-1">
+                        <li>Perhatikan kategori dominan pada grafik untuk menentukan prioritas tindakan.</li>
+                        <li>Validitas meningkat dengan jumlah respon; usahakan target minimal 30 respon.</li>
+                    </ul>
+
+                    <p class="font-bold">Catatan Singkat:</p>
+                    <p>Jika data tidak tampil: periksa filter dan sinkronisasi database; hubungi IT bila perlu. (Tim server/instalasi sudah ditangani.)</p>
+
+                    <p class="font-bold">Kontak:</p>
+                    <p><a href="mailto:it-tracer@uinsaid.ac.id" class="text-emerald-600 font-bold">it-tracer@uinsaid.ac.id</a></p>
+                </div>
+            </section>
+
             {{-- LITERASI DATA SECTION --}}
             <section id="interpretasi-section" class="glass-card-help p-8 shadow-xl shadow-slate-200/50 border-t-4 border-t-yellow-500">
                 <div class="flex items-center gap-3 mb-8">

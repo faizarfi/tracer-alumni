@@ -66,6 +66,22 @@
             }
         }
 
+        /* Desktop collapsed state (icon-only) */
+        #sidebar.collapsed {
+            width: 72px;
+        }
+        #sidebar.collapsed .p-8 {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        #sidebar.collapsed img { width: 40px; height: 40px; }
+        #sidebar.collapsed nav { align-items: center; }
+        #sidebar.collapsed .sidebar-link { justify-content: center; padding-left: 0.75rem; }
+        #sidebar.collapsed .sidebar-link span { display: none; }
+        #sidebar.collapsed .sidebar-link .w-5 { margin-right: 0; }
+        #sidebar.collapsed .mt-auto { padding-bottom: 1rem; }
+        #sidebar.collapsed h2, #sidebar.collapsed p { display: none; }
+
         /* Sidebar Nav Styling */
         .sidebar-link {
             transition: all 0.3s ease;
@@ -110,7 +126,10 @@
 
         {{-- Sidebar --}}
         <aside id="sidebar" class="text-white flex flex-col">
-            <div class="p-8 border-b border-white/5 bg-black/10 text-center">
+            <div class="p-8 border-b border-white/5 bg-black/10 text-center relative">
+                <button id="sidebarClose" class="md:hidden absolute top-4 right-4 p-2.5 rounded-lg bg-white/5 text-white hover:bg-white/10">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
                 <img src="{{ asset('img/uin.png') }}" class="w-16 h-16 mx-auto mb-4 drop-shadow-xl brightness-0 invert" alt="Logo UIN">
                 <h2 class="text-lg font-black tracking-widest font-['Poppins'] uppercase">Admin Panel</h2>
                 <p class="text-[10px] text-emerald-400 font-bold tracking-[0.2em] uppercase">Super Control Center</p>
@@ -188,6 +207,10 @@
                     <div class="flex items-center gap-6">
                         <button id="sidebarToggle" class="md:hidden text-white bg-emerald-900 p-2.5 rounded-xl shadow-lg hover:bg-emerald-800 transition-all active:scale-95">
                             <i data-lucide="menu" class="w-6 h-6"></i>
+                        </button>
+                        <!-- Desktop collapse control -->
+                        <button id="sidebarCollapse" class="hidden md:inline-flex text-emerald-900 bg-white/5 p-2.5 rounded-xl shadow-sm hover:bg-white/10 transition-all items-center justify-center">
+                            <i data-lucide="chevrons-left" class="w-5 h-5"></i>
                         </button>
                         <div class="hidden sm:block">
                             <h2 class="text-sm font-black text-slate-800 uppercase tracking-tight">System Administrator</h2>
@@ -290,6 +313,7 @@
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const sidebarCollapse = document.getElementById('sidebarCollapse');
 
             if (sidebarToggle) {
                 const toggle = () => {
@@ -299,6 +323,30 @@
                 };
                 sidebarToggle.addEventListener('click', toggle);
                 sidebarOverlay.addEventListener('click', toggle);
+                // Close button inside sidebar (mobile) and Escape key handler
+                const sidebarClose = document.getElementById('sidebarClose');
+                sidebarClose && sidebarClose.addEventListener('click', function(){
+                    if(sidebar.classList.contains('open')) toggle();
+                });
+                document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && sidebar.classList.contains('open')) toggle(); });
+            }
+
+            // Desktop collapse toggle: icon-only sidebar
+            if(sidebarCollapse){
+                // apply persisted state
+                const saved = localStorage.getItem('sidebarCollapsed') === 'true';
+                if(saved) sidebar.classList.add('collapsed');
+
+                sidebarCollapse.setAttribute('aria-expanded', sidebar.classList.contains('collapsed'));
+                sidebarCollapse.addEventListener('click', function(){
+                    const now = sidebar.classList.toggle('collapsed');
+                    // toggle icon direction (update lucide attribute and refresh icons)
+                    const icon = sidebarCollapse.querySelector('i');
+                    if(icon) icon.setAttribute('data-lucide', now ? 'chevrons-right' : 'chevrons-left');
+                    sidebarCollapse.setAttribute('aria-expanded', String(now));
+                    localStorage.setItem('sidebarCollapsed', now);
+                    try{ lucide.createIcons(); }catch(e){}
+                });
             }
 
             // Scroll Top

@@ -268,6 +268,94 @@ class KuisionerController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
+    /**
+     * Ekspor laporan kuesioner Kaprodi menjadi PDF (menggunakan DomPDF jika tersedia)
+     */
+    public function exportKaprodiPdf()
+    {
+        $kaprodiProdi = Auth::user()->prodi;
+
+        $alumniIds = Alumni::where('jurusan', $kaprodiProdi)
+                           ->pluck('user_id');
+
+        $kuisioners = Kuisioner::whereIn('user_id', $alumniIds)->with('user')->get();
+
+        // Build aggregated maps for pendidikan and fasilitas
+        $agg = function($items, $field) {
+            $out = [];
+            foreach ($items as $it) {
+                $raw = $it->{$field} ?? null;
+                if (is_string($raw)) {
+                    $decoded = json_decode($raw, true);
+                    if (json_last_error() === JSON_ERROR_NONE) $raw = $decoded;
+                }
+
+                if (is_array($raw)) {
+                    // associative (question => answer) or numeric-list
+                    $isAssoc = array_keys($raw) !== range(0, count($raw) - 1);
+                    if ($isAssoc) {
+                        foreach ($raw as $q => $ans) {
+                            $qKey = trim($q ?: 'Pertanyaan');
+                            $aVal = is_array($ans) ? implode(', ', $ans) : (string) ($ans ?? '-');
+                            if (!isset($out[$qKey])) $out[$qKey] = [];
+                            $out[$qKey][$aVal] = ($out[$qKey][$aVal] ?? 0) + 1;
+                        }
+                    } else {
+                        // list of values — aggregate under generic items
+                        foreach ($raw as $idx => $val) {
+                            $qKey = 'Item ' . ($idx + 1);
+                            $aVal = is_array($val) ? implode(', ', $val) : (string) ($val ?? '-');
+                            if (!isset($out[$qKey])) $out[$qKey] = [];
+                            $out[$qKey][$aVal] = ($out[$qKey][$aVal] ?? 0) + 1;
+                        }
+                    }
+                }
+            }
+            return $out;
+        };
+
+        $aggPendidikan = $agg($kuisioners, 'pendidikan');
+        $aggFasilitas = $agg($kuisioners, 'fasilitas');
+
+        $data = compact('kuisioners', 'kaprodiProdi', 'aggPendidikan', 'aggFasilitas');
+
+        try {
+            if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+                \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('kaprodi.kuisioner-pdf', $data)->setPaper('a4', 'portrait');
+                return $pdf->download('kuisioner_' . Str::slug($kaprodiProdi) . '_' . now()->format('Ymd_His') . '.pdf');
+            }
+
+            if (app()->bound('dompdf.wrapper')) {
+                $pdf = app('dompdf.wrapper');
+                if (method_exists($pdf, 'setOptions')) {
+                    $pdf->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+                }
+                $pdf->loadView('kaprodi.kuisioner-pdf', $data);
+                return $pdf->download('kuisioner_' . Str::slug($kaprodiProdi) . '_' . now()->format('Ymd_His') . '.pdf');
+            }
+
+            if (class_exists(\Dompdf\Dompdf::class)) {
+                $html = view('kaprodi.kuisioner-pdf', $data)->render();
+                $options = new \Dompdf\Options();
+                $options->set('isRemoteEnabled', true);
+                $dompdf = new \Dompdf\Dompdf($options);
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+                $output = $dompdf->output();
+                return response($output, 200, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'attachment; filename="kuisioner_' . Str::slug($kaprodiProdi) . '_' . now()->format('Ymd_His') . '.pdf"',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // fallback
+        }
+
+        return redirect()->back()->with('error', 'Fitur PDF belum tersedia. Jalankan: composer require barryvdh/laravel-dompdf.');
+    }
+
     // --- METODE LAMA (ADMIN) ---
 
     public function adminIndex(Request $request)

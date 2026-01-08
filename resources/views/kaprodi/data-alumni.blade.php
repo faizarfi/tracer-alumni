@@ -4,34 +4,69 @@
 
 @section('content')
 <style>
+    /* Card shell with subtle glass and stronger border for separation */
     .glass-card-alumni {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        border-radius: 2rem;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(226, 232, 240, 1);
+        border-radius: 1.5rem;
+        color: #0f172a;
     }
 
     .table-container {
-        border-radius: 1.5rem;
+        border-radius: 1.25rem;
         overflow: hidden;
-        border: 1px solid #f1f5f9;
+        border: 1px solid #eef2ff;
     }
 
+    /* Status badge explicit styles (replaces Tailwind @apply) */
     .status-badge {
-        @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border;
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.625rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border: 1px solid transparent;
     }
 
+    /* Input filter explicit styles */
     .input-filter {
-        @apply w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm font-medium text-slate-700;
+        width: 100%;
+        background: #fff;
+        border: 1px solid #e6edf6;
+        border-radius: 0.75rem;
+        padding: 0.625rem 1rem;
+        outline: none;
+        transition: box-shadow .15s ease, border-color .15s ease, transform .06s ease;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .input-filter:focus {
+        border-color: #2563eb;
+        box-shadow: 0 8px 20px rgba(37,99,235,0.08);
     }
 
     /* Animasi Hover Baris Tabel */
     .tr-hover {
-        transition: all 0.2s ease;
+        transition: background-color 0.18s ease, transform 0.12s ease;
     }
     .tr-hover:hover {
-        background-color: #f8fafc;
-        transform: scale(1.002);
+        background-color: #fbfdff;
+        transform: translateY(-1px);
+    }
+
+    /* Improve small icon contrast in header */
+    .header-stat-icon { color: #1e40af; }
+
+    /* Make disabled action clearer */
+    .btn-disabled {
+        background: #f8fafc;
+        color: #94a3b8;
+        border: 1px solid #e6edf6;
+        opacity: 1;
     }
 </style>
 
@@ -54,7 +89,7 @@
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Terdata</p>
                 <p class="text-xl font-black text-blue-800 leading-none">{{ $alumniData->total() ?? 0 }} <span class="text-xs font-medium text-slate-400">Orang</span></p>
             </div>
-            <i data-lucide="database" class="w-8 h-8 text-slate-200"></i>
+            <i data-lucide="database" class="w-8 h-8 header-stat-icon"></i>
         </div>
     </header>
 
@@ -124,7 +159,7 @@
                         <td class="px-8 py-4 text-center">
                             <div class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-lg">
                                 <span class="text-[10px] font-bold text-slate-500">{{ $alumni->tahun_masuk ?? '?' }}</span>
-                                <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300"></i>
+                                <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400"></i>
                                 <span class="text-xs font-black text-green-600">{{ $alumni->tahun_keluar }}</span>
                             </div>
                         </td>
@@ -137,21 +172,21 @@
                         </td>
                         <td class="px-8 py-4 text-center">
                             @if($alumni->has_filled_questionnaire ?? false)
-                                <div class="flex items-center justify-center text-emerald-500 gap-1 font-bold text-[10px] uppercase">
+                                <div class="flex items-center justify-center text-emerald-600 gap-1 font-bold text-[10px] uppercase">
                                     <i data-lucide="check-circle-2" class="w-4 h-4"></i> Lengkap
                                 </div>
                             @else
-                                <span class="text-slate-300 text-[10px] font-bold uppercase italic tracking-tighter">Belum Isi</span>
+                                <span class="text-slate-500 text-[10px] font-bold uppercase italic tracking-tighter">Belum Isi</span>
                             @endif
                         </td>
                         <td class="px-8 py-4 text-right">
                             @if($alumni->has_filled_questionnaire ?? false)
                                 <a href="{{ route('kaprodi.alumni.detail', ['alumni_id' => $alumni->user_id]) }}"
                                    class="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md">
-                                    Detail <i data-lucide="chevron-right" class="w-3 h-3 text-blue-400"></i>
+                                    Detail <i data-lucide="chevron-right" class="w-3 h-3 text-white"></i>
                                 </a>
                             @else
-                                <button disabled class="opacity-30 cursor-not-allowed inline-flex items-center gap-2 bg-slate-100 text-slate-400 px-4 py-2 rounded-xl text-[10px] font-black uppercase">
+                                <button disabled class="btn-disabled cursor-not-allowed inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase">
                                     No Data
                                 </button>
                             @endif
@@ -178,7 +213,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none">Lulus</p>
+                            <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Lulus</p>
                             <p class="text-sm font-black text-green-600 mt-1">{{ $alumni->tahun_keluar }}</p>
                         </div>
                     </div>
@@ -195,14 +230,14 @@
                                 Detail <i data-lucide="arrow-right" class="w-3 h-3"></i>
                             </a>
                         @else
-                            <span class="text-[10px] font-bold text-slate-300 uppercase italic tracking-tighter">Kuesioner Kosong</span>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase italic tracking-tighter">Kuesioner Kosong</span>
                         @endif
                     </div>
                 </div>
             @empty
                 <div class="py-20 text-center">
                     <div class="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-4">
-                        <i data-lucide="search-x" class="w-10 h-10 text-slate-200"></i>
+                        <i data-lucide="search-x" class="w-10 h-10 text-slate-400"></i>
                     </div>
                     <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Data alumni tidak ditemukan</p>
                 </div>

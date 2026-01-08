@@ -103,6 +103,59 @@ class DashboardController extends Controller
             '0' => (int)($statusKerjaResult[0] ?? $statusKerjaResult['0'] ?? 0), // Belum Bekerja
         ];
 
+        // 4a. Rata-rata waktu mendapat kerja (dalam bulan) — gunakan field `waktu_tunggu` dari Kuisioner
+        $avgTimeRaw = Kuisioner::whereIn('user_id', $alumniUserIds)
+                        ->whereNotNull('waktu_tunggu')
+                        ->where('waktu_tunggu', '!=', '')
+                        ->avg(DB::raw('CAST(waktu_tunggu AS SIGNED)'));
+        $avgTimeToJob = $avgTimeRaw ? round($avgTimeRaw, 1) : null;
+
+        // 4b. Tingkat serapan kerja (%)
+        $employabilityRate = 0;
+        if ($totalAlumni > 0) {
+            $employabilityRate = round((($statusKerja['1'] ?? 0) / $totalAlumni) * 100, 1);
+        }
+
+        // 4c. Responden baru 30 hari
+        $recentRespondents30d = Kuisioner::whereIn('user_id', $alumniUserIds)
+                                    ->where('created_at', '>=', now()->subDays(30))
+                                    ->distinct('user_id')
+                                    ->count('user_id');
+
+        // 4d. Recent activity: gabungkan pengisian kuesioner dan pendaftaran alumni (urut berdasarkan waktu)
+        $recentKuisioners = Kuisioner::whereIn('user_id', $alumniUserIds)
+                                ->latest()
+                                ->take(8)
+                                ->get(['user_id', 'nama', 'created_at']);
+
+        $recentAlumni = Alumni::where('jurusan', $prodiName)
+                            ->latest()
+                            ->take(6)
+                            ->get(['nama', 'user_id', 'created_at']);
+
+        $recentActivity = collect();
+        foreach ($recentKuisioners as $k) {
+            $recentActivity->push([
+                'type' => 'kuisioner',
+                'text' => ($k->nama ?? 'Pengguna') . ' mengisi kuesioner',
+                'time' => $k->created_at->diffForHumans(),
+                'ts' => $k->created_at->getTimestamp(),
+            ]);
+        }
+        foreach ($recentAlumni as $a) {
+            $recentActivity->push([
+                'type' => 'alumni',
+                'text' => ($a->nama ?? 'Alumni') . ' terdaftar',
+                'time' => $a->created_at->diffForHumans(),
+                'ts' => $a->created_at->getTimestamp(),
+            ]);
+        }
+
+        // Urutkan berdasarkan timestamp dan ambil 8 teratas
+        $recentActivity = $recentActivity->sortByDesc('ts')->values()->take(8)->map(function ($i) {
+            return ['text' => $i['text'], 'time' => $i['time']];
+        })->toArray();
+
         // 4. Agregasi data yang akan dikirim ke view
         $kaprodiData = [
             'prodi_name' => $prodiName,
@@ -111,6 +164,11 @@ class DashboardController extends Controller
             // Data Grafik
             'alumni_by_year' => $alumniByYear,
             'status_kerja' => $statusKerja,
+            // Additional insights
+            'avg_time_to_job' => $avgTimeToJob,
+            'employability_rate' => $employabilityRate,
+            'recent_respondents_30d' => $recentRespondents30d,
+            'recent_activity' => $recentActivity,
         ];
 
         // 5. Tampilkan view dashboard Kaprodi
@@ -124,6 +182,54 @@ class DashboardController extends Controller
     {
         // Asumsi view 'kaprodi.help' berisi FAQ, panduan penggunaan dashboard, dll.
         return view('kaprodi.help');
+    }
+
+    /**
+     * Download printable checklist PDF for Kaprodi (guarded: requires barryvdh/laravel-dompdf).
+     */
+    public function kaprodiHelpPdf(Request $request)
+    {
+        // Blade view: resources/views/kaprodi/help-checklist.blade.php
+        try {
+            // 1) Preferred: facade if available
+            if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+                // enable remote images (public_path) and HTML5 parser
+                \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('kaprodi.help-checklist');
+                return $pdf->download('checklist-kaprodi.pdf');
+            }
+
+            // 2) If the package's binding exists in the container
+            if (app()->bound('dompdf.wrapper')) {
+                $pdf = app('dompdf.wrapper');
+                if (method_exists($pdf, 'setOptions')) {
+                    $pdf->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+                }
+                $pdf->loadView('kaprodi.help-checklist');
+                return $pdf->download('checklist-kaprodi.pdf');
+            }
+
+            // 3) Fallback: use Dompdf directly (if installed)
+            if (class_exists(\Dompdf\Dompdf::class)) {
+                $html = view('kaprodi.help-checklist')->render();
+                $options = new \Dompdf\Options();
+                $options->set('isRemoteEnabled', true);
+                $dompdf = new \Dompdf\Dompdf($options);
+                $dompdf->loadHtml($html);
+                $dompdf->setPaper('A4', 'portrait');
+                $dompdf->render();
+                $output = $dompdf->output();
+                return response($output, 200, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'attachment; filename="checklist-kaprodi.pdf"',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Log the error for debugging
+            logger()->error('kaprodiHelpPdf error: ' . $e->getMessage());
+        }
+
+        return redirect()->route('kaprodi.help')->with('error', 'PDF export tidak tersedia — instal DomPDF atau hubungi tim IT.');
     }
 
     /**
