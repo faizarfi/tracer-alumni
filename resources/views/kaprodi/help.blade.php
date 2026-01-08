@@ -140,18 +140,19 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="p-6 bg-blue-50/50 border border-blue-100 rounded-3xl group hover:bg-white transition-all">
-                        <h3 class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-3">Relevansi Kerja (P1)</h3>
+                    <div class="p-6 bg-indigo-50/50 border border-indigo-100 rounded-3xl group hover:bg-white transition-all">
+                        <h3 class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] mb-3">Proses Pendidikan</h3>
                         <p class="text-xs text-slate-600 leading-relaxed font-medium">
-                            Mengukur keselarasan bidang ilmu dengan pekerjaan.
-                            <span class="block mt-3 p-2 bg-blue-100/50 rounded-lg font-bold text-blue-800 italic">Target: > 70% Keselarasan</span>
+                            Visualisasi tentang jalur pendidikan alumni (jenjang, institusi, lama studi) yang membantu menilai karakteristik lulusan.
+                            <span class="block mt-3 p-2 bg-indigo-100/50 rounded-lg font-bold text-indigo-800 italic">Gunakan filter prodi untuk melihat perbandingan antar angkatan.</span>
                         </p>
                     </div>
 
                     <div class="p-6 bg-emerald-50/50 border border-emerald-100 rounded-3xl group hover:bg-white transition-all text-center">
-                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-3">Employability Rate</h3>
+                        <h3 class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-3">Fasilitas Kampus</h3>
                         <p class="text-xs text-slate-600 leading-relaxed font-medium">
-                            Persentase alumni yang terserap dunia kerja atau lanjut studi dalam waktu < 6 bulan.
+                            Menilai persepsi alumni terhadap fasilitas kampus (laboratorium, perpustakaan, layanan administrasi) dan area yang perlu perbaikan.
+                            <span class="block mt-3 p-2 bg-emerald-100/50 rounded-lg font-bold text-emerald-800 italic">Grafik berbentuk stacked membantu melihat area prioritas perbaikan.</span>
                         </p>
                     </div>
                 </div>
