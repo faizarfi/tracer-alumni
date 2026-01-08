@@ -68,14 +68,40 @@
         /* Responsive hero heading */
         .hero-section h1 { font-size: clamp(1.6rem, 4.5vw, 3.5rem); }
 
-        /* Visible skip link on focus */
-        .skip-link { position: absolute; left: 1rem; top: 0.75rem; background: #064e3b; color: #fff; padding: 0.35rem 0.75rem; border-radius: 6px; z-index: 60; transform: translateY(-120%); transition: transform .15s ease; }
-        .skip-link:focus { transform: translateY(0%); outline: 3px solid rgba(6,78,59,0.25); }
+        /* Skip link: hidden visually but visible on keyboard focus */
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: 0.75rem;
+            background: #064e3b;
+            color: #fff;
+            padding: 0.45rem 0.9rem;
+            border-radius: 6px;
+            z-index: 80;
+            transform: translateY(-150%);
+            opacity: 0;
+            transition: transform .15s ease, opacity .15s ease;
+            font-weight:700;
+        }
+        .skip-link:focus,
+        .skip-link:focus-visible {
+            transform: translateY(0%);
+            opacity: 1;
+            outline: 3px solid rgba(6,78,59,0.18);
+            box-shadow: 0 6px 18px rgba(6,78,59,0.12);
+        }
+
+        /* Visible focus rings for keyboard users */
+        a:focus-visible, button:focus-visible {
+            outline: 3px solid rgba(6,78,59,0.18);
+            outline-offset: 2px;
+            box-shadow: 0 6px 18px rgba(6,78,59,0.08);
+        }
     </style>
 </head>
 <body class="antialiased text-slate-900">
 
-    <a href="#beranda" class="skip-link">Skip to content</a>
+    <a href="#beranda" class="skip-link">Lewati ke konten</a>
     <nav class="w-full glass-nav">
         <div class="max-w-7xl mx-auto px-6 h-20 grid grid-cols-2 md:grid-cols-3 items-center">
             <div class="flex items-center gap-3">
@@ -335,29 +361,41 @@
     </footer>
 
     <script>
-        // Mobile menu toggle
+        // Mobile menu toggle with keyboard accessibility
         (function(){
             const btn = document.getElementById('mobileMenuButton');
             const menu = document.getElementById('mobileMenu');
-            if(btn && menu){
-                btn.addEventListener('click', function(e){
-                    e.stopPropagation();
-                    const expanded = btn.getAttribute('aria-expanded') === 'true';
-                    btn.setAttribute('aria-expanded', String(!expanded));
-                    menu.classList.toggle('hidden');
-                });
+            if(!btn || !menu) return;
 
-                // close menu when clicking outside
-                document.addEventListener('click', function(e){
-                    if(!menu.classList.contains('hidden')){
-                        const target = e.target;
-                        if(!menu.contains(target) && !btn.contains(target)){
-                            menu.classList.add('hidden');
-                            btn.setAttribute('aria-expanded', 'false');
-                        }
-                    }
-                });
+            function openMenu(){
+                menu.classList.remove('hidden');
+                btn.setAttribute('aria-expanded', 'true');
+                menu.setAttribute('aria-modal', 'true');
             }
+            function closeMenu(){
+                menu.classList.add('hidden');
+                btn.setAttribute('aria-expanded', 'false');
+                menu.setAttribute('aria-modal', 'false');
+            }
+
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                if(menu.classList.contains('hidden')) openMenu(); else closeMenu();
+            });
+
+            // keyboard: Enter/Space toggles, Esc closes
+            btn.addEventListener('keydown', function(e){
+                if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); btn.click(); }
+            });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeMenu(); });
+
+            // close when clicking outside
+            document.addEventListener('click', function(e){
+                if(!menu.classList.contains('hidden')){
+                    const target = e.target;
+                    if(!menu.contains(target) && !btn.contains(target)) closeMenu();
+                }
+            });
         })();
 
         lucide.createIcons();
