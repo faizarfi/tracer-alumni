@@ -120,30 +120,49 @@
                 </a>
             </div>
 
-            {{-- 4. STATISTICS (SINKRON DENGAN HEADER EMERALD) --}}
+            {{-- 4. FEATURE HIGHLIGHT (menggantikan Statistik) --}}
             <div class="max-w-5xl mx-auto">
-                <div class="relative overflow-hidden bg-emerald-950 rounded-[2rem] p-8 md:p-12 shadow-2xl border border-white/5">
-                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl"></div>
+                <div class="relative overflow-hidden bg-white rounded-2xl p-8 md:p-12 shadow-lg border border-slate-100">
+                    <div class="absolute -top-8 -right-8 w-36 h-36 bg-emerald-100/30 rounded-full blur-2xl"></div>
                     <div class="relative z-10">
-                        <div class="flex justify-center mb-10 text-center">
-                            <span class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400">
-                                Statistik Alumni UIN RMS
+                        <div class="flex justify-center mb-8 text-center">
+                            <span class="px-4 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-[11px] font-black uppercase tracking-[0.2em] text-emerald-700">
+                                Fitur & Sumber Daya
                             </span>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-0">
-                            <div class="flex flex-col items-center md:border-r border-white/10 px-6 group">
-                                <div class="mb-5 p-3 bg-emerald-500/10 rounded-2xl group-hover:bg-emerald-500/20 transition-colors">
-                                    <i data-lucide="briefcase" class="w-7 h-7 text-emerald-400"></i>
-                                </div>
-                                <span class="text-5xl md:text-6xl font-black text-white leading-none animate-float">{{ $bekerja ?? 0 }}</span>
-                                <p class="mt-4 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-200/60">Alumni Telah Bekerja</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="p-6 bg-slate-50 rounded-xl border border-slate-100">
+                                <h4 class="text-sm font-black text-slate-900 uppercase mb-2">Pengumuman</h4>
+                                @if(isset($announcements) && $announcements->isNotEmpty())
+                                    <ul class="text-xs text-slate-700 space-y-2 mb-3">
+                                        @foreach($announcements as $a)
+                                            <li>
+                                                <a href="{{ route('announcements.show', $a->id) }}" class="font-medium text-emerald-600">{{ Str::limit($a->title, 60) }}</a>
+                                                <div class="text-[10px] text-slate-500">{{ $a->published_at ? $a->published_at->format('d M Y') : $a->created_at->format('d M Y') }}</div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                    <a href="{{ route('announcements.index') }}" class="text-xs font-bold text-emerald-600 uppercase">Lihat Semua Pengumuman</a>
+                                @else
+                                    <p class="text-xs text-slate-500 mb-4">Belum ada pengumuman terbaru. Pantau halaman ini untuk update penting dari kampus.</p>
+                                    <a href="{{ route('announcements.index') }}" class="text-xs font-bold text-emerald-600 uppercase">Lihat Pengumuman</a>
+                                @endif
                             </div>
-                            <div class="flex flex-col items-center px-6 group text-center">
-                                <div class="mb-5 p-3 bg-emerald-500/10 rounded-2xl group-hover:bg-emerald-500/20 transition-colors">
-                                    <i data-lucide="file-check-2" class="w-7 h-7 text-emerald-400"></i>
-                                </div>
-                                <span class="text-5xl md:text-6xl font-black text-white leading-none animate-float" style="animation-delay: 1s">{{ $isiKuisioner ?? 0 }}</span>
-                                <p class="mt-4 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-200/60">Responden Kuesioner</p>
+
+                            <div class="p-6 bg-slate-50 rounded-xl border border-slate-100">
+                                <h4 class="text-sm font-black text-slate-900 uppercase mb-2">Sumber Daya</h4>
+                                <ul class="text-xs text-slate-600 space-y-2">
+                                    <li><a href="{{ route('user.profil') }}" class="text-emerald-600 font-medium">Lengkapi Profil</a></li>
+                                    <li><a href="{{ route('user.kuisioner') }}" class="text-emerald-600 font-medium">Isi Kuesioner</a></li>
+                                    <li><a href="{{ route('user.cari-alumni') }}" class="text-emerald-600 font-medium">Cari Alumni</a></li>
+                                </ul>
+                            </div>
+
+                            <div class="p-6 bg-slate-50 rounded-xl border border-slate-100">
+                                <h4 class="text-sm font-black text-slate-900 uppercase mb-2">Komunitas</h4>
+                                <p class="text-xs text-slate-500 mb-4">Gabung grup alumni untuk berjejaring, berbagi informasi karir, atau mencari mentor.</p>
+                                <a href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold">Gabung Sekarang</a>
                             </div>
                         </div>
                     </div>

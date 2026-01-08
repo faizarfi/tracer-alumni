@@ -26,7 +26,8 @@
     }
 
     .rejected-quote {
-        @apply text-slate-500 italic;
+        color: #64748b; /* text-slate-500 */
+        font-style: italic;
         position: relative;
     }
 </style>

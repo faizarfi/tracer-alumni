@@ -197,6 +197,42 @@
         </div>
     </section>
 
+    {{-- 5. PENGUMUMAN (Admin Quick Manage) --}}
+    <section class="glass-card-admin overflow-hidden rounded-[2.5rem] shadow-xl fade-up" style="animation-delay: 0.35s">
+        <div class="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Pengumuman Terbaru</h2>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.announcements.create') }}" class="text-[10px] font-black bg-emerald-600 text-white px-3 py-2 rounded-lg hover:bg-emerald-700">Buat Pengumuman</a>
+                <a href="{{ route('announcements.index') }}" class="text-[10px] font-black text-slate-600 px-3 py-2 rounded-lg border">Lihat Publik</a>
+            </div>
+        </div>
+
+        <div class="p-6">
+            @if(isset($announcements) && $announcements->isNotEmpty())
+                <ul class="space-y-4">
+                    @foreach($announcements as $a)
+                    <li class="flex flex-col md:flex-row md:items-center md:justify-between bg-white rounded-lg p-4 border gap-3 md:gap-0">
+                        <div class="flex-1">
+                            <a href="{{ route('announcements.show', $a->id) }}" class="font-bold text-slate-800 block md:inline">{{ Str::limit($a->title, 80) }}</a>
+                            <div class="text-[11px] text-slate-500 mt-2 md:mt-0">{{ $a->published_at ? \Illuminate\Support\Carbon::parse($a->published_at)->format('d M Y') : \Illuminate\Support\Carbon::parse($a->created_at)->format('d M Y') }}</div>
+                        </div>
+                        <div class="flex items-center gap-2 mt-3 md:mt-0">
+                            <a href="{{ route('admin.announcements.edit', $a->id) }}" class="text-xs font-bold text-amber-600 px-3 py-1 rounded border">Edit</a>
+                            <form action="{{ route('admin.announcements.destroy', $a->id) }}" method="POST" onsubmit="return confirm('Hapus pengumuman ini?');">
+                                @csrf
+                                @method('DELETE')
+                                <button class="text-xs font-bold text-red-600 px-3 py-1 rounded border">Hapus</button>
+                            </form>
+                        </div>
+                    </li>
+                    @endforeach
+                </ul>
+            @else
+                <div class="p-8 text-center text-slate-500">Belum ada pengumuman. Buat pengumuman pertama untuk dilihat publik.</div>
+            @endif
+        </div>
+    </section>
+
 </div>
 @endsection
 

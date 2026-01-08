@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Alumni;
 use App\Models\Kuisioner;
 use App\Models\Gallery;
+use App\Models\Announcement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -44,13 +45,17 @@ class DashboardController extends Controller
                                     ->take(3)
                                     ->get();
 
+        // Pengumuman terbaru untuk admin (cek dan kelola)
+        $announcements = Announcement::latest('published_at')->take(5)->get();
+
         return view('admin.dashboard', compact(
             'totalAlumni',
             'bekerja',
             'belumBekerja',
             'isiKuisioner',
             'latestAlumni',
-            'latestTestimonials'
+            'latestTestimonials',
+            'announcements'
         ));
     }
 
@@ -247,6 +252,9 @@ class DashboardController extends Controller
         // 8 item terbaru dari Galeri
         $galleries = Gallery::latest()->take(8)->get();
 
+        // Pengumuman terbaru (ditampilkan di dashboard)
+        $announcements = \App\Models\Announcement::latest('published_at')->take(3)->get();
+
         // Testimoni yang sudah disetujui ('approved')
         $approvedTestimonials = Alumni::whereNotNull('testimonial_quote')
                                       ->where('testimonial_status', 'approved')
@@ -262,7 +270,8 @@ class DashboardController extends Controller
             'bekerja',
             'isiKuisioner',
             'galleries',
-            'testimonials'
+            'testimonials',
+            'announcements'
         ));
     }
 }

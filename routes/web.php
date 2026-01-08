@@ -7,6 +7,8 @@ use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\KuisionerController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\KaprodiController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\AdminAnnouncementController;
 
 // Landing page
 Route::get('/', function () {
@@ -20,6 +22,13 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Announcements
+Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show'])->name('announcements.show');
+
+// Community / Komunitas (simple static page)
+Route::view('/community', 'community')->name('community');
+
 
 // ====================  ADMIN ROUTES  ====================
 Route::middleware(['auth', 'role:admin'])
@@ -28,6 +37,13 @@ Route::middleware(['auth', 'role:admin'])
     ->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
+
+        // --- Manajemen Pengumuman (Hanya Admin) ---
+        Route::get('/announcements/create', [AdminAnnouncementController::class, 'create'])->name('announcements.create');
+        Route::post('/announcements', [AdminAnnouncementController::class, 'store'])->name('announcements.store');
+        Route::get('/announcements/{announcement}/edit', [AdminAnnouncementController::class, 'edit'])->name('announcements.edit');
+        Route::put('/announcements/{announcement}', [AdminAnnouncementController::class, 'update'])->name('announcements.update');
+        Route::delete('/announcements/{announcement}', [AdminAnnouncementController::class, 'destroy'])->name('announcements.destroy');
 
         // --- Manajemen Alumni ---
         Route::get('/alumni', [AlumniController::class, 'index'])->name('alumni');
