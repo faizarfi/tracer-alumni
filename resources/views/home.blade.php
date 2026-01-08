@@ -89,7 +89,7 @@
 
                 <h1 class="text-4xl md:text-6xl font-black text-slate-900 leading-tight tracking-tighter mb-8">
                     Kontribusi Nyata <br>
-                    Untuk <span class="text-emerald-700">Almamater</span>
+                    Untuk <span class="text-emerald-700">SEMUA</span>
                 </h1>
 
                 <p class="text-slate-500 text-lg leading-relaxed max-w-lg mx-auto lg:mx-0 mb-12 font-medium opacity-80">
