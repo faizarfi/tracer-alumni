@@ -8,7 +8,10 @@ use App\Http\Controllers\KuisionerController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\KaprodiController;
 
-Route::get('/', fn() => redirect()->route('login'));
+// Landing page
+Route::get('/', function () {
+    return view('home');
+});
 
 // ====================  AUTH ROUTES  ====================
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

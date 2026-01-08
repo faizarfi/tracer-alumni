@@ -78,6 +78,13 @@
                 <li><a href="{{ route('user.dashboard') }}#tentang" class="nav-link hover:text-green-300">Tentang</a></li>
                 <li><a href="{{ route('user.dashboard') }}#galeri" class="nav-link hover:text-green-300">Galeri</a></li>
                 <li><a href="{{ route('user.dashboard') }}#faq" class="nav-link hover:text-green-300">FAQ</a></li>
+                @guest
+                <li class="pl-4 border-l border-green-700 flex items-center gap-3">
+                    <a href="{{ route('login') }}" class="text-white/90 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg">Login</a>
+                    <a href="{{ route('register') }}" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg">Register</a>
+                </li>
+                @endguest
+                @auth
                 <li class="pl-4 border-l border-green-700">
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
@@ -86,6 +93,7 @@
                         </button>
                     </form>
                 </li>
+                @endauth
             </ul>
 
             {{-- Mobile Toggle --}}
