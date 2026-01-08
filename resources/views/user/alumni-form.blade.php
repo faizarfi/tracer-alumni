@@ -134,7 +134,7 @@
                                 <label class="text-sm font-bold text-slate-700 ml-1">Tanggal Lahir</label>
                                 <div class="relative group input-group-focus border border-slate-200 rounded-2xl transition-all">
                                     <i data-lucide="calendar" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
-                                    <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $alumni->tanggal_lahir ?? '') }}" class="w-full bg-transparent pl-12 pr-4 py-3.5 outline-none text-slate-700 font-medium" required>
+                                    <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', isset($alumni->tanggal_lahir) && $alumni->tanggal_lahir ? \Illuminate\Support\Carbon::parse($alumni->tanggal_lahir)->format('Y-m-d') : '') }}" class="w-full bg-transparent pl-12 pr-4 py-3.5 outline-none text-slate-700 font-medium" required>
                                 </div>
                             </div>
                         </div>
