@@ -14,7 +14,8 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
 
         .hero-section {
-            background: radial-gradient(circle at 10% 10%, #d1fae5 0%, #f8fafc 100%);
+              background: radial-gradient(circle at 10% 10%, #e6fff0 0%, #f8fafc 45%);
+              background-image: radial-gradient(circle at 10% 10%, rgba(34,197,94,0.06) 0%, transparent 30%), linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
         }
 
         /* Glassmorphism identik dengan Dashboard */
@@ -32,6 +33,7 @@
             justify-content: center;
             width: 100%;
             height: 350px;
+                perspective: 1000px;
         }
         @media (min-width: 768px) { .orbit-container { height: 500px; } }
 
@@ -48,16 +50,35 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(226, 232, 240, 0.8);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+                animation: floaty 6s ease-in-out infinite;
         }
 
         .btn-emerald-deep {
             background-color: #064e3b;
             transition: all 0.3s ease;
+                background: linear-gradient(180deg,#064e3b 0%, #0b6b4f 100%);
+                transition: all 250ms cubic-bezier(.2,.9,.2,1);
+                box-shadow: 0 8px 30px rgba(6,78,59,0.18);
         }
         .btn-emerald-deep:hover {
             background-color: #065f46;
             transform: translateY(-2px);
+                transform: translateY(-4px) scale(1.01);
+                box-shadow: 0 18px 50px rgba(6,78,59,0.18);
         }
+
+            .btn-ghost-emerald {
+                background: transparent;
+                border: 1px solid rgba(6,78,59,0.08);
+                color: #065f46;
+            }
+
+            @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            @keyframes floaty { 0%{ transform: translateY(0px); } 50%{ transform: translateY(-10px); } 100%{ transform: translateY(0px); } }
+
+            /* Reveal animations */
+            .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.9,.2,1); }
+            .reveal.visible { opacity: 1; transform: translateY(0); }
 
         .glass-nav {
             background: rgba(255, 255, 255, 0.8);
@@ -68,29 +89,51 @@
         /* Responsive hero heading */
         .hero-section h1 { font-size: clamp(1.6rem, 4.5vw, 3.5rem); }
 
-        /* Skip link: hidden visually but visible on keyboard focus */
-        .skip-link {
-            position: absolute;
-            left: 1rem;
-            top: 0.75rem;
-            background: #064e3b;
-            color: #fff;
-            padding: 0.45rem 0.9rem;
-            border-radius: 6px;
-            z-index: 80;
-            transform: translateY(-150%);
-            opacity: 0;
-            transition: transform .15s ease, opacity .15s ease;
-            font-weight:700;
+        /* Floating help button (replacement for skip-to-content)
+           - bottom-right FAB with small slide-up panel
+           - accessible via keyboard and announces expanded state */
+        .help-fab {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            width: 52px;
+            height: 52px;
+            border-radius: 999px;
+            background: linear-gradient(180deg,#065f46,#064e3b);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(6,78,59,0.18);
+            z-index: 90;
+            border: none;
         }
-        .skip-link:focus,
-        .skip-link:focus-visible {
-            transform: translateY(0%);
-            opacity: 1;
-            outline: 3px solid rgba(6,78,59,0.18);
-            box-shadow: 0 6px 18px rgba(6,78,59,0.12);
-        }
+        .help-fab:focus { outline: 3px solid rgba(6,78,59,0.18); outline-offset: 4px; }
 
+        .help-panel {
+            position: fixed;
+            right: 18px;
+            bottom: 82px;
+            width: 260px;
+            max-width: calc(100vw - 40px);
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(2,6,23,0.12);
+            border: 1px solid rgba(6,78,59,0.06);
+            z-index: 92;
+            transform-origin: bottom right;
+            transition: transform .18s ease, opacity .18s ease;
+        }
+        .help-panel.hidden { opacity: 0; transform: scale(.96) translateY(6px); pointer-events: none; }
+        .help-panel .help-inner { padding: 12px; }
+        .help-panel h3 { margin: 0 0 6px 0; color: #064e3b; font-weight:800; font-size:14px; }
+        .help-panel p { margin: 0; font-size:13px; color: #334155; }
+        .help-panel a { color: #065f46; font-weight:700; }
+
+        @media (max-width:640px) {
+            .help-fab { right: 12px; bottom: 12px; width:48px; height:48px; }
+            .help-panel { right: 12px; bottom: 72px; width: min(92vw, 260px); }
+        }
         /* Visible focus rings for keyboard users */
         a:focus-visible, button:focus-visible {
             outline: 3px solid rgba(6,78,59,0.18);
@@ -101,7 +144,21 @@
 </head>
 <body class="antialiased text-slate-900">
 
-    <a href="#beranda" class="skip-link">Lewati ke konten</a>
+    <!-- Floating Help Button + Panel (replaces skip-to-content) -->
+    <button id="helpFab" class="help-fab" aria-label="Bantuan" aria-expanded="false" aria-controls="helpPanel">
+        <i data-lucide="help-circle" class="w-5 h-5"></i>
+    </button>
+    <div id="helpPanel" class="help-panel hidden" role="dialog" aria-modal="false" aria-labelledby="helpTitle" tabindex="-1">
+        <div class="help-inner">
+            <h3 id="helpTitle">Butuh Bantuan?</h3>
+            <p class="text-xs">Pertanyaan umum ada di <a href="#faq">FAQ</a> atau hubungi kami:</p>
+            <p class="mt-2 text-sm"><a href="mailto:tracer@uinsaid.ac.id">tracer@uinsaid.ac.id</a></p>
+            <p class="mt-1 text-sm"><a href="tel:+62271678901">(0271) 678901</a></p>
+            <div class="mt-3 flex justify-end">
+                <button id="helpClose" class="text-xs font-black text-emerald-700">Tutup</button>
+            </div>
+        </div>
+    </div>
     <nav class="w-full glass-nav">
         <div class="max-w-7xl mx-auto px-6 h-20 grid grid-cols-2 md:grid-cols-3 items-center">
             <div class="flex items-center gap-3">
@@ -164,7 +221,7 @@
         </div>
     </div>
 
-    <div id="beranda" class="hero-section min-h-screen flex items-center pt-8 lg:pt-24 overflow-hidden">
+    <div id="beranda" class="hero-section min-h-screen flex items-center pt-8 lg:pt-24 overflow-hidden reveal">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
             <div class="relative z-20 text-center lg:text-left">
@@ -183,7 +240,7 @@
                 </p>
 
                 <div class="flex justify-center lg:justify-start mb-16">
-                    <a href="{{ route('register') }}" class="btn-emerald-deep text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center gap-3 shadow-xl">
+                    <a href="{{ route('register') }}" class="btn-emerald-deep text-white px-8 md:px-10 py-4 md:py-5 rounded-2xl font-black text-sm md:text-xs uppercase tracking-[0.18em] flex items-center gap-3 shadow-2xl transform-gpu">
                         Mulai Pengisian <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </a>
                 </div>
@@ -208,8 +265,8 @@
                 <div class="orbit-container">
                     <div class="orbit-circle circle-1"></div>
                     <div class="orbit-circle circle-2"></div>
-                    <div class="relative z-10 w-64 h-64 md:w-80 md:h-80 bg-white rounded-[3.5rem] shadow-2xl flex items-center justify-center p-12 border-[12px] border-emerald-50/50 backdrop-blur-sm">
-                        <img src="{{ asset('img/uin.png') }}" class="w-full h-full object-contain" alt="UIN RMS">
+                    <div class="relative z-10 w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 bg-white rounded-[3.5rem] shadow-2xl flex items-center justify-center p-8 md:p-12 border-[10px] md:border-[12px] border-emerald-50/50 backdrop-blur-sm transform-gpu">
+                        <img src="{{ asset('img/uin.png') }}" class="max-w-full max-h-full object-contain" alt="UIN RMS">
                     </div>
                     <div class="floating-card absolute top-5 right-5 md:top-10 md:right-20 p-4 rounded-2xl">
                         <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600"></i>
@@ -371,11 +428,14 @@
                 menu.classList.remove('hidden');
                 btn.setAttribute('aria-expanded', 'true');
                 menu.setAttribute('aria-modal', 'true');
+                // trap focus first element
+                const first = menu.querySelector('a'); if(first) first.focus();
             }
             function closeMenu(){
                 menu.classList.add('hidden');
                 btn.setAttribute('aria-expanded', 'false');
                 menu.setAttribute('aria-modal', 'false');
+                btn.focus();
             }
 
             btn.addEventListener('click', function(e){
@@ -396,6 +456,45 @@
                     if(!menu.contains(target) && !btn.contains(target)) closeMenu();
                 }
             });
+        })();
+
+        // Reveal on scroll
+        (function(){
+            const els = document.querySelectorAll('.reveal');
+            if('IntersectionObserver' in window){
+                const obs = new IntersectionObserver((entries)=>{
+                    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } });
+                },{ threshold: .12 });
+                els.forEach(el=>obs.observe(el));
+            } else { els.forEach(el=>el.classList.add('visible')); }
+        })();
+
+        // Help FAB toggle and small panel accessibility
+        (function(){
+            const fab = document.getElementById('helpFab');
+            const panel = document.getElementById('helpPanel');
+            const closer = document.getElementById('helpClose');
+            if(!fab || !panel) return;
+
+            function openPanel(){
+                panel.classList.remove('hidden');
+                fab.setAttribute('aria-expanded','true');
+                panel.setAttribute('aria-modal','true');
+                panel.focus();
+            }
+            function closePanel(){
+                panel.classList.add('hidden');
+                fab.setAttribute('aria-expanded','false');
+                panel.setAttribute('aria-modal','false');
+                fab.focus();
+            }
+
+            fab.addEventListener('click', function(e){ e.stopPropagation(); if(panel.classList.contains('hidden')) openPanel(); else closePanel(); });
+            fab.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fab.click(); } });
+            closer && closer.addEventListener('click', function(e){ e.preventDefault(); closePanel(); });
+
+            document.addEventListener('click', function(e){ if(!panel.classList.contains('hidden')){ if(!panel.contains(e.target) && !fab.contains(e.target)) closePanel(); } });
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closePanel(); });
         })();
 
         lucide.createIcons();
