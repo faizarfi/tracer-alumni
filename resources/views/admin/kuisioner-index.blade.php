@@ -49,13 +49,7 @@
         </div>
     </header>
 
-    {{-- SUCCESS ALERT --}}
-    @if(session('success'))
-        <div class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-2xl animate-fade-in shadow-sm">
-            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
-            <span class="text-sm font-bold">{{ session('success') }}</span>
-        </div>
-    @endif
+    {{-- Flash messages handled by layout (SweetAlert) --}}
 
     {{-- SEARCH & FILTER SECTION --}}
     <section class="glass-card-table p-6 shadow-xl shadow-slate-200/50">
@@ -133,7 +127,7 @@
                                    class="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm">
                                     <i data-lucide="eye" class="w-3.5 h-3.5"></i> Detail
                                 </a>
-                                <form action="{{ route('admin.kuisioner.destroy', $kuisioner->id) }}" method="POST" onsubmit="return confirm('Hapus data kuesioner ini?');">
+                                <form action="{{ route('admin.kuisioner.destroy', $kuisioner->id) }}" method="POST" class="swal-confirm" data-confirm="Hapus data kuesioner ini?">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -165,7 +159,7 @@
                 <h4 class="font-black text-slate-900 text-sm uppercase leading-tight">{{ $kuisioner->user->name ?? 'Tanpa Nama' }}</h4>
                 <div class="flex gap-2">
                     <a href="{{ route('admin.kuisioner.detail', $kuisioner->id) }}" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-center">Detail</a>
-                    <form action="{{ route('admin.kuisioner.destroy', $kuisioner->id) }}" method="POST" class="flex-shrink-0">
+                    <form action="{{ route('admin.kuisioner.destroy', $kuisioner->id) }}" method="POST" class="flex-shrink-0 swal-confirm" data-confirm="Hapus data kuesioner ini?">
                         @csrf @method('DELETE')
                         <button type="submit" class="bg-rose-50 text-rose-600 p-2.5 rounded-xl border border-rose-100"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </form>

@@ -112,7 +112,7 @@
                     </div>
 
                     {{-- Tombol Tarik Publikasi yang lebih elegan --}}
-                    <form action="{{ route('admin.testimonials.reject', $alumni->user_id) }}" method="POST" onsubmit="return confirm('Tarik publikasi testimoni ini?');">
+                    <form action="{{ route('admin.testimonials.reject', $alumni->user_id) }}" method="POST" class="swal-confirm" data-confirm="Tarik publikasi testimoni ini?">
                         @csrf @method('DELETE')
                         <button type="submit" class="w-10 h-10 bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-600 rounded-xl flex items-center justify-center transition-all group-hover:shadow-inner" title="Tarik Publikasi">
                             <i data-lucide="eye-off" class="w-5 h-5"></i>

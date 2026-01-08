@@ -221,5 +221,36 @@
             });
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Global handler for forms that require confirmation using SweetAlert2
+        document.addEventListener('submit', function(e){
+            const form = e.target;
+            if (form.classList && form.classList.contains('swal-confirm')) {
+                e.preventDefault();
+                const msg = form.dataset.confirm || 'Apakah Anda yakin?';
+                Swal.fire({
+                    title: 'Konfirmasi',
+                    text: msg,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) form.submit();
+                });
+            }
+        }, true);
+
+        // Server-side flash messages -> SweetAlert2
+        @if(session('success'))
+            Swal.fire({icon:'success', title:'Berhasil', text: @json(session('success'))});
+        @endif
+        @if(session('error'))
+            Swal.fire({icon:'error', title:'Gagal', text: @json(session('error'))});
+        @endif
+    </script>
 </body>
 </html>

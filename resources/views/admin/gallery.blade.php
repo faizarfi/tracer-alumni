@@ -125,15 +125,7 @@
         </button>
     </header>
 
-    {{-- ALERTS --}}
-    @if (session('success'))
-        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-5 rounded-3xl animate-fade-in flex items-center gap-4 shadow-sm">
-            <div class="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg">
-                <i data-lucide="check" class="w-6 h-6"></i>
-            </div>
-            <span class="text-sm font-black uppercase tracking-tight">{{ session('success') }}</span>
-        </div>
-    @endif
+    {{-- Flash messages handled by layout (SweetAlert) --}}
 
     {{-- GRID FOTO DENGAN JARAK --}}
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -149,7 +141,7 @@
                         <i data-lucide="edit-3" class="w-6 h-6"></i>
                     </button>
 
-                    <form action="{{ route('admin.gallery.destroy', $gallery->id) }}" method="POST" onsubmit="return confirm('Hapus data ini secara permanen?');">
+                    <form action="{{ route('admin.gallery.destroy', $gallery->id) }}" method="POST" class="swal-confirm" data-confirm="Hapus data ini secara permanen?">
                         @csrf @method('DELETE')
                         <button type="submit" class="btn-action bg-rose-600 hover:bg-rose-700 hover:scale-110 shadow-lg shadow-rose-900/20">
                             <i data-lucide="trash-2" class="w-6 h-6"></i>

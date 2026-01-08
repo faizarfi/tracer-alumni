@@ -51,13 +51,7 @@
         </a>
     </header>
 
-    {{-- ALERTS --}}
-    @if(session('success') || session('error'))
-        <div class="flex items-center gap-3 {{ session('success') ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-rose-50 border-rose-100 text-rose-800' }} px-6 py-4 rounded-2xl animate-fade-in shadow-sm border">
-            <i data-lucide="{{ session('success') ? 'check-circle' : 'alert-circle' }}" class="w-5 h-5"></i>
-            <span class="text-sm font-bold uppercase tracking-tight">{{ session('success') ?? session('error') }}</span>
-        </div>
-    @endif
+    {{-- Flash messages handled by layout (SweetAlert) --}}
 
     {{-- SEARCH & FILTER --}}
 <section class="p-8 bg-white rounded-[2rem] shadow-xl border border-slate-200 animate-fade-in">
@@ -160,7 +154,7 @@
                                 </a>
 
                                 {{-- Tombol Hapus dengan Teks --}}
-                                <form action="{{ route('admin.kaprodi.destroy', $kaprodi->id) }}" method="POST" onsubmit="return confirm('Hapus akses Kaprodi ini secara permanen?')">
+                                <form action="{{ route('admin.kaprodi.destroy', $kaprodi->id) }}" method="POST" class="swal-confirm" data-confirm="Hapus akses Kaprodi ini secara permanen?">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn-action-text bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-100">
                                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
@@ -203,7 +197,7 @@
                     <a href="{{ route('admin.kaprodi.edit', $kaprodi->id) }}" class="flex-1 btn-action-text bg-blue-600 text-white justify-center py-3">
                         <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> <span>Edit</span>
                     </a>
-                    <form action="{{ route('admin.kaprodi.destroy', $kaprodi->id) }}" method="POST" class="flex-1">
+                    <form action="{{ route('admin.kaprodi.destroy', $kaprodi->id) }}" method="POST" class="flex-1 swal-confirm" data-confirm="Hapus akses Kaprodi ini secara permanen?">
                         @csrf @method('DELETE')
                         <button type="submit" class="w-full btn-action-text bg-rose-600 text-white justify-center py-3">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> <span>Hapus</span>

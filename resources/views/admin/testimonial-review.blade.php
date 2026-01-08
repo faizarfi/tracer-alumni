@@ -39,13 +39,7 @@
         </div>
     </header>
 
-    {{-- NOTIFIKASI --}}
-    @if(session('success') || session('error'))
-        <div class="flex items-center gap-3 {{ session('success') ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800' }} px-6 py-4 rounded-2xl animate-fade-in shadow-sm border">
-            <i data-lucide="{{ session('success') ? 'check-circle' : 'alert-circle' }}" class="w-5 h-5"></i>
-            <span class="text-sm font-bold">{{ session('success') ?? session('error') }}</span>
-        </div>
-    @endif
+    {{-- Flash messages handled by layout (SweetAlert) --}}
 
     {{-- TESTIMONIAL GRID --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -76,14 +70,14 @@
 
                 {{-- ACTION BUTTONS --}}
                 <div class="mt-8 flex gap-3">
-                    <form action="{{ route('admin.testimonials.approve', $alumni->user_id) }}" method="POST" class="flex-1" onsubmit="return confirm('Publikasikan testimoni ini ke halaman utama?');">
+                    <form action="{{ route('admin.testimonials.approve', $alumni->user_id) }}" method="POST" class="flex-1 swal-confirm" data-confirm="Publikasikan testimoni ini ke halaman utama?">
                         @csrf @method('PUT')
                         <button type="submit" class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-900/20 transition-all active:scale-95 text-xs uppercase tracking-widest">
                             <i data-lucide="check-circle" class="w-4 h-4"></i> Setujui
                         </button>
                     </form>
 
-                    <form action="{{ route('admin.testimonials.reject', $alumni->user_id) }}" method="POST" class="flex-1" onsubmit="return confirm('Tolak testimoni ini? Data akan dipindahkan ke daftar ditolak.');">
+                    <form action="{{ route('admin.testimonials.reject', $alumni->user_id) }}" method="POST" class="flex-1 swal-confirm" data-confirm="Tolak testimoni ini? Data akan dipindahkan ke daftar ditolak.">
                         @csrf @method('DELETE')
                         <button type="submit" class="w-full flex items-center justify-center gap-2 bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold py-3 px-4 rounded-xl transition-all active:scale-95 text-xs uppercase tracking-widest">
                             <i data-lucide="x-circle" class="w-4 h-4"></i> Tolak

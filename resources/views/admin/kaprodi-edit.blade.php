@@ -28,13 +28,7 @@
 
     <div class="container mx-auto max-w-4xl bg-white rounded-2xl shadow-xl border border-gray-200 p-6 md:p-8 animate-fade-in">
 
-        {{-- Alerts --}}
-        @if (session('success') || session('error'))
-            <div class="{{ session('success') ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700' }} border px-4 py-3 rounded-xl mb-6 flex items-center justify-between" role="alert">
-                <span class="text-sm font-medium">{{ session('success') ?? session('error') }}</span>
-                <button type="button" onclick="this.parentElement.remove()"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-        @endif
+        {{-- Flash messages handled by layout (SweetAlert) --}}
 
         <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
             <i data-lucide="user-cog" class="text-pink-600"></i>

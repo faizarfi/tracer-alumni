@@ -61,12 +61,7 @@
             </div>
         </div>
 
-        @if (session('success'))
-            <div class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-2xl mb-8 animate-fade-in shadow-sm">
-                <i data-lucide="check-circle" class="w-6 h-6 text-emerald-600"></i>
-                <span class="font-bold">{{ session('success') }}</span>
-            </div>
-        @endif
+        {{-- flash messages handled by SweetAlert in layout --}}
 
         <div class="glass-kuesioner rounded-[2.5rem] shadow-2xl shadow-slate-200/60 overflow-hidden">
             <form id="kuisionerForm" action="{{ route('user.kuisioner') }}" method="POST" class="p-8 md:p-12" novalidate>
@@ -307,12 +302,11 @@
                     const name = field.name;
                     const checked = currentSection.querySelector(`input[name="${name}"]:checked`);
                     if (!checked) {
-                        alert(`Mohon jawab seluruh pertanyaan sebelum melanjutkan.`);
+                        Swal.fire({icon: 'warning', title: 'Perhatian', text: 'Mohon jawab seluruh pertanyaan sebelum melanjutkan.'});
                         return false;
                     }
                 } else if (field.value.trim() === '') {
-                    alert(`Mohon lengkapi bidang yang wajib diisi.`);
-                    field.focus();
+                    Swal.fire({icon: 'warning', title: 'Perhatian', text: 'Mohon lengkapi bidang yang wajib diisi.'}).then(() => { field.focus(); });
                     return false;
                 }
             }

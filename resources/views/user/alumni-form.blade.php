@@ -61,13 +61,7 @@
             </a>
         </div>
 
-        {{-- Alerts --}}
-        @if(session('success'))
-            <div class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-[1.5rem] mb-8 animate-fade-in">
-                <i data-lucide="check-circle" class="w-6 h-6 text-emerald-600"></i>
-                <span class="font-bold">{{ session('success') }}</span>
-            </div>
-        @endif
+        {{-- Flash messages shown via SweetAlert in layout --}}
 
         <form action="{{ url('/user/profil') }}" method="POST" enctype="multipart/form-data">
             @csrf

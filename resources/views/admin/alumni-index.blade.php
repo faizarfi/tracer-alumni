@@ -168,7 +168,7 @@
                                 <a href="{{ route('admin.alumni.edit', $alumni->user_id) }}" class="p-2.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
                                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                                 </a>
-                                <form action="{{ route('admin.alumni.destroy', $alumni->user_id) }}" method="POST" onsubmit="return confirm('Hapus data alumni ini?');">
+                                <form action="{{ route('admin.alumni.destroy', $alumni->user_id) }}" method="POST" class="swal-confirm" data-confirm="Hapus data alumni ini?">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="p-2.5 bg-rose-100 text-rose-700 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>

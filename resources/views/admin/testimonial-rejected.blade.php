@@ -46,13 +46,7 @@
         </div>
     </header>
 
-    {{-- NOTIFIKASI --}}
-    @if(session('success') || session('error'))
-        <div class="flex items-center gap-3 {{ session('success') ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-rose-50 border-rose-100 text-rose-800' }} px-6 py-4 rounded-2xl animate-fade-in shadow-sm border">
-            <i data-lucide="{{ session('success') ? 'check-circle' : 'alert-circle' }}" class="w-5 h-5"></i>
-            <span class="text-sm font-bold uppercase tracking-tight">{{ session('success') ?? session('error') }}</span>
-        </div>
-    @endif
+    {{-- Flash messages handled by layout (SweetAlert) --}}
 
     {{-- REJECTED LIST GRID --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -84,7 +78,7 @@
                     </div>
 
                     {{-- ACTION BUTTON: RESTORE TO REVIEW --}}
-                    <form action="{{ route('admin.testimonials.pending', $alumni->user_id) }}" method="POST" onsubmit="return confirm('Kembalikan testimoni ini ke daftar Review (Pending)?');">
+                    <form action="{{ route('admin.testimonials.pending', $alumni->user_id) }}" method="POST" class="swal-confirm" data-confirm="Kembalikan testimoni ini ke daftar Review (Pending)?">
                         @csrf
                         @method('PUT')
                         <button type="submit" class="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-indigo-100">
