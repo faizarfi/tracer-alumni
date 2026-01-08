@@ -1,670 +1,200 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.admin')
 
-<head>
-    <meta charset="UTF-8" />
-    <title>Manajemen Alumni - Admin UIN Raden Mas Said</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+@section('title', 'Manajemen Alumni')
 
-    {{-- Pastikan path asset ini benar --}}
-    <link rel="icon" type="image/png" href="{{ asset('img/uin.png') }}" />
+@section('content')
+<style>
+    /* Premium Table & Filter Styling - Kontras Diperkuat */
+    .glass-card-table {
+        background: #ffffff; /* Putih Solid agar tidak transparan berlebih */
+        border: 1px solid #cbd5e1; /* Border abu-abu tegas */
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    /* Input dengan Border Tegas dan Teks Gelap */
+    .input-premium {
+        @apply w-full bg-slate-50 border border-slate-400 rounded-xl px-4 py-3 outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm font-bold text-slate-900 appearance-none;
+        /* text-slate-900 memastikan teks sangat hitam/gelap */
+    }
 
-    {{-- Tailwind CSS CDN, pastikan ini di-load dengan benar --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+    /* Label yang lebih terlihat */
+    .filter-label {
+        @apply text-[11px] font-black uppercase tracking-widest text-slate-700 mb-2 block ml-1;
+    }
 
-    {{-- Iconify CDN --}}
-    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
-    {{-- Lucide Icons CDN --}}
-    <script src="https://unpkg.com/lucide@latest"></script>
+    .tr-hover {
+        transition: all 0.2s ease;
+    }
 
-    <style>
-        /* Global Styles for smooth scroll and font consistency */
-        html {
-            scroll-behavior: smooth;
-        }
+    .tr-hover:hover {
+        background-color: #f1f5f9;
+        transform: scale(1.001);
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            color: #2D3748;
-            /* text-gray-800 */
-        }
+    /* Header Tabel Gelap agar kontras */
+    .table-header-dark {
+        @apply bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest;
+    }
+</style>
 
-        h1,
-        h2,
-        h3,
-        h4 {
-            font-family: 'Poppins', sans-serif;
-        }
+<div class="space-y-8 font-['Plus_Jakarta_Sans']">
 
-        /* Custom scrollbar for better aesthetics */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f0fdf4;
-            /* green-50 */
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #065f46;
-            /* green-900 */
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #047857;
-            /* green-700 */
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-
-            100% {
-                opacity: 1;
-            }
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
-        }
-
-        /* Sidebar specific styles */
-        #sidebar {
-            /* Default state for mobile: hidden off-screen */
-            position: fixed;
-            /* Fixed position to overlay content */
-            top: 0;
-            left: 0;
-            width: 100%;
-            /* Take full width on small screens initially */
-            max-width: 256px;
-            /* md:w-64 equivalent */
-            height: 100vh;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
-            z-index: 50;
-            /* Ensure it's above other content and overlay */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            /* shadow-lg */
-            display: flex;
-            /* Ensure flexbox for content inside sidebar */
-            flex-direction: column;
-            /* Stack items vertically */
-        }
-
-        #sidebar.open {
-            transform: translateX(0);
-            /* When 'open' class is added, slide in */
-        }
-
-        /* Desktop view: sidebar is sticky and visible */
-        @media (min-width: 768px) {
-            /* md breakpoint */
-            #sidebar {
-                position: sticky;
-                /* Back to sticky for normal flow on desktop */
-                transform: translateX(0);
-                /* Always visible */
-                flex-shrink: 0;
-                /* Prevent it from shrinking */
-                width: 256px;
-                /* md:w-64 */
-                height: 100vh;
-                /* Full viewport height */
-                z-index: 30;
-                /* Can be lower as it's part of the main flow */
-            }
-        }
-
-        /* Sidebar overlay for mobile */
-        #sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 40;
-            /* Between sidebar and main content */
-            display: none;
-            /* Hidden by default, controlled by JS */
-        }
-
-        /* Modal specific styles */
-        .modal-container {
-            display: none;
-            /* Hidden by default */
-        }
-        .modal-container.active {
-            display: grid;
-            place-items: center;
-            opacity: 1;
-        }
-
-        .img-preview {
-            max-width: 90vw;
-            max-height: 90vh;
-            object-fit: contain;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-        }
-    </style>
-</head>
-
-<body class="bg-green-50 min-h-screen flex flex-col">
-
-    {{-- Main wrapper for sidebar and content --}}
-    <div class="flex flex-1 flex-col md:flex-row">
-
-        {{-- Sidebar --}}
-        {{-- Sidebar --}}
-        <aside id="sidebar" class="bg-gradient-to-b from-green-900 via-green-800 to-green-700 text-white">
-            <div class="p-5 border-b border-green-700 text-center select-none bg-green-950">
-                <h2 class="text-xl font-extrabold tracking-wide font-['Poppins']">Admin Panel</h2>
+    {{-- HEADER SECTION --}}
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-fade-in">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg">
+                <i data-lucide="users-round" class="w-7 h-7"></i>
             </div>
-            <nav class="px-4 py-6 flex flex-col space-y-3 flex-1">
-                {{-- Navigation Links --}}
-                <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
-                    {{ Request::routeIs('admin.dashboard') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
-                    <iconify-icon icon="mdi:view-dashboard" class="w-5 h-5 text-green-300"></iconify-icon>
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ route('admin.kuisioner') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
-                    {{ Request::routeIs('admin.kuisioner') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
-                    <iconify-icon icon="mdi:clipboard-text-outline" class="w-5 h-5 text-yellow-300"></iconify-icon>
-                    <span>Manajemen Kuesioner</span>
-                </a>
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Database <span class="text-blue-600">Alumni</span></h1>
+                <p class="text-slate-600 mt-1 font-bold uppercase text-[11px] tracking-widest">Total Terdaftar: {{ $alumnis->total() ?? 0 }} Alumni</p>
+            </div>
+        </div>
 
-                {{-- Manajemen Testimoni (Dynamic Sub-Menu) --}}
-                @php
-                    $isTestimoniActive = Request::routeIs('admin.testimonials.*');
-                @endphp
-                <div class="space-y-1">
-                    <a href="javascript:void(0)" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group {{ $isTestimoniActive ? 'bg-white/10' : '' }}">
-                        <iconify-icon icon="mdi:message-badge-outline" class="w-5 h-5 text-red-300"></iconify-icon>
-                        <span>Manajemen Testimoni</span>
-                    </a>
-                    <div class="pl-6 space-y-1 border-l ml-3 {{ $isTestimoniActive ? 'border-red-500' : 'border-red-800/50' }}">
-                        {{-- Link 1: Review --}}
-                        <a href="{{ route('admin.testimonials.review') }}"
-                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs hover:bg-white/10
-                            {{ Request::routeIs('admin.testimonials.review') ? 'bg-white bg-opacity-20 shadow-md font-semibold' : '' }}">
-                            <i data-lucide="bell" class="w-4 h-4 text-red-400"></i>
-                            <span>Menunggu Review</span>
-                        </a>
-                        {{-- Link 2: Disetujui --}}
-                        <a href="{{ route('admin.testimonials.approved') }}"
-                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs hover:bg-white/10
-                            {{ Request::routeIs('admin.testimonials.approved') ? 'bg-white bg-opacity-20 shadow-md font-semibold' : '' }}">
-                            <i data-lucide="check-circle" class="w-4 h-4 text-green-300"></i>
-                            <span>Testimoni Disetujui</span>
-                        </a>
-                        {{-- Link 3: Ditolak --}}
-                        <a href="{{ route('admin.testimonials.rejected') }}"
-                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs hover:bg-white/10
-                            {{ Request::routeIs('admin.testimonials.rejected') ? 'bg-white bg-opacity-20 shadow-md font-semibold' : '' }}">
-                            <i data-lucide="x-circle" class="w-4 h-4 text-yellow-300"></i>
-                            <span>Testimoni Ditolak</span>
-                        </a>
+        <div class="flex gap-3">
+            <a href="{{ route('admin.alumni.exportCsv') }}" class="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-indigo-700 transition-all active:scale-95">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export CSV
+            </a>
+        </div>
+    </header>
+
+    {{-- FILTER SECTION - DIPERBAIKI KONTRASNYA --}}
+    <section class="glass-card-table p-8 shadow-xl">
+        <form action="{{ route('admin.alumni') }}" method="GET" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+
+                {{-- Search --}}
+                <div class="md:col-span-6">
+                    <label class="filter-label">Cari Alumni (Nama/NIM)</label>
+                    <div class="relative group">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-600 transition-colors"></i>
+                        <input type="text" name="cari" value="{{ request('cari') }}" placeholder="Ketik nama atau nomor induk..." class="input-premium pl-12 border-slate-300">
                     </div>
                 </div>
 
-                <a href="{{ route('admin.alumni') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
-                    {{ Request::routeIs('admin.alumni') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
-                    <iconify-icon icon="mdi:account-multiple-outline" class="w-5 h-5 text-blue-300"></iconify-icon>
-                    <span>Manajemen Alumni</span>
-                </a>
-                <a href="{{ route('admin.gallery') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
-                    {{ Request::routeIs('admin.gallery') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
-                    <iconify-icon icon="mdi:image-multiple-outline" class="w-5 h-5 text-purple-300"></iconify-icon>
-                    <span>Manajemen Gallery</span>
-                </a>
+                {{-- Filter Status Kerja --}}
+                <div class="md:col-span-3">
+                    <label class="filter-label">Status Karir</label>
+                    <div class="relative">
+                        <select name="status_kerja" onchange="this.form.submit()" class="input-premium pr-10 border-slate-300">
+                            <option value="">Semua Status</option>
+                            <option value="1" {{ request('status_kerja') === '1' ? 'selected' : '' }}>Sudah Bekerja</option>
+                            <option value="0" {{ request('status_kerja') === '0' ? 'selected' : '' }}>Belum Bekerja</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 pointer-events-none"></i>
+                    </div>
+                </div>
 
-                <a href="{{ route('admin.kaprodi') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
-                    {{ Request::routeIs('admin.kaprodi') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
-                    <iconify-icon icon="mdi:account-tie" class="w-5 h-5 text-pink-300"></iconify-icon>
-                    <span>Manajemen Kaprodi</span>
-                </a>
+                {{-- Sort --}}
+                <div class="md:col-span-3">
+                    <label class="filter-label">Urutkan Data</label>
+                    <div class="relative">
+                        <select name="sort" onchange="this.form.submit()" class="input-premium pr-10 border-slate-300">
+                            <option value="nama" {{ request('sort') == 'nama' ? 'selected' : '' }}>Nama Alumni</option>
+                            <option value="nim" {{ request('sort') == 'nim' ? 'selected' : '' }}>NIM</option>
+                            <option value="tahun_keluar" {{ request('sort') == 'tahun_keluar' ? 'selected' : '' }}>Tahun Lulus</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 pointer-events-none"></i>
+                    </div>
+                </div>
 
-                {{-- Logout Button --}}
-                <form action="{{ route('logout') }}" method="POST" class="mt-auto pt-6">
-                    @csrf
-                    <button type="submit"
-                        class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-sm shadow-md transition duration-300 ease-in-out group">
-                        <iconify-icon icon="mdi:logout" class="w-5 h-5"></iconify-icon>
-                        <span>Logout</span>
-                    </button>
-                </form>
-            </nav>
-        </aside>
-        {{-- Sidebar Overlay for Mobile --}}
-        <div id="sidebar-overlay" class="md:hidden"></div>
+            </div>
 
-        {{-- Main Content --}}
-        <main class="flex-1 p-4 sm:p-6 lg:p-8 flex flex-col">
-            {{-- Top Bar for Mobile/Tablet --}}
-            <div class="flex justify-between items-center mb-6 md:hidden w-full">
-                <button id="sidebarToggle"
-                    class="text-white bg-green-700 p-2.5 rounded-md shadow-md hover:bg-green-800 transition-colors focus:outline-none focus:ring-2 focus:ring-green-600">
-                    <iconify-icon icon="mdi:menu" class="w-5 h-5"></iconify-icon>
+            <div class="flex justify-end pt-4 border-t border-slate-200">
+                <button type="submit" class="bg-slate-900 hover:bg-black text-white px-10 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-lg active:scale-95 flex items-center gap-2">
+                    <i data-lucide="filter" class="w-4 h-4 text-blue-400"></i> Terapkan Filter
                 </button>
-                <div class="flex items-center gap-3">
-                    <span class="text-base font-semibold text-green-900">Halo, Admin!</span>
-                    {{-- User Avatar Placeholder --}}
-                    <img src="https://via.placeholder.com/36/065f46/ffffff?text=AD" alt="Admin Avatar" class="w-9 h-9 rounded-full border-2 border-green-700 shadow-md">
-                </div>
             </div>
+        </form>
+    </section>
 
-            {{-- Header/Title Section --}}
-            <header class="mb-8 p-4 bg-white rounded-xl shadow-md flex items-center justify-between animate-fade-in">
-                <div>
-                    <h1 class="text-3xl lg:text-4xl font-extrabold text-green-800 tracking-tight font-['Poppins']">
-                        Manajemen Data Alumni
-                    </h1>
-                    <p class="text-green-700 text-lg mt-1">Total Alumni Terdata: {{ $alumnis->total() ?? 0 }}</p>
-                </div>
-                <div class="flex flex-col items-end">
-                    <p class="text-sm font-semibold text-gray-700" id="currentDate"></p>
-                    <p class="text-sm text-gray-600" id="currentTime"></p>
-                </div>
-            </header>
+    {{-- TABLE SECTION --}}
+    <section class="glass-card-table overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="table-header-dark">
+                        <th class="px-8 py-5">Biodata & Tanggal Lahir</th>
+                        <th class="px-5 py-5 text-center">NIM</th>
+                        <th class="px-5 py-5">Program Studi / Jurusan</th>
+                        <th class="px-5 py-5 text-center">Lulus</th>
+                        <th class="px-5 py-5 text-center">Status</th>
+                        <th class="px-8 py-5 text-right">Opsi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                    @forelse ($alumnis as $alumni)
+                    <tr class="tr-hover group bg-white">
+                        <td class="px-8 py-4">
+                            <div class="flex items-center gap-4">
+                                <img src="{{ $alumni->foto_path ? Storage::url($alumni->foto_path) : 'https://ui-avatars.com/api/?name='.urlencode($alumni->nama).'&background=0284c7&color=fff' }}"
+                                     class="w-12 h-12 rounded-2xl object-cover border-2 border-slate-200 shadow-sm transition-transform group-hover:scale-105">
+                                <div class="min-w-0">
+                                    <p class="font-black text-slate-900 text-sm uppercase tracking-tight truncate">{{ $alumni->nama }}</p>
+                                    {{-- KOLOM TANGGAL LAHIR - KONTRAK BIRU TEGAS --}}
+                                    <p class="text-[10px] font-black text-blue-700 uppercase tracking-widest mt-1 bg-blue-50 px-2 py-0.5 rounded w-fit">
+                                        <i data-lucide="calendar" class="w-3 h-3 inline mr-1 -mt-0.5"></i>
+                                        {{ \Carbon\Carbon::parse($alumni->tanggal_lahir)->translatedFormat('d M Y') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 text-center">
+                            <span class="font-mono text-xs font-black text-slate-800 bg-slate-100 px-2 py-1 rounded border border-slate-300">
+                                {{ $alumni->nim }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-[11px] font-black text-slate-800 leading-tight uppercase">{{ $alumni->jurusan }}</span>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter mt-1 italic">{{ $alumni->fakultas }}</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 text-center">
+                            <span class="text-xs font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200">
+                                {{ $alumni->tahun_keluar }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 text-center">
+                            @if($alumni->sudah_bekerja)
+                                <span class="px-4 py-1.5 bg-emerald-600 text-white rounded-full text-[9px] font-black uppercase shadow-md">Bekerja</span>
+                            @else
+                                <span class="px-4 py-1.5 bg-rose-100 text-rose-700 rounded-full text-[9px] font-black uppercase border border-rose-200">Mencari</span>
+                            @endif
+                        </td>
+                        <td class="px-8 py-4 text-right">
+                            <div class="flex justify-end items-center gap-2">
+                                <a href="{{ route('admin.alumni.edit', $alumni->user_id) }}" class="p-2.5 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                </a>
+                                <form action="{{ route('admin.alumni.destroy', $alumni->user_id) }}" method="POST" onsubmit="return confirm('Hapus data alumni ini?');">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="p-2.5 bg-rose-100 text-rose-700 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-24 text-center">
+                            <i data-lucide="search-x" class="w-12 h-12 text-slate-300 mx-auto mb-4"></i>
+                            <p class="text-sm font-black text-slate-500 uppercase tracking-widest">Data alumni tidak ditemukan</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-            <div class="container mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 flex-1">
-
-                {{-- Success/Error Alerts --}}
-                @if(session('success'))
-                    <div class="px-6 pt-6">
-                        <div class="flex items-center gap-3 bg-green-100 border border-green-300 text-green-800 px-5 py-4 rounded-xl shadow-sm justify-between" role="alert">
-                            <p class="font-medium flex items-center gap-2">
-                                <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
-                                {{ session('success') }}
-                            </p>
-                            <button type="button" class="text-green-700 hover:text-green-900 focus:outline-none" onclick="this.parentElement.style.display='none'">
-                                <i data-lucide="x" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                @endif
-                @if(session('error'))
-                    <div class="px-6 pt-6">
-                        <div class="flex items-center gap-3 bg-red-100 border border-red-300 text-red-800 px-5 py-4 rounded-xl shadow-sm justify-between" role="alert">
-                            <p class="font-medium flex items-center gap-2">
-                                <i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i>
-                                {{ session('error') }}
-                            </p>
-                            <button type="button" class="text-red-700 hover:text-red-900 focus:outline-none" onclick="this.parentElement.style.display='none'">
-                                <i data-lucide="x" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                @endif
-
-
-                <div class="p-6 pb-4 border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                    <div class="flex flex-wrap justify-between items-center mb-4 gap-3">
-                         <h2 class="text-xl font-bold text-gray-800">Filter Data</h2>
-                         <a href="{{ route('admin.alumni.exportCsv') }}"
-                            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 transition text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transform hover:scale-[1.03] text-sm">
-                            <span class="iconify" data-icon="mdi:file-export" style="font-size: 20px;"></span>
-                            Ekspor Data CSV
-                        </a>
-                    </div>
-
-                    {{-- Filter and Search Form --}}
-                    <form action="{{ route('admin.alumni') }}" method="GET" class="flex flex-col sm:flex-row items-center gap-4">
-
-                        <div class="relative w-full sm:flex-grow">
-                            <input type="text" name="cari" placeholder="Cari nama / NIM / jurusan / fakultas..."
-                                    value="{{ request('cari') }}"
-                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 placeholder-gray-500 transition text-sm shadow-sm" />
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 iconify" data-icon="mdi:magnify"></span>
-                        </div>
-
-                        @php
-                            $currentSort = request()->input('sort');
-                            $currentDir = request()->input('direction', 'asc');
-                            $currentStatus = request()->input('status_kerja');
-                        @endphp
-
-                        {{-- New: Status Kerja Filter Dropdown --}}
-                        <select name="status_kerja" onchange="this.form.submit()"
-                                class="w-full sm:w-auto px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm shadow-sm">
-                            <option value="">Status Kerja: Semua</option>
-                            <option value="1" {{ $currentStatus === '1' ? 'selected' : '' }}>Sudah Bekerja</option>
-                            <option value="0" {{ $currentStatus === '0' ? 'selected' : '' }}>Belum Bekerja</option>
-                        </select>
-
-                        <select name="sort" onchange="this.form.submit()"
-                                class="w-full sm:w-auto px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm shadow-sm">
-                            <option value="nama" {{ $currentSort == 'nama' ? 'selected' : '' }}>Sort by: Nama</option>
-                            <option value="nim" {{ $currentSort == 'nim' ? 'selected' : '' }}>Sort by: NIM</option>
-                            <option value="fakultas" {{ $currentSort == 'fakultas' ? 'selected' : '' }}>Sort by: Fakultas</option>
-                            <option value="tahun_masuk" {{ $currentSort == 'tahun_masuk' ? 'selected' : '' }}>Sort by: Tahun Masuk</option>
-                            <option value="tahun_keluar" {{ $currentSort == 'tahun_keluar' ? 'selected' : '' }}>Sort by: Tahun Lulus</option>
-                        </select>
-
-                        <select name="direction" onchange="this.form.submit()"
-                                class="w-full sm:w-auto px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm shadow-sm">
-                            <option value="asc" {{ $currentDir == 'asc' ? 'selected' : '' }}>Urutan: Ascending (A-Z)</option>
-                            <option value="desc" {{ $currentDir == 'desc' ? 'selected' : '' }}>Urutan: Descending (Z-A)</option>
-                        </select>
-
-                        <button type="submit"
-                                class="flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold py-2.5 px-6 rounded-lg shadow-md transition transform hover:-translate-y-0.5 w-full sm:w-auto">
-                            <span class="iconify" data-icon="mdi:filter-variant" style="font-size: 18px;"></span>
-                            Terapkan
-                        </button>
-                    </form>
-                </div>
-
-                {{-- Data Table --}}
-                <div class="overflow-x-auto p-6 pt-0">
-                    <table class="min-w-full divide-y divide-gray-200 text-gray-800 text-sm">
-                        <thead class="bg-green-50">
-                            <tr>
-                                <th class="px-5 py-4 text-left whitespace-nowrap text-xs uppercase tracking-wider rounded-tl-lg text-green-800 font-bold">Foto</th>
-                                <th class="px-5 py-4 text-left whitespace-nowrap text-xs uppercase tracking-wider text-green-800 font-bold">Nama / ID</th>
-                                <th class="px-5 py-4 text-left whitespace-nowrap text-xs uppercase tracking-wider text-green-800 font-bold">NIM</th>
-                                <th class="px-5 py-4 text-left whitespace-nowrap text-xs uppercase tracking-wider text-green-800 font-bold">Tgl Lahir / Asal</th>
-                                <th class="px-5 py-4 text-center whitespace-nowrap text-xs uppercase tracking-wider text-green-800 font-bold">Masuk</th>
-                                <th class="px-5 py-4 text-center whitespace-nowrap text-xs uppercase tracking-wider text-green-800 font-bold">Lulus</th>
-                                <th class="px-5 py-4 text-left whitespace-nowrap text-xs uppercase tracking-wider text-green-800 font-bold">Akademik</th>
-                                <th class="px-5 py-4 text-center whitespace-nowrap text-xs uppercase tracking-wider text-green-800 font-bold">Status Kerja</th>
-                                <th class="px-5 py-4 text-left whitespace-nowrap text-xs uppercase tracking-wider text-green-800 font-bold">Tempat Bekerja</th>
-                                <th class="px-5 py-4 text-center whitespace-nowrap text-xs uppercase tracking-wider rounded-tr-lg text-green-800 font-bold">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @forelse ($alumnis as $alumni)
-                                <tr class="odd:bg-white even:bg-green-50 hover:bg-green-100 transition duration-150 ease-in-out">
-                                    {{-- Kolom Foto --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap">
-                                        @if($alumni->foto_path)
-                                            <button onclick="openPhotoModal('{{ Storage::url($alumni->foto_path) }}', '{{ $alumni->nama }}')" class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-gray-300 shadow-sm transition transform hover:scale-110">
-                                                <img src="{{ Storage::url($alumni->foto_path) }}"
-                                                    alt="Foto {{ $alumni->nama }}"
-                                                    onerror="this.onerror=null;this.src='https://placehold.co/40x40/ccc/fff?text=No';"
-                                                    class="w-full h-full object-cover">
-                                            </button>
-                                        @else
-                                            <span class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">N/A</span>
-                                        @endif
-                                    </td>
-                                    {{-- Kolom Nama / User ID --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap font-semibold text-gray-800">
-                                        {{ $alumni->nama }}<br>
-                                        <span class="text-xs text-gray-500 font-normal">ID: {{ $alumni->user_id }}</span>
-                                    </td>
-                                    {{-- Kolom NIM --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap text-gray-600">{{ $alumni->nim }}</td>
-                                    {{-- Kolom Tgl Lahir / Asal --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap text-gray-600">
-                                        {{ \Carbon\Carbon::parse($alumni->tanggal_lahir)->format('d M Y') }}<br>
-                                        <span class="text-xs text-gray-500">({{ $alumni->asal }})</span>
-                                    </td>
-                                    {{-- Kolom Tahun Masuk --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap text-center font-bold text-blue-600">{{ $alumni->tahun_masuk ?? '-' }}</td>
-                                    {{-- Kolom Tahun Keluar --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap text-center font-bold text-green-600">{{ $alumni->tahun_keluar ?? '-' }}</td>
-                                    {{-- Kolom Akademik (Jurusan/Fakultas) --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap text-gray-600">
-                                        <span class="font-medium">{{ $alumni->jurusan }}</span><br>
-                                        <span class="text-xs text-gray-500">{{ $alumni->fakultas }}</span>
-                                    </td>
-                                    {{-- Kolom Status Kerja --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap text-center">
-                                        @if($alumni->sudah_bekerja)
-                                            <span class="inline-flex items-center gap-1 px-3 py-1 text-green-700 bg-green-100 rounded-full font-semibold text-xs border border-green-200">
-                                                <i data-lucide="check" class="w-3 h-3"></i> Bekerja
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1 px-3 py-1 text-red-700 bg-red-100 rounded-full font-semibold text-xs border border-red-200">
-                                                <i data-lucide="x" class="w-3 h-3"></i> Belum Bekerja
-                                            </span>
-                                        @endif
-                                    </td>
-                                    {{-- Kolom Tempat Bekerja --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap max-w-xs truncate text-gray-600" title="{{ $alumni->tempat_bekerja ?: '-' }}">
-                                        {{ $alumni->sudah_bekerja && $alumni->tempat_bekerja ? $alumni->tempat_bekerja : '-' }}
-                                    </td>
-                                    {{-- Kolom Aksi (Dengan Teks Jelas) --}}
-                                    <td class="px-5 py-3.5 whitespace-nowrap text-center flex justify-center gap-2 items-center">
-                                        <a href="{{ route('admin.alumni.edit', $alumni->user_id) }}"
-                                           class="text-white bg-blue-600 hover:bg-blue-700 p-2 text-xs rounded-lg shadow-md transition transform hover:scale-105 flex items-center justify-center gap-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                           title="Edit Data">
-                                            <span class="iconify" data-icon="mdi:pencil" style="font-size: 14px;"></span>
-                                            <span class="hidden sm:inline">Edit</span>
-                                        </a>
-                                        <form action="{{ route('admin.alumni.destroy', $alumni->user_id) }}" method="POST"
-                                              onsubmit="return confirm('Anda yakin menghapus data {{ $alumni->nama }}?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="text-white bg-red-600 hover:bg-red-700 p-2 text-xs rounded-lg shadow-md transition transform hover:scale-105 flex items-center justify-center gap-1 focus:outline-none focus:ring-2 focus:ring-red-500"
-                                                    title="Hapus Data">
-                                                <span class="iconify" data-icon="mdi:delete" style="font-size: 14px;"></span>
-                                                <span class="hidden sm:inline">Hapus</span>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="10" class="text-center py-12 text-gray-500 italic bg-gray-50 rounded-b-lg">
-                                        <img src="https://www.svgrepo.com/show/472628/no-data.svg" alt="No Data" class="w-36 h-36 mx-auto mb-5 opacity-60">
-                                        <p class="text-lg font-medium">Data Alumni Tidak Ditemukan</p>
-                                        <p class="text-sm mt-1">Coba sesuaikan filter atau kata kunci pencarian Anda.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Pagination Links --}}
-                <div class="mt-4 p-6 flex justify-center border-t border-gray-100">
-                    <nav class="bg-white p-4 rounded-lg shadow-lg border border-gray-100">
-                        {{ $alumnis->appends(request()->all())->links('pagination::tailwind') }}
-                    </nav>
-                </div>
-
-            </div>
-        </main>
-    </div>
-
-    {{-- Photo Preview Modal --}}
-    <div id="photo-modal" class="modal-container fixed inset-0 bg-black bg-opacity-70 z-[9999] opacity-0 transition-opacity duration-300">
-        <div class="relative p-4 max-w-full max-h-full">
-             <img id="modal-photo" src="" alt="Foto Alumni" class="img-preview rounded-xl">
-             <button onclick="closePhotoModal()" class="absolute top-2 right-2 text-white bg-red-600/70 hover:bg-red-700 p-2 rounded-full transition-colors">
-                <i data-lucide="x" class="w-6 h-6"></i>
-             </button>
+    {{-- PAGINATION --}}
+    <div class="mt-8 flex justify-center pb-20">
+        <div class="bg-white px-6 py-3 rounded-2xl shadow-lg border border-slate-300">
+            {{ $alumnis->appends(request()->all())->links() }}
         </div>
     </div>
-
-
-    {{-- Footer (Integrated from Admin Dashboard) --}}
-    <footer class="bg-gradient-to-r from-green-900 to-emerald-800 text-white mt-16 pt-16 pb-8 shadow-inner">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-sm">
-            <div>
-                <h2 class="text-xl font-bold mb-4 font-['Poppins']">Tracer Alumni UIN RMS</h2>
-                <p class="text-green-200 leading-relaxed text-sm">
-                    Sistem Tracer Alumni ini dirancang untuk menghimpun data alumni, mendukung peningkatan mutu pendidikan, dan akreditasi kampus.
-                    Partisipasi Anda sangat berarti!
-                </p>
-            </div>
-
-            <div>
-                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 font-['Poppins']" aria-label="Navigasi Cepat">
-                    <i data-lucide="compass" class="w-5 h-5 text-green-300"></i> Navigasi Cepat
-                </h2>
-                <ul class="space-y-3 text-green-200">
-                    <li>
-                        <a href="{{ route('user.dashboard') }}#beranda" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="info" class="w-4 h-4"></i> Beranda (User)
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.dashboard') }}#tentang" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="info" class="w-4 h-4"></i> Tentang Tracer
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.kuisioner') }}" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="clipboard-check" class="w-4 h-4"></i> Isi Kuesioner
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.cari-alumni') }}" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="search" class="w-4 h-4"></i> Cari Alumni
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div>
-                <h2 class="text-xl font-bold mb-4 font-['Poppins']">Tautan Terkait</h2>
-                <ul class="space-y-3 text-green-200">
-                    <li>
-                        <a href="https://uinsaid.ac.id" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-2">
-                            <i data-lucide="globe" class="w-4 h-4"></i> Website Resmi UIN RMS
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://pmb.uinsaid.ac.id" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-2">
-                            <i data-lucide="graduation-cap" class="w-4 h-4"></i> PMB UIN RMS
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://e-journal.uinsaid.ac.id/" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-2">
-                            <i data-lucide="book-text" class="w-4 h-4"></i> E-Journal UIN RMS
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div>
-                <h2 class="text-xl font-bold mb-4 font-['Poppins']">Kontak Kami</h2>
-                <ul class="text-green-200 space-y-3">
-                    <li>
-                        <i data-lucide="mail" class="inline-block w-4 h-4 mr-2"></i>
-                        <a href="mailto:tracer@uinsaid.ac.id" class="hover:underline" target="_blank">tracer@uinsaid.ac.id</a>
-                    </li>
-                    <li>
-                        <i data-lucide="phone" class="inline-block w-4 h-4 mr-2"></i> (0271) 678901
-                    </li>
-                    <li>
-                        <i data-lucide="instagram" class="inline-block w-4 h-4 mr-2"></i>
-                        <a href="#" class="hover:underline" target="_blank">@traceruinrms</a>
-                    </li>
-                    <li>
-                        <i data-lucide="map-pin" class="inline-block w-4 h-4 mr-2"></i>
-                        Jl. Pandawa, Pucangan, Kartasura, Sukoharjo, Jawa Tengah 57168
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="text-center text-green-300 text-xs border-t border-green-800 py-6 mt-12">
-            &copy; {{ date('Y') }} UIN Raden Mas Said Surakarta. Hak Cipta Dilindungi Undang-Undang.
-
-        </div>
-    </footer>
-
-    {{-- Scroll to Top Button --}}
-    <button id="scrollTop" aria-label="Scroll to top"
-        class="fixed bottom-6 right-6 z-50 hidden bg-green-700 hover:bg-green-800 text-white p-3 rounded-full shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500">
-        <iconify-icon icon="mdi:arrow-up-bold" class="w-6 h-6"></iconify-icon>
-    </button>
-
-    {{-- Scripts --}}
-    <script>
-        function openPhotoModal(imageUrl, alumniName) {
-            const modal = document.getElementById('photo-modal');
-            const photoElement = document.getElementById('modal-photo');
-
-            photoElement.src = imageUrl;
-            photoElement.alt = 'Foto Profil ' + alumniName;
-
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Kunci scroll body
-        }
-
-        function closePhotoModal() {
-            const modal = document.getElementById('photo-modal');
-            modal.classList.remove('active');
-            document.body.style.overflow = ''; // Buka kunci scroll body
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar logic
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebar-overlay');
-            const currentDateElement = document.getElementById('currentDate');
-            const currentTimeElement = document.getElementById('currentTime');
-
-            function updateTime() {
-                const now = new Date();
-                const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                const formattedDate = now.toLocaleDateString('id-ID', optionsDate);
-                const formattedTime = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
-                currentDateElement.textContent = formattedDate;
-                currentTimeElement.textContent = formattedTime + ' WIB';
-            }
-
-            updateTime();
-            setInterval(updateTime, 1000);
-
-            if (sidebarToggle && sidebar && sidebarOverlay) {
-                sidebarToggle.addEventListener('click', () => {
-                    sidebar.classList.toggle('open');
-                    sidebarOverlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
-                    document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
-                });
-
-                sidebarOverlay.addEventListener('click', () => {
-                    sidebar.classList.remove('open');
-                    sidebarOverlay.style.display = 'none';
-                    document.body.style.overflow = '';
-                });
-
-                window.addEventListener('resize', () => {
-                    if (window.innerWidth >= 768) {
-                        sidebar.classList.remove('open');
-                        sidebarOverlay.style.display = 'none';
-                        document.body.style.overflow = '';
-                    }
-                });
-            }
-
-            // Scroll to top button logic
-            const scrollTopBtn = document.getElementById('scrollTop');
-            if (scrollTopBtn) {
-                window.addEventListener('scroll', () => {
-                    if (window.scrollY > 250) {
-                        scrollTopBtn.classList.remove('hidden');
-                    } else {
-                        scrollTopBtn.classList.add('hidden');
-                    }
-                });
-                scrollTopBtn.addEventListener('click', () => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            }
-
-            // Initialize Lucide icons
-            lucide.createIcons();
-        });
-    </script>
-</body>
-
-</html>
+</div>
+@endsection

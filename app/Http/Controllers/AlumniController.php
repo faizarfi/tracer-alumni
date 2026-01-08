@@ -474,4 +474,23 @@ class AlumniController extends Controller
             return redirect()->back()->with('error', 'Gagal menolak testimoni. Debug: ' . $e->getMessage());
         }
     }
+
+    /**
+     * ✅ BARU: Mengembalikan testimoni ke status 'pending' (Review).
+     * Digunakan ketika admin ingin mengembalikan dari Rejected atau Approved ke Review.
+     */
+    public function pendingTestimonial($user_id)
+    {
+        try {
+            $alumni = Alumni::where('user_id', $user_id)->firstOrFail();
+
+            // Perbarui status menjadi 'pending' (Review)
+            $alumni->testimonial_status = 'pending';
+            $alumni->save();
+
+            return redirect()->route('admin.testimonials.review')->with('success', 'Testimoni berhasil dikembalikan ke daftar Review.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengembalikan testimoni. Debug: ' . $e->getMessage());
+        }
+    }
 }

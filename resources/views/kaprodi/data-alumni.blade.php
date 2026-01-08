@@ -1,177 +1,231 @@
-@extends('layouts.kaprodi') {{-- Menggunakan template utama --}}
+@extends('layouts.kaprodi')
 
-@section('title', 'Data Alumni')
+@section('title', 'Database Alumni')
 
 @section('content')
+<style>
+    .glass-card-alumni {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 2rem;
+    }
 
-    {{-- Header/Title Section Responsif --}}
-    <header class="mb-6 p-4 bg-white rounded-xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fade-in">
-        <div class="flex items-center flex-grow">
-            {{-- TOMBOL TOGGLE SIDEBAR (Hanya muncul di Mobile) --}}
-            <button id="sidebarToggle" class="mr-3 text-green-700 md:hidden p-2 rounded-lg hover:bg-green-100 transition duration-150" aria-label="Toggle Menu">
-                <i data-lucide="menu" class="w-5 h-5"></i>
-            </button>
+    .table-container {
+        border-radius: 1.5rem;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+    }
+
+    .status-badge {
+        @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border;
+    }
+
+    .input-filter {
+        @apply w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-sm font-medium text-slate-700;
+    }
+
+    /* Animasi Hover Baris Tabel */
+    .tr-hover {
+        transition: all 0.2s ease;
+    }
+    .tr-hover:hover {
+        background-color: #f8fafc;
+        transform: scale(1.002);
+    }
+</style>
+
+<div class="space-y-6 font-['Plus_Jakarta_Sans']">
+
+    {{-- HEADER SECTION --}}
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fade-in">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center shadow-sm">
+                <i data-lucide="users" class="w-6 h-6"></i>
+            </div>
             <div>
-                <h1 class="text-xl lg:text-2xl font-extrabold text-blue-800 tracking-tight font-['Poppins'] flex items-center">
-                    <i data-lucide="users-round" class="hidden sm:inline-block w-6 h-6 mr-2 text-blue-600"></i> Data Alumni
-                </h1>
-                @php
-                    $prodiName = $prodi ?? (Auth::user()->prodi ?? 'Program Studi');
-                @endphp
-                <p class="text-gray-600 text-xs md:text-sm mt-1">Status kuesioner Prodi: <span class="font-bold text-blue-700">{{ $prodiName }}</span></p>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Database <span class="text-blue-600">Alumni</span></h1>
+                @php $prodiName = $prodi ?? (Auth::user()->prodi ?? 'Program Studi'); @endphp
+                <p class="text-slate-500 text-xs font-medium uppercase tracking-widest">Unit: {{ $prodiName }}</p>
             </div>
         </div>
-        {{-- Metadata Ringkas di Header --}}
-        <div class="hidden sm:flex flex-col items-end text-right">
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Terfilter</p>
-            <p class="text-lg font-bold text-blue-800">{{ $alumniData->total() ?? 0 }} Alumni</p>
+        <div class="bg-white px-6 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="text-right">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Terdata</p>
+                <p class="text-xl font-black text-blue-800 leading-none">{{ $alumniData->total() ?? 0 }} <span class="text-xs font-medium text-slate-400">Orang</span></p>
+            </div>
+            <i data-lucide="database" class="w-8 h-8 text-slate-200"></i>
         </div>
     </header>
 
-    <section class="bg-white p-4 md:p-6 rounded-2xl shadow-xl border border-gray-200">
-
-        {{-- Filter dan Pencarian Responsif --}}
-        <form action="{{ route('kaprodi.alumni') ?? '#' }}" method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-            <div class="md:col-span-2 relative">
-                <input type="search" name="cari" id="cari" placeholder="Cari Nama, NIM..."
-                    value="{{ request('cari') }}"
-                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition text-sm">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+    {{-- FILTER SECTION --}}
+    <section class="glass-card-alumni p-6 shadow-xl shadow-slate-200/50">
+        <form action="{{ route('kaprodi.alumni') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="md:col-span-2 relative group">
+                <i data-lucide="search" class="absolute left-4 top-3 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
+                <input type="search" name="cari" value="{{ request('cari') }}" placeholder="Cari Nama atau NIM Alumni..." class="input-filter pl-11">
             </div>
 
-            <div class="flex gap-2">
-                <select name="tahun" id="tahun"
-                    class="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm bg-white outline-none">
+            <div class="relative">
+                <select name="tahun" class="input-filter appearance-none cursor-pointer pr-10">
                     <option value="">Semua Tahun Lulus</option>
                     @if(isset($availableYears))
                         @foreach ($availableYears as $year)
-                            <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>
-                                Thn {{ $year }}
-                            </option>
+                            <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>Angkatan {{ $year }}</option>
                         @endforeach
                     @endif
                 </select>
-
-                <button type="submit" class="px-5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md flex items-center justify-center font-bold text-sm">
-                    Filter
-                </button>
+                <i data-lucide="chevron-down" class="absolute right-4 top-3 w-4 h-4 text-slate-400 pointer-events-none"></i>
             </div>
+
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-900/20 active:scale-95 flex items-center justify-center gap-2">
+                <i data-lucide="filter" class="w-4 h-4"></i> TERAPKAN FILTER
+            </button>
         </form>
+    </section>
 
-        {{-- Info Hasil Pencarian --}}
-        <div class="mb-4 px-1 flex justify-between items-center">
-            <div class="text-xs md:text-sm text-gray-500 italic">
+    {{-- MAIN TABLE SECTION --}}
+    <section class="glass-card-alumni overflow-hidden shadow-xl shadow-slate-200/50">
+        {{-- Status Info --}}
+        <div class="px-8 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+            <span>Daftar Record Alumni</span>
+            <span>
                 @if(isset($alumniData) && $alumniData->total() > 0)
-                    Menampilkan {{ $alumniData->firstItem() }}-{{ $alumniData->lastItem() }} dari {{ $alumniData->total() }} data.
-                @else
-                    Tidak ada alumni ditemukan.
+                    Menampilkan {{ $alumniData->firstItem() }} - {{ $alumniData->lastItem() }} Dari {{ $alumniData->total() }} Data
                 @endif
-            </div>
+            </span>
         </div>
 
-        {{-- Container Tabel/Card --}}
-        <div class="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-
-            {{-- DESKTOP VIEW (Laptop/PC) --}}
-            <div class="hidden md:block overflow-x-auto">
-                <table class="min-w-full text-sm divide-y divide-gray-200">
-                    <thead class="bg-gray-800 text-white uppercase text-[11px] font-bold tracking-wider">
-                        <tr>
-                            <th class="py-4 px-5 text-center">Profil</th>
-                            <th class="py-4 px-5">NIM / Nama</th>
-                            <th class="py-4 px-5 text-center">Masuk / Lulus</th>
-                            <th class="py-4 px-5 text-center">Status Kerja</th>
-                            <th class="py-4 px-5 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                        @forelse ($alumniData as $alumni)
-                            <tr class="hover:bg-blue-50/50 transition">
-                                <td class="py-3 px-5 text-center">
-                                    <img src="{{ $alumni->foto_path ? asset('storage/' . $alumni->foto_path) : 'https://placehold.co/40x40/065f46/ffffff?text=U' }}"
-                                        class="w-10 h-10 object-cover rounded-full mx-auto border border-gray-200 shadow-sm" alt="Foto">
-                                </td>
-                                <td class="py-3 px-5">
-                                    <div class="font-bold text-gray-900">{{ $alumni->nama }}</div>
-                                    <div class="text-xs text-gray-500">{{ $alumni->nim }}</div>
-                                </td>
-                                <td class="py-3 px-5 text-center">
-                                    <span class="text-gray-500">{{ $alumni->tahun_masuk ?? '-' }}</span>
-                                    <i data-lucide="arrow-right" class="inline w-3 h-3 mx-1 text-gray-300"></i>
-                                    <span class="font-bold text-green-700">{{ $alumni->tahun_keluar }}</span>
-                                </td>
-                                <td class="py-3 px-5 text-center">
-                                    @if(($alumni->sudah_bekerja ?? 0) == 1)
-                                        <span class="px-2 py-1 rounded-md text-[10px] font-bold bg-green-100 text-green-700 border border-green-200 uppercase">Bekerja</span>
-                                    @else
-                                        <span class="px-2 py-1 rounded-md text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 uppercase">Belum</span>
-                                    @endif
-                                </td>
-                                <td class="py-3 px-5 text-center">
-                                    @if($alumni->has_filled_questionnaire ?? false)
-                                        <a href="{{ route('kaprodi.alumni.detail', ['alumni_id' => $alumni->user_id]) ?? '#' }}"
-                                           class="inline-flex items-center text-blue-600 hover:text-blue-800 font-bold group">
-                                            Detail <i data-lucide="chevron-right" class="w-4 h-4 ml-0.5 group-hover:translate-x-0.5 transition-transform"></i>
-                                        </a>
-                                    @else
-                                        <span class="text-gray-400 italic text-xs italic">Kosong</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            {{-- State ditangani di bagian bawah --}}
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            {{-- MOBILE VIEW (Smartphone) --}}
-            <div class="md:hidden divide-y divide-gray-100">
-                @forelse ($alumniData as $alumni)
-                    <div class="p-4 bg-white space-y-3">
-                        <div class="flex items-center gap-3">
-                            <img src="{{ $alumni->foto_path ? asset('storage/' . $alumni->foto_path) : 'https://placehold.co/40x40/065f46/ffffff?text=U' }}"
-                                 class="w-12 h-12 rounded-xl object-cover border border-gray-100" alt="Foto">
-                            <div class="flex-1 min-w-0">
-                                <h4 class="font-bold text-gray-900 truncate text-sm leading-tight">{{ $alumni->nama }}</h4>
-                                <p class="text-xs text-gray-500 font-medium">{{ $alumni->nim }}</p>
+        {{-- DESKTOP TABLE --}}
+        <div class="hidden md:block">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-white border-b border-slate-100 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                        <th class="px-8 py-5">Identitas Alumni</th>
+                        <th class="px-8 py-5 text-center">Periode</th>
+                        <th class="px-8 py-5 text-center">Status Karir</th>
+                        <th class="px-8 py-5 text-center">Kuesioner</th>
+                        <th class="px-8 py-5 text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    @forelse ($alumniData as $alumni)
+                    <tr class="tr-hover">
+                        <td class="px-8 py-4">
+                            <div class="flex items-center gap-4">
+                                <img src="{{ $alumni->foto_path ? asset('storage/' . $alumni->foto_path) : 'https://ui-avatars.com/api/?name='.urlencode($alumni->nama).'&background=0ea5e9&color=fff' }}"
+                                     class="w-11 h-11 rounded-2xl object-cover border-2 border-white shadow-sm" alt="">
+                                <div>
+                                    <p class="font-bold text-slate-900 text-sm leading-tight uppercase">{{ $alumni->nama }}</p>
+                                    <p class="text-xs font-medium text-slate-400 mt-0.5 tracking-tighter">{{ $alumni->nim }}</p>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase">Lulus</p>
-                                <p class="text-sm font-bold text-green-700">{{ $alumni->tahun_keluar }}</p>
+                        </td>
+                        <td class="px-8 py-4 text-center">
+                            <div class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-lg">
+                                <span class="text-[10px] font-bold text-slate-500">{{ $alumni->tahun_masuk ?? '?' }}</span>
+                                <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300"></i>
+                                <span class="text-xs font-black text-green-600">{{ $alumni->tahun_keluar }}</span>
                             </div>
-                        </div>
-                        <div class="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
-                            <div class="text-[10px] font-bold uppercase {{ ($alumni->sudah_bekerja ?? 0) == 1 ? 'text-green-600' : 'text-red-500' }}">
-                                {{ ($alumni->sudah_bekerja ?? 0) == 1 ? 'Bekerja / Studi' : 'Belum Bekerja' }}
-                            </div>
+                        </td>
+                        <td class="px-8 py-4 text-center">
+                            @if(($alumni->sudah_bekerja ?? 0) == 1)
+                                <span class="status-badge bg-emerald-50 text-emerald-600 border-emerald-100">Bekerja</span>
+                            @else
+                                <span class="status-badge bg-rose-50 text-rose-600 border-rose-100">Belum</span>
+                            @endif
+                        </td>
+                        <td class="px-8 py-4 text-center">
                             @if($alumni->has_filled_questionnaire ?? false)
-                                <a href="{{ route('kaprodi.alumni.detail', ['alumni_id' => $alumni->user_id]) ?? '#' }}"
-                                   class="bg-blue-600 text-white px-3 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 shadow-sm">
-                                   Buka Detail <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                <div class="flex items-center justify-center text-emerald-500 gap-1 font-bold text-[10px] uppercase">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4"></i> Lengkap
+                                </div>
+                            @else
+                                <span class="text-slate-300 text-[10px] font-bold uppercase italic tracking-tighter">Belum Isi</span>
+                            @endif
+                        </td>
+                        <td class="px-8 py-4 text-right">
+                            @if($alumni->has_filled_questionnaire ?? false)
+                                <a href="{{ route('kaprodi.alumni.detail', ['alumni_id' => $alumni->user_id]) }}"
+                                   class="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md">
+                                    Detail <i data-lucide="chevron-right" class="w-3 h-3 text-blue-400"></i>
                                 </a>
                             @else
-                                <span class="text-[10px] text-gray-400 italic">Kuesioner Belum Diisi</span>
+                                <button disabled class="opacity-30 cursor-not-allowed inline-flex items-center gap-2 bg-slate-100 text-slate-400 px-4 py-2 rounded-xl text-[10px] font-black uppercase">
+                                    No Data
+                                </button>
                             @endif
+                        </td>
+                    </tr>
+                    @empty
+                        {{-- Handled by table logic --}}
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- MOBILE CARD VIEW --}}
+        <div class="md:hidden divide-y divide-slate-100">
+            @forelse ($alumniData as $alumni)
+                <div class="p-6 bg-white space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div class="flex gap-4">
+                            <img src="{{ $alumni->foto_path ? asset('storage/' . $alumni->foto_path) : 'https://ui-avatars.com/api/?name='.urlencode($alumni->nama).'&background=0ea5e9&color=fff' }}"
+                                 class="w-12 h-12 rounded-2xl object-cover shadow-sm" alt="">
+                            <div>
+                                <h4 class="font-black text-slate-900 text-sm uppercase leading-tight">{{ $alumni->nama }}</h4>
+                                <p class="text-xs font-bold text-slate-400 mt-1 uppercase">{{ $alumni->nim }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none">Lulus</p>
+                            <p class="text-sm font-black text-green-600 mt-1">{{ $alumni->tahun_keluar }}</p>
                         </div>
                     </div>
-                @empty
-                    <div class="p-10 text-center bg-gray-50">
-                        <i data-lucide="search-x" class="w-10 h-10 mx-auto mb-3 text-gray-300"></i>
-                        <p class="text-sm text-gray-500">Data alumni tidak ditemukan.</p>
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-50">
+                        @if(($alumni->sudah_bekerja ?? 0) == 1)
+                            <span class="status-badge bg-emerald-50 text-emerald-600 border-emerald-100">Bekerja</span>
+                        @else
+                            <span class="status-badge bg-rose-50 text-rose-600 border-rose-100">Belum Bekerja</span>
+                        @endif
+
+                        @if($alumni->has_filled_questionnaire ?? false)
+                            <a href="{{ route('kaprodi.alumni.detail', ['alumni_id' => $alumni->user_id]) }}"
+                               class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                Detail <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            </a>
+                        @else
+                            <span class="text-[10px] font-bold text-slate-300 uppercase italic tracking-tighter">Kuesioner Kosong</span>
+                        @endif
                     </div>
-                @endforelse
-            </div>
-        </div>
-
-        {{-- Pagination --}}
-        <div class="mt-6">
-            @if(isset($alumniData) && method_exists($alumniData, 'links'))
-                <div class="px-2">
-                    {{ $alumniData->links() }}
                 </div>
-            @endif
+            @empty
+                <div class="py-20 text-center">
+                    <div class="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="search-x" class="w-10 h-10 text-slate-200"></i>
+                    </div>
+                    <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Data alumni tidak ditemukan</p>
+                </div>
+            @endforelse
         </div>
-
     </section>
+
+    {{-- PAGINATION --}}
+    <div class="mt-8 flex justify-center">
+        @if(isset($alumniData) && method_exists($alumniData, 'links'))
+            <div class="px-2 py-4 bg-white rounded-2xl shadow-sm border border-slate-200">
+                {{ $alumniData->links() }}
+            </div>
+        @endif
+    </div>
+
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
 @endsection

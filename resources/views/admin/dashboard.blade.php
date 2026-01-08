@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard')
+@section('title', 'Admin Overview')
 
 @push('chart-libs')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -8,86 +8,127 @@
 @endpush
 
 @section('content')
+<style>
+    /* Efek Glassmorphism Khusus Admin */
+    .glass-card-admin {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-    {{-- Dynamic Header: Responsive font sizes and alignment --}}
-    <header class="mb-6 md:mb-8 p-4 bg-white rounded-xl shadow-md flex flex-col md:flex-row items-center justify-between animate-slide-in-left gap-4 text-center md:text-left">
+    .glass-card-admin:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px -15px rgba(16, 185, 129, 0.15);
+        border-color: #10b981;
+    }
+
+    .metric-icon-gradient {
+        @apply w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg;
+    }
+
+    /* Animasi Entry */
+    .fade-up {
+        animation: fadeUp 0.6s ease-out forwards;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="space-y-8 font-['Plus_Jakarta_Sans'] pb-12">
+
+    {{-- 1. HEADER SECTION --}}
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 fade-up">
         <div>
-            <h1 class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-green-800 tracking-tight font-['Poppins']">
-                Halo, <span id="adminName">{{ Auth::user()->name ?? 'Admin' }}</span>!
-            </h1>
-            <p class="text-green-700 text-sm md:text-lg mt-1" id="currentDateTime"></p>
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight">System <span class="text-green-600">Overview</span></h1>
+            <p class="text-slate-500 mt-1 font-medium italic uppercase text-[10px] tracking-widest">Selamat Datang Kembali, {{ Auth::user()->name ?? 'Administrator' }}</p>
         </div>
-        {{-- Tombol aksi cepat bisa ditambahkan di sini jika perlu --}}
+
+        <div class="bg-white px-6 py-3 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="text-right">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Server Time</p>
+                <p id="currentDateTime" class="text-xs font-black text-green-700 leading-none"></p>
+            </div>
+            <div class="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center">
+                <i data-lucide="clock" class="w-5 h-5"></i>
+            </div>
+        </div>
     </header>
 
-    {{-- Statistik Cards: Responsive Grid --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10">
+    {{-- 2. STATISTIC CARDS --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 fade-up" style="animation-delay: 0.1s">
         @php
-            $totalAlumni = $totalAlumni ?? 0;
-            $bekerja = $bekerja ?? 0;
-            $belumBekerja = $belumBekerja ?? 0;
-            $isiKuisioner = $isiKuisioner ?? 0;
-
             $stats = [
-                ['label' => 'Total Alumni', 'value' => $totalAlumni, 'color_from' => 'from-green-400', 'color_to' => 'to-green-600', 'icon' => 'mdi:account-group-outline'],
-                ['label' => 'Sudah Bekerja', 'value' => $bekerja, 'color_from' => 'from-blue-400', 'color_to' => 'to-blue-600', 'icon' => 'mdi:briefcase-check-outline'],
-                ['label' => 'Belum Bekerja', 'value' => $belumBekerja, 'color_from' => 'from-red-400', 'color_to' => 'to-red-600', 'icon' => 'mdi:account-off-outline'],
-                ['label' => 'Kuesioner Terisi', 'value' => $isiKuisioner, 'color_from' => 'from-yellow-400', 'color_to' => 'to-yellow-600', 'icon' => 'mdi:clipboard-list-outline'],
+                ['label' => 'Total Alumni', 'value' => $totalAlumni ?? 0, 'icon' => 'users', 'color' => 'bg-gradient-to-br from-emerald-500 to-green-700', 'desc' => 'Seluruh Database'],
+                ['label' => 'Sudah Bekerja', 'value' => $bekerja ?? 0, 'icon' => 'briefcase', 'color' => 'bg-gradient-to-br from-blue-500 to-indigo-700', 'desc' => 'Terserap Industri'],
+                ['label' => 'Belum Bekerja', 'value' => $belumBekerja ?? 0, 'icon' => 'user-minus', 'color' => 'bg-gradient-to-br from-rose-500 to-red-700', 'desc' => 'Available / Studi'],
+                ['label' => 'Kuesioner', 'value' => $isiKuisioner ?? 0, 'icon' => 'file-text', 'color' => 'bg-gradient-to-br from-amber-400 to-orange-600', 'desc' => 'Responden Aktif'],
             ];
         @endphp
 
         @foreach($stats as $stat)
-            <div
-                class="bg-gradient-to-br {{ $stat['color_from'] }} {{ $stat['color_to'] }} text-white rounded-2xl shadow-lg p-5 md:p-6 hover:shadow-2xl transition-all duration-300 ease-in-out flex justify-between items-center cursor-pointer transform hover:scale-[1.02] active:scale-95 select-none animate-fade-in-up"
-                style="animation-delay: {{ $loop->index * 0.1 }}s;"
-                title="{{ $stat['label'] }}">
-                <div>
-                    <p class="text-xs md:text-sm font-semibold tracking-wide uppercase drop-shadow-md opacity-90">{{ $stat['label'] }}</p>
-                    <p class="text-3xl md:text-4xl font-extrabold mt-1 drop-shadow-md font-['Poppins']">{{ $stat['value'] }}</p>
+            <div class="glass-card-admin p-8 rounded-[2.5rem] group relative overflow-hidden">
+                <div class="absolute -top-6 -right-6 w-24 h-24 bg-slate-50 rounded-full transition-transform group-hover:scale-150"></div>
+
+                <div class="relative z-10 flex flex-col items-center text-center">
+                    <div class="metric-icon-gradient {{ $stat['color'] }} mb-5 group-hover:rotate-12 transition-transform">
+                        <i data-lucide="{{ $stat['icon'] }}" class="w-6 h-6"></i>
+                    </div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">{{ $stat['label'] }}</p>
+                    <h3 class="text-4xl font-black text-slate-900 tracking-tighter">{{ $stat['value'] }}</h3>
+                    <p class="text-[9px] font-bold text-slate-400 mt-2 italic uppercase tracking-wider">{{ $stat['desc'] }}</p>
                 </div>
-                <iconify-icon icon="{{ $stat['icon'] }}" width="40" height="40" class="md:w-12 md:h-12 opacity-80 drop-shadow-md"></iconify-icon>
             </div>
         @endforeach
     </div>
 
-    {{-- Data Visualization Grid: Flexible columns --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+    {{-- 3. VISUALIZATION GRID --}}
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 fade-up" style="animation-delay: 0.2s">
         {{-- Chart Section --}}
-        <section class="bg-white rounded-2xl shadow-xl p-5 md:p-8 w-full animate-fade-in-down border border-green-200">
-            <h2 class="text-xl md:text-2xl font-semibold text-green-800 mb-6 text-center select-none font-['Poppins']">Statistik Utama Alumni</h2>
-            <div class="relative w-full" style="height: 300px; md:height: 350px;">
+        <section class="glass-card-admin p-8 lg:col-span-3 rounded-[2.5rem]">
+            <div class="flex items-center justify-between mb-8 border-b border-slate-50 pb-5">
+                <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Statistik Distribusi Alumni
+                </h2>
+            </div>
+            <div class="h-80 w-full">
                 <canvas id="statusChart"></canvas>
             </div>
         </section>
 
-        {{-- Percentage Summary Section --}}
-        <section class="bg-white rounded-2xl shadow-xl p-5 md:p-8 w-full animate-fade-in-up border border-indigo-200">
-            <h2 class="text-xl md:text-2xl font-semibold text-indigo-800 mb-6 font-['Poppins'] text-center">Ringkasan Persentase Data</h2>
-            <div class="space-y-4 md:space-y-6">
-                @php
-                    $employmentRate = ($totalAlumni > 0) ? round(($bekerja / $totalAlumni) * 100, 1) : 0;
-                    $unemploymentRate = ($totalAlumni > 0) ? round(($belumBekerja / $totalAlumni) * 100, 1) : 0;
-                    $questionnaireRate = ($totalAlumni > 0) ? round(($isiKuisioner / $totalAlumni) * 100, 1) : 0;
-                @endphp
+        {{-- Percentage Breakdown --}}
+        <section class="glass-card-admin p-8 lg:col-span-2 rounded-[2.5rem]">
+            <div class="mb-10">
+                <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Analisis Persentase</h2>
+                <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-tighter italic">Berdasarkan data kuesioner terkini</p>
+            </div>
 
-                {{-- Progress Bar Item --}}
-                @foreach([
-                    ['label' => 'Alumni Bekerja', 'rate' => $employmentRate, 'count' => $bekerja, 'color' => 'bg-indigo-600', 'bg' => 'bg-indigo-50', 'icon' => 'award', 'text' => 'text-indigo-700'],
-                    ['label' => 'Alumni Belum Bekerja', 'rate' => $unemploymentRate, 'count' => $belumBekerja, 'color' => 'bg-red-600', 'bg' => 'bg-red-50', 'icon' => 'frown', 'text' => 'text-red-700'],
-                    ['label' => 'Tingkat Kuesioner', 'rate' => $questionnaireRate, 'count' => $isiKuisioner, 'color' => 'bg-emerald-600', 'bg' => 'bg-emerald-50', 'icon' => 'check-square', 'text' => 'text-emerald-700']
-                ] as $item)
-                <div class="flex items-center gap-3 md:gap-4 p-4 {{ $item['bg'] }} rounded-xl border border-transparent hover:border-gray-200 transition-all duration-300">
-                    <div class="hidden sm:block {{ $item['bg'] }} p-3 rounded-full flex-shrink-0 border border-white">
-                        <i data-lucide="{{ $item['icon'] }}" class="w-6 h-6 {{ $item['text'] }}"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-bold {{ $item['text'] }} text-sm md:text-base truncate">{{ $item['label'] }}</p>
-                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-                            <div class="{{ $item['color'] }} h-2 rounded-full transition-all duration-1000" style="width: {{ $item['rate'] }}%"></div>
+            @php
+                $total = $totalAlumni ?? 1;
+                $rates = [
+                    ['label' => 'Employment Rate', 'rate' => round((($bekerja ?? 0) / $total) * 100, 1), 'icon' => 'award', 'color' => 'bg-blue-600', 'text' => 'text-blue-600', 'bg' => 'bg-blue-50'],
+                    ['label' => 'Unemployment Rate', 'rate' => round((($belumBekerja ?? 0) / $total) * 100, 1), 'icon' => 'alert-circle', 'color' => 'bg-rose-600', 'text' => 'text-rose-600', 'bg' => 'bg-rose-50'],
+                    ['label' => 'Questionnaire Participation', 'rate' => round((($isiKuisioner ?? 0) / $total) * 100, 1), 'icon' => 'check-square', 'color' => 'bg-emerald-600', 'text' => 'text-emerald-600', 'bg' => 'bg-emerald-50']
+                ];
+            @endphp
+
+            <div class="space-y-8">
+                @foreach($rates as $r)
+                <div class="group">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 {{ $r['bg'] }} {{ $r['text'] }} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i data-lucide="{{ $r['icon'] }}" class="w-4 h-4"></i>
+                            </div>
+                            <span class="text-xs font-black text-slate-700 uppercase tracking-tight">{{ $r['label'] }}</span>
                         </div>
-                        <p class="text-xs text-gray-600 mt-1">
-                            <span class="font-bold">{{ $item['count'] }}</span> / {{ $totalAlumni }} alumni <span class="font-bold">({{ $item['rate'] }}%)</span>
-                        </p>
+                        <span class="text-sm font-black text-slate-900">{{ $r['rate'] }}%</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="{{ $r['color'] }} h-full transition-all duration-1000" style="width: {{ $r['rate'] }}%"></div>
                     </div>
                 </div>
                 @endforeach
@@ -95,130 +136,118 @@
         </section>
     </div>
 
-    {{-- Alumni Terbaru Table: Responsive wrapper --}}
-    <div class="space-y-10">
-        <section class="bg-white shadow-xl rounded-2xl p-5 md:p-8 border border-green-200 animate-fade-in-up">
-            <h2 class="text-xl md:text-2xl font-semibold text-green-800 mb-6 text-center font-['Poppins']">Alumni Terbaru</h2>
+    {{-- 4. LATEST ALUMNI TABLE --}}
+    <section class="glass-card-admin overflow-hidden rounded-[2.5rem] shadow-xl fade-up" style="animation-delay: 0.3s">
+        <div class="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Record Alumni Terbaru</h2>
+            <a href="{{ route('admin.alumni') }}" class="text-[10px] font-black text-green-600 hover:text-green-700 uppercase tracking-[0.2em] transition-all">Lihat Semua &rarr;</a>
+        </div>
 
-            <div class="overflow-x-auto -mx-5 md:mx-0">
-                <div class="inline-block min-w-full align-middle md:px-0">
-                    @if(isset($latestAlumni) && $latestAlumni->isNotEmpty())
-                        <table class="min-w-full divide-y divide-gray-200 text-sm">
-                            <thead class="bg-green-100 text-green-800 uppercase tracking-wide border-b border-green-200 text-left">
-                                <tr>
-                                    <th class="py-3 px-4">Nama</th>
-                                    <th class="py-3 px-4 text-center">NIM</th>
-                                    <th class="py-3 px-4 text-center hidden sm:table-cell">Jurusan</th>
-                                    <th class="py-3 px-4 text-center hidden md:table-cell">Fakultas</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-100">
-                                @foreach($latestAlumni as $alumni)
-                                    <tr class="hover:bg-green-50 transition-colors duration-150">
-                                        <td class="py-4 px-4 font-medium text-gray-900">{{ $alumni->nama }}</td>
-                                        <td class="py-4 px-4 text-center text-gray-600">{{ $alumni->nim }}</td>
-                                        <td class="py-4 px-4 text-center text-gray-600 hidden sm:table-cell">{{ $alumni->jurusan }}</td>
-                                        <td class="py-4 px-4 text-center text-gray-600 hidden md:table-cell">{{ $alumni->fakultas }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    @else
-                        <div class="text-center py-10 px-4">
-                            <img src="https://www.svgrepo.com/show/472628/no-data.svg" alt="No Data" class="w-24 h-24 mx-auto mb-4 opacity-40">
-                            <p class="text-gray-500 italic">Belum ada data alumni terbaru.</p>
-                        </div>
-                    @endif
-                </div>
+        <div class="overflow-x-auto">
+            @if(isset($latestAlumni) && $latestAlumni->isNotEmpty())
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        <th class="px-8 py-5">Nama Lengkap</th>
+                        <th class="px-8 py-5 text-center">NIM</th>
+                        <th class="px-8 py-5 text-center">Program Studi</th>
+                        <th class="px-8 py-5 text-right">Fakultas</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    @foreach($latestAlumni as $alumni)
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-8 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-green-100 text-green-600 rounded-lg flex items-center justify-center font-bold text-xs uppercase">
+                                    {{ substr($alumni->nama, 0, 1) }}
+                                </div>
+                                <span class="text-sm font-bold text-slate-700 uppercase tracking-tight">{{ $alumni->nama }}</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-4 text-center">
+                            <span class="px-3 py-1 bg-slate-100 rounded-lg font-mono text-xs text-slate-500 font-bold">{{ $alumni->nim }}</span>
+                        </td>
+                        <td class="px-8 py-4 text-center">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-tighter">{{ $alumni->jurusan }}</span>
+                        </td>
+                        <td class="px-8 py-4 text-right">
+                            <span class="text-[10px] font-black text-slate-400 uppercase italic">{{ $alumni->fakultas }}</span>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            @else
+            <div class="p-20 text-center">
+                <i data-lucide="database-zap" class="w-12 h-12 text-slate-200 mx-auto mb-4"></i>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Belum ada data terbaru</p>
             </div>
-        </section>
+            @endif
+        </div>
+    </section>
 
-        {{-- CTA Card: Responsive Flex --}}
-        <section class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-2xl shadow-xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-8 animate-fade-in">
-            <div class="md:w-2/3 text-center md:text-left">
-                <h2 class="text-2xl md:text-3xl font-extrabold mb-4 font-['Poppins']">Kelola Data Lebih Lengkap?</h2>
-                <p class="text-blue-100 text-base md:text-lg mb-6 leading-relaxed">
-                    Akses menu Manajemen Alumni untuk melakukan filter data mendalam, mengunduh laporan CSV, atau memperbarui informasi profil secara spesifik.
-                </p>
-                <a href="{{ route('admin.alumni') }}" class="inline-flex items-center px-6 py-3 bg-white text-blue-700 font-bold rounded-xl shadow-lg hover:bg-blue-50 transition transform hover:-translate-y-1 active:scale-95">
-                    <i data-lucide="users" class="w-5 h-5 mr-2"></i> Ke Manajemen Alumni
-                </a>
-            </div>
-            <div class="md:w-1/3 flex justify-center">
-                <iconify-icon icon="mdi:database-cog" class="text-white opacity-20" width="160" height="160"></iconify-icon>
-            </div>
-        </section>
-    </div>
-
+</div>
 @endsection
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // JS Variables from Blade
-            const statsData = {
-                total: parseInt("{{ $totalAlumni }}") || 0,
-                bekerja: parseInt("{{ $bekerja }}") || 0,
-                belum: parseInt("{{ $belumBekerja }}") || 0,
-                kuesioner: parseInt("{{ $isiKuisioner }}") || 0
-            };
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
 
-            // Initialize Chart.js
-            Chart.register(ChartDataLabels);
-            const ctx = document.getElementById('statusChart');
+        // 1. Clock Implementation
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('id-ID', options).toUpperCase() + ' WIB';
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
 
-            if (ctx) {
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Bekerja', 'Belum Bekerja', 'Isi Kuesioner'],
-                        datasets: [{
-                            data: [statsData.bekerja, statsData.belum, statsData.kuesioner],
-                            backgroundColor: ['#3B82F6', '#EF4444', '#F59E0B'],
-                            borderColor: '#ffffff',
-                            borderWidth: 3,
-                            hoverOffset: 15
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: window.innerWidth < 768 ? 'bottom' : 'right',
-                                labels: { padding: 20, font: { family: 'Poppins', size: 12 } }
-                            },
-                            datalabels: {
-                                color: '#fff',
-                                font: { weight: 'bold', size: 12 },
-                                formatter: (val) => {
-                                    if (statsData.total === 0) return '';
-                                    return ((val / statsData.total) * 100).toFixed(0) + '%';
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: (item) => ` ${item.label}: ${item.raw} Alumni`
-                                }
+        // 2. Chart Implementation
+        const statsData = {
+            bekerja: parseInt("{{ $bekerja ?? 0 }}"),
+            belum: parseInt("{{ $belumBekerja ?? 0 }}"),
+            kuesioner: parseInt("{{ $isiKuisioner ?? 0 }}")
+        };
+
+        const ctx = document.getElementById('statusChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Bekerja', 'Belum Bekerja', 'Isi Kuesioner'],
+                    datasets: [{
+                        data: [statsData.bekerja, statsData.belum, statsData.kuesioner],
+                        backgroundColor: ['#3b82f6', '#f43f5e', '#f59e0b'],
+                        borderWidth: 8,
+                        borderColor: '#ffffff',
+                        hoverOffset: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 30,
+                                usePointStyle: true,
+                                font: { size: 11, weight: '800' },
+                                color: '#1e293b'
                             }
                         },
-                        cutout: '65%'
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' }
+                        }
                     }
-                });
-            }
-
-            // Real-time Clock logic (if needed in layout but defined here)
-            function updateClock() {
-                const now = new Date();
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                const el = document.getElementById('currentDateTime');
-                if (el) el.textContent = now.toLocaleDateString('id-ID', options) + ' WIB';
-            }
-            updateClock();
-            setInterval(updateClock, 60000);
-
-            // Re-init lucide icons for dynamic elements
-            if (window.lucide) lucide.createIcons();
-        });
-    </script>
+                }
+            });
+        }
+    });
+</script>
 @endpush

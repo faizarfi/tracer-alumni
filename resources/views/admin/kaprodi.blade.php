@@ -2,159 +2,233 @@
 
 @section('title', 'Manajemen Kaprodi')
 
-@section('header')
-    {{-- Header/Title Section Responsif --}}
-    <header class="mb-8 p-6 bg-white rounded-xl shadow-md flex flex-col md:flex-row items-center justify-between animate-fade-in gap-4">
-        <div class="text-center md:text-left">
-            <h1 class="text-2xl lg:text-4xl font-extrabold text-pink-700 tracking-tight font-['Poppins']">
-                Manajemen Kaprodi
-            </h1>
-            <p class="text-gray-600 text-sm md:text-lg mt-1">Kelola data Ketua Program Studi bertanggung jawab.</p>
-        </div>
-        <div class="flex flex-col items-center md:items-end bg-pink-50 md:bg-transparent p-3 md:p-0 rounded-lg w-full md:w-auto">
-            <p class="text-xs md:text-sm font-semibold text-pink-900 md:text-gray-700" id="currentDate"></p>
-            <p class="text-xs md:text-sm text-pink-700 md:text-gray-600" id="currentTime"></p>
-        </div>
-    </header>
-@endsection
-
 @section('content')
+<style>
+    /* Premium Glassmorphism Table Styling */
+    .glass-card-kaprodi {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 2.5rem;
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.05);
+    }
 
-    <div class="container mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 flex-1 overflow-hidden">
+    .tr-hover {
+        transition: all 0.2s ease;
+    }
 
-        {{-- Alerts --}}
-        @if(session('success') || session('error'))
-            <div class="px-6 pt-6">
-                <div class="flex items-center gap-3 {{ session('success') ? 'bg-green-100 border-green-300 text-green-800' : 'bg-red-100 border-red-300 text-red-800' }} px-5 py-4 rounded-xl shadow-sm justify-between" role="alert">
-                    <p class="font-medium flex items-center gap-2 text-sm">
-                        <i data-lucide="{{ session('success') ? 'check-circle' : 'x-circle' }}" class="w-5 h-5"></i>
-                        {{ session('success') ?? session('error') }}
-                    </p>
-                    <button type="button" onclick="this.parentElement.parentElement.remove()">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
+    .tr-hover:hover {
+        background-color: #fff1f2; /* Soft pink tint */
+        transform: scale(1.001);
+    }
+
+    .input-premium {
+        @apply w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-500/10 transition-all text-sm font-medium text-slate-700 appearance-none;
+    }
+
+    /* Action Button dengan Teks */
+    .btn-action-text {
+        @apply flex items-center gap-2 px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 shadow-sm hover:shadow-md active:scale-90;
+    }
+</style>
+
+<div class="space-y-8 font-['Plus_Jakarta_Sans'] pb-12">
+
+    {{-- HEADER SECTION --}}
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-fade-in">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-pink-100 text-pink-600 rounded-2xl flex items-center justify-center shadow-sm border border-pink-200">
+                <i data-lucide="user-check" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Manajemen <span class="text-pink-600">Kaprodi</span></h1>
+                <p class="text-slate-500 mt-1 font-medium italic uppercase text-[10px] tracking-widest">Otoritas Pengelola Data Program Studi</p>
+            </div>
+        </div>
+
+        <a href="{{ route('admin.kaprodi.create') }}" class="flex items-center gap-2 px-8 py-4 bg-pink-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-pink-900/20 hover:bg-pink-700 transition-all active:scale-95">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i> Tambah Kaprodi
+        </a>
+    </header>
+
+    {{-- ALERTS --}}
+    @if(session('success') || session('error'))
+        <div class="flex items-center gap-3 {{ session('success') ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-rose-50 border-rose-100 text-rose-800' }} px-6 py-4 rounded-2xl animate-fade-in shadow-sm border">
+            <i data-lucide="{{ session('success') ? 'check-circle' : 'alert-circle' }}" class="w-5 h-5"></i>
+            <span class="text-sm font-bold uppercase tracking-tight">{{ session('success') ?? session('error') }}</span>
+        </div>
+    @endif
+
+    {{-- SEARCH & FILTER --}}
+<section class="p-8 bg-white rounded-[2rem] shadow-xl border border-slate-200 animate-fade-in">
+    <form action="#" method="GET" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+            <div class="md:col-span-6">
+                <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Pencarian Cepat</label>
+                <div class="relative group">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-blue-500 transition-colors"></i>
+                    <input type="text" name="cari" placeholder="Cari Nama, NIM, atau Jurusan..."
+                        class="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold text-slate-700">
                 </div>
+            </div>
+
+            <div class="md:col-span-3">
+                <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Status Karir</label>
+                <div class="relative">
+                    <select name="status" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 appearance-none font-bold text-slate-700 cursor-pointer">
+                        <option value="">Semua Status</option>
+                        <option value="1">Bekerja</option>
+                        <option value="0">Mencari Kerja</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                </div>
+            </div>
+
+            <div class="md:col-span-3">
+                <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Urutkan</label>
+                <div class="relative">
+                    <select name="sort" class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-blue-500 appearance-none font-bold text-slate-700 cursor-pointer">
+                        <option value="nama">Nama Alumni</option>
+                        <option value="nim">NIM</option>
+                        <option value="tahun">Tahun Lulus</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end pt-2">
+            <button type="submit" class="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-black transition-all active:scale-95 flex items-center gap-2">
+                <i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Terapkan Filter Lanjutan
+            </button>
+        </div>
+    </form>
+</section>
+
+    {{-- MAIN DATA TABLE --}}
+    <section class="glass-card-kaprodi overflow-hidden shadow-xl shadow-slate-200/50">
+        <div class="px-8 py-5 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+            <span>Record Ketua Program Studi</span>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-pink-500 rounded-full animate-pulse"></span>
+                <span class="text-pink-600">Status Aktif</span>
+            </div>
+        </div>
+
+        {{-- DESKTOP VIEW --}}
+        <div class="hidden md:block">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-white text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        <th class="px-8 py-6">Identitas Pengelola</th>
+                        <th class="px-8 py-6">Kontak Resmi</th>
+                        <th class="px-8 py-6">Penempatan Prodi</th>
+                        <th class="px-8 py-6 text-right">Tindakan Manajemen</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    @forelse($kaprodiList as $kaprodi)
+                    <tr class="tr-hover group">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center font-black text-sm uppercase border border-pink-200 shadow-sm">
+                                    {{ substr($kaprodi->name, 0, 1) }}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-900 text-sm uppercase tracking-tight">{{ $kaprodi->name }}</p>
+                                    <p class="text-[10px] font-medium text-slate-400 mt-0.5 tracking-tighter">Ketua Program Studi</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-2 text-slate-600">
+                                <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-300"></i>
+                                <span class="text-xs font-semibold">{{ $kaprodi->email }}</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <p class="text-xs font-black text-pink-700 uppercase leading-tight">{{ $kaprodi->prodi ?? 'N/A' }}</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mt-1 italic leading-none">{{ $kaprodi->fakultas ?? '-' }}</p>
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="flex justify-end gap-3">
+                                {{-- Tombol Edit dengan Teks --}}
+                                <a href="{{ route('admin.kaprodi.edit', $kaprodi->id) }}" class="btn-action-text bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-100">
+                                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                    <span>Edit</span>
+                                </a>
+
+                                {{-- Tombol Hapus dengan Teks --}}
+                                <form action="{{ route('admin.kaprodi.destroy', $kaprodi->id) }}" method="POST" onsubmit="return confirm('Hapus akses Kaprodi ini secara permanen?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn-action-text bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-100">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        <span>Hapus</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="py-20 text-center">
+                            <i data-lucide="database-zap" class="w-12 h-12 text-slate-200 mx-auto mb-4"></i>
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Data Kaprodi Kosong</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- MOBILE VIEW --}}
+        <div class="md:hidden divide-y divide-slate-100">
+            @foreach($kaprodiList as $kaprodi)
+            <div class="p-6 space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center font-black">
+                        {{ substr($kaprodi->name, 0, 1) }}
+                    </div>
+                    <div>
+                        <h4 class="font-black text-slate-900 text-sm uppercase leading-tight">{{ $kaprodi->name }}</h4>
+                        <p class="text-[10px] text-slate-400 italic mt-0.5">{{ $kaprodi->email }}</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1 leading-none">Penugasan Prodi</p>
+                    <p class="text-xs font-black text-pink-700 uppercase leading-snug">{{ $kaprodi->prodi ?? '-' }}</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="{{ route('admin.kaprodi.edit', $kaprodi->id) }}" class="flex-1 btn-action-text bg-blue-600 text-white justify-center py-3">
+                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> <span>Edit</span>
+                    </a>
+                    <form action="{{ route('admin.kaprodi.destroy', $kaprodi->id) }}" method="POST" class="flex-1">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="w-full btn-action-text bg-rose-600 text-white justify-center py-3">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> <span>Hapus</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </section>
+
+    {{-- PAGINATION --}}
+    <div class="mt-8 flex justify-center">
+        @if(isset($kaprodiList) && method_exists($kaprodiList, 'links'))
+            <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-200">
+                {{ $kaprodiList->links() }}
             </div>
         @endif
-
-        <div class="p-6 pb-4 border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h2 class="text-xl font-bold text-gray-800">Daftar Kaprodi</h2>
-                <a href="{{ route('admin.kaprodi.create') }}"
-                    class="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-pink-600 hover:bg-pink-700 transition text-white font-semibold py-2.5 px-5 rounded-lg shadow-md transform hover:scale-[1.02] active:scale-95 text-sm">
-                     <i data-lucide="user-plus" class="w-4 h-4"></i>
-                     Tambah Kaprodi Baru
-                </a>
-            </div>
-
-            {{-- Search Form --}}
-            <form action="{{ route('admin.kaprodi') }}" method="GET" class="flex flex-col md:flex-row items-center gap-3">
-                <div class="relative w-full md:flex-grow">
-                    <input type="text" name="cari" placeholder="Cari nama, email, atau prodi..."
-                            value="{{ request('cari') }}"
-                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-sm transition shadow-sm" />
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 iconify" data-icon="mdi:magnify"></span>
-                </div>
-                <button type="submit"
-                        class="w-full md:w-auto flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white font-semibold py-2.5 px-8 rounded-lg shadow-md transition text-sm">
-                    <span class="iconify" data-icon="mdi:filter-variant"></span>
-                    Filter
-                </button>
-            </form>
-        </div>
-
-        {{-- Data View --}}
-        <div class="p-0">
-            {{-- Desktop Table View --}}
-            <div class="hidden md:block overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 text-gray-800 text-sm">
-                    <thead class="bg-green-50">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">Nama</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">Kontak / Email</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider">Program Studi</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-green-800 uppercase tracking-wider text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">
-                        @forelse($kaprodiList as $kaprodi)
-                            <tr class="hover:bg-pink-50/30 transition duration-150">
-                                <td class="px-6 py-4 font-semibold text-gray-800">{{ $kaprodi->name }}</td>
-                                <td class="px-6 py-4 text-gray-600">{{ $kaprodi->email }}</td>
-                                <td class="px-6 py-4">
-                                    <span class="block font-medium text-pink-700">{{ $kaprodi->prodi ?? '-' }}</span>
-                                    <span class="text-xs text-gray-400">{{ $kaprodi->fakultas ?? '-' }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="flex justify-center gap-2">
-                                        <a href="{{ route('admin.kaprodi.edit', $kaprodi->id) }}"
-                                           class="text-white bg-blue-600 hover:bg-blue-700 p-2 rounded-lg flex items-center gap-1 text-xs transition transform hover:scale-105">
-                                            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
-                                        </a>
-                                        <form action="{{ route('admin.kaprodi.destroy', $kaprodi->id) }}" method="POST" onsubmit="return confirm('Hapus Kaprodi ini?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-white bg-red-600 hover:bg-red-700 p-2 rounded-lg flex items-center gap-1 text-xs transition transform hover:scale-105">
-                                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            {{-- State ditangani oleh empty mobile di bawah atau gabung di sini --}}
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            {{-- Mobile Card View --}}
-            <div class="md:hidden divide-y divide-gray-100">
-                @forelse($kaprodiList as $kaprodi)
-                    <div class="p-5 bg-white space-y-3">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1">
-                                <h4 class="font-bold text-gray-900 text-base leading-tight">{{ $kaprodi->name }}</h4>
-                                <p class="text-xs text-gray-500 mt-1">{{ $kaprodi->email }}</p>
-                            </div>
-                            <div class="bg-pink-100 text-pink-700 text-[10px] font-bold px-2 py-1 rounded uppercase">
-                                Kaprodi
-                            </div>
-                        </div>
-
-                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                            <p class="text-[10px] uppercase text-gray-400 font-bold tracking-widest">Penempatan</p>
-                            <p class="text-sm font-semibold text-pink-800">{{ $kaprodi->prodi ?? '-' }}</p>
-                            <p class="text-xs text-gray-500">{{ $kaprodi->fakultas ?? '-' }}</p>
-                        </div>
-
-                        <div class="flex gap-2 pt-2">
-                            <a href="{{ route('admin.kaprodi.edit', $kaprodi->id) }}"
-                               class="flex-1 flex justify-center items-center gap-2 bg-blue-50 text-blue-700 py-2.5 rounded-xl text-xs font-bold border border-blue-100">
-                                <i data-lucide="edit-2" class="w-4 h-4"></i> Edit
-                            </a>
-                            <form action="{{ route('admin.kaprodi.destroy', $kaprodi->id) }}" method="POST" class="flex-1">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="w-full flex justify-center items-center gap-2 bg-red-50 text-red-700 py-2.5 rounded-xl text-xs font-bold border border-red-100">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                @empty
-                    <div class="p-12 text-center bg-gray-50">
-                        <img src="https://www.svgrepo.com/show/472628/no-data.svg" alt="No Data" class="w-24 h-24 mx-auto mb-4 opacity-40">
-                        <p class="text-gray-500 font-medium">Data Kaprodi tidak ditemukan.</p>
-                    </div>
-                @endforelse
-            </div>
-        </div>
-
-        {{-- Pagination --}}
-        <div class="mt-4 p-6 flex justify-center border-t border-gray-100 bg-gray-50">
-            @if(isset($kaprodiList) && method_exists($kaprodiList, 'links'))
-                {{ $kaprodiList->links('pagination::tailwind') }}
-            @endif
-        </div>
-
     </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
 @endsection

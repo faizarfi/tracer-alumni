@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8" />
@@ -8,433 +8,309 @@
 
     <link rel="icon" type="image/png" href="{{ asset('img/uin.png') }}" />
 
-    {{-- Fonts --}}
+    {{-- Fonts: Plus Jakarta Sans & Poppins --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 
     {{-- Tailwind CSS --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
-    {{-- Iconify & Lucide Icons --}}
+    {{-- Icons --}}
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    {{-- Chart.js and DataLabels Plugin (for Dashboard only, but placed here for simplicity or can be moved to stack) --}}
     @stack('chart-libs')
 
     <style>
-        /* Your original CSS styles go here */
-        html {
-            scroll-behavior: smooth;
+        :root {
+            --primary-green: #064e3b;
+            --secondary-green: #065f46;
+            --accent-green: #10b981;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            color: #2D3748;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1e293b;
+            background-color: #f8fafc;
         }
 
-        h1, h2, h3, h4 {
-            font-family: 'Poppins', sans-serif;
-        }
+        h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; }
 
         /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: var(--primary-green); border-radius: 10px; }
 
-        ::-webkit-scrollbar-track {
-            background: #f0fdf4;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #065f46;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #047857;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeInDown {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-
-        @keyframes slideInLeft {
-            0% { opacity: 0; transform: translateX(-50px); }
-            100% { opacity: 1; transform: translateX(0); }
-        }
-
-        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        .animate-fade-in-up { animation: fadeInUp 0.6s ease forwards; }
-        .animate-fade-in-down { animation: fadeInDown 0.6s ease forwards; }
-        .animate-slide-in-left { animation: slideInLeft 0.7s ease-out forwards; }
-
-
-        /* Sidebar specific styles */
+        /* Sidebar Glassmorphism */
         #sidebar {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            max-width: 256px;
+            width: 280px;
             height: 100vh;
             transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 50;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
+            background: linear-gradient(180deg, #052e16 0%, #064e3b 100%);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
         }
 
-        #sidebar.open {
-            transform: translateX(0);
-        }
+        #sidebar.open { transform: translateX(0); }
 
-        /* Desktop view: sidebar is sticky and visible */
         @media (min-width: 768px) {
             #sidebar {
                 position: sticky;
                 transform: translateX(0);
                 flex-shrink: 0;
-                width: 256px;
-                height: 100vh;
-                z-index: 30;
             }
         }
 
-        /* Sidebar overlay for mobile */
+        /* Sidebar Nav Styling */
+        .sidebar-link {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-left-color: var(--accent-green);
+            padding-left: 1.5rem;
+        }
+
+        .sidebar-link.active {
+            background: rgba(255, 255, 255, 0.12);
+            border-left-color: var(--accent-green);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+            font-weight: 700;
+        }
+
+        /* Glass Header */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
         #sidebar-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
             z-index: 40;
             display: none;
         }
     </style>
 </head>
 
-<body class="bg-green-50 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
-    {{-- Main wrapper for sidebar and content --}}
     <div class="flex flex-1 flex-col md:flex-row">
 
         {{-- Sidebar --}}
-        <aside id="sidebar" class="bg-gradient-to-b from-green-900 via-green-800 to-green-700 text-white">
-            <div class="p-5 border-b border-green-700 text-center select-none bg-green-950">
-                <h2 class="text-xl font-extrabold tracking-wide font-['Poppins']">Admin Panel</h2>
+        <aside id="sidebar" class="text-white flex flex-col">
+            <div class="p-8 border-b border-white/5 bg-black/10 text-center">
+                <img src="{{ asset('img/uin.png') }}" class="w-16 h-16 mx-auto mb-4 drop-shadow-xl brightness-0 invert" alt="Logo UIN">
+                <h2 class="text-lg font-black tracking-widest font-['Poppins'] uppercase">Admin Panel</h2>
+                <p class="text-[10px] text-emerald-400 font-bold tracking-[0.2em] uppercase">Super Control Center</p>
             </div>
-            <nav class="px-4 py-6 flex flex-col space-y-3 flex-1">
-                {{-- Navigation Links --}}
-                <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
-                    {{ Request::routeIs('admin.dashboard') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
-                    <iconify-icon icon="mdi:view-dashboard" class="w-5 h-5 text-green-300"></iconify-icon>
-                    <span>Dashboard</span>
+
+            <nav class="px-4 py-8 flex flex-col space-y-2 flex-1 overflow-y-auto">
+                <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] px-4 mb-2">Main Controls</p>
+
+                <a href="{{ route('admin.dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-white/80 font-medium text-sm {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 text-emerald-400"></i>
+                    <span>Dashboard Stats</span>
                 </a>
-                <a href="{{ route('admin.kuisioner') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
-                    {{ Request::routeIs('admin.kuisioner') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
-                    <iconify-icon icon="mdi:clipboard-text-outline" class="w-5 h-5 text-yellow-300"></iconify-icon>
+
+                <a href="{{ route('admin.kuisioner') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-white/80 font-medium text-sm {{ Request::routeIs('admin.kuisioner') ? 'active' : '' }}">
+                    <i data-lucide="file-text" class="w-5 h-5 text-yellow-400"></i>
                     <span>Manajemen Kuesioner</span>
                 </a>
 
-                {{-- Manajemen Testimoni (Dynamic Sub-Menu) --}}
-                @php
-                    $isTestimoniActive = Request::routeIs('admin.testimonials.*');
-                @endphp
-                <div class="space-y-1">
-                    <a href="javascript:void(0)" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group {{ $isTestimoniActive ? 'bg-white/10' : '' }}">
-                        <iconify-icon icon="mdi:message-badge-outline" class="w-5 h-5 text-red-300"></iconify-icon>
-                        <span>Manajemen Testimoni</span>
-                    </a>
-                    <div class="pl-6 space-y-1 border-l ml-3 {{ $isTestimoniActive ? 'border-red-500' : 'border-red-800/50' }}">
-                        {{-- Link 1: Review --}}
-                        <a href="{{ route('admin.testimonials.review') }}"
-                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs hover:bg-white/10
-                            {{ Request::routeIs('admin.testimonials.review') ? 'bg-white bg-opacity-20 shadow-md font-semibold' : '' }}">
-                            <i data-lucide="bell" class="w-4 h-4 text-red-400"></i>
+                {{-- Manajemen Testimoni Dropdown Simulation --}}
+                <div class="pt-4 pb-2">
+                    <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] px-4 mb-2">Social & Content</p>
+                    <div class="space-y-1">
+                        <a href="{{ route('admin.testimonials.review') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs {{ Request::routeIs('admin.testimonials.review') ? 'active text-white' : 'text-white/60' }}">
+                            <i data-lucide="clock" class="w-4 h-4 text-rose-400"></i>
                             <span>Menunggu Review</span>
                         </a>
-                        {{-- Link 2: Disetujui --}}
-                        <a href="{{ route('admin.testimonials.approved') }}"
-                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs hover:bg-white/10
-                            {{ Request::routeIs('admin.testimonials.approved') ? 'bg-white bg-opacity-20 shadow-md font-semibold' : '' }}">
-                            <i data-lucide="check-circle" class="w-4 h-4 text-green-300"></i>
+                        <a href="{{ route('admin.testimonials.approved') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs {{ Request::routeIs('admin.testimonials.approved') ? 'active text-white' : 'text-white/60' }}">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
                             <span>Testimoni Disetujui</span>
                         </a>
-                        {{-- Link 3: Ditolak --}}
-                        <a href="{{ route('admin.testimonials.rejected') }}"
-                            class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-normal text-xs hover:bg-white/10
-                            {{ Request::routeIs('admin.testimonials.rejected') ? 'bg-white bg-opacity-20 shadow-md font-semibold' : '' }}">
-                            <i data-lucide="x-circle" class="w-4 h-4 text-yellow-300"></i>
+                        <a href="{{ route('admin.testimonials.rejected') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs {{ Request::routeIs('admin.testimonials.rejected') ? 'active text-white' : 'text-white/60' }}">
+                            <i data-lucide="x-circle" class="w-4 h-4 text-amber-400"></i>
                             <span>Testimoni Ditolak</span>
                         </a>
                     </div>
                 </div>
 
-                <a href="{{ route('admin.alumni') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
-                    {{ Request::routeIs('admin.alumni') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
-                    <iconify-icon icon="mdi:account-multiple-outline" class="w-5 h-5 text-blue-300"></iconify-icon>
-                    <span>Manajemen Alumni</span>
+                <a href="{{ route('admin.alumni') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-white/80 font-medium text-sm {{ Request::routeIs('admin.alumni') ? 'active' : '' }}">
+                    <i data-lucide="users" class="w-5 h-5 text-blue-400"></i>
+                    <span>Database Alumni</span>
                 </a>
-                <a href="{{ route('admin.gallery') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
-                    {{ Request::routeIs('admin.gallery') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
-                    <iconify-icon icon="mdi:image-multiple-outline" class="w-5 h-5 text-purple-300"></iconify-icon>
+
+                <a href="{{ route('admin.gallery') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-white/80 font-medium text-sm {{ Request::routeIs('admin.gallery') ? 'active' : '' }}">
+                    <i data-lucide="image" class="w-5 h-5 text-purple-400"></i>
                     <span>Manajemen Gallery</span>
                 </a>
 
-                <a href="{{ route('admin.kaprodi') }}" class="sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-white font-semibold text-sm hover:bg-white/10 group
-                    {{ Request::routeIs('admin.kaprodi') ? 'bg-white bg-opacity-20 shadow-md font-extrabold' : '' }}">
-                    <iconify-icon icon="mdi:account-tie" class="w-5 h-5 text-pink-300"></iconify-icon>
+                <a href="{{ route('admin.kaprodi') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-white/80 font-medium text-sm {{ Request::routeIs('admin.kaprodi') ? 'active' : '' }}">
+                    <i data-lucide="user-check" class="w-5 h-5 text-pink-400"></i>
                     <span>Manajemen Kaprodi</span>
                 </a>
 
-                {{-- Logout Button --}}
-                <form action="{{ route('logout') }}" method="POST" class="mt-auto pt-6">
-                    @csrf
-                    <button type="submit"
-                        class="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-sm shadow-md transition duration-300 ease-in-out group">
-                        <iconify-icon icon="mdi:logout" class="w-5 h-5"></iconify-icon>
-                        <span>Logout</span>
-                    </button>
-                </form>
+                {{-- Logout --}}
+                <div class="mt-auto pt-10">
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="group flex items-center gap-3 w-full px-5 py-3.5 rounded-2xl bg-rose-600/10 hover:bg-rose-600 text-rose-500 hover:text-white font-black text-xs uppercase tracking-widest transition-all shadow-lg border border-rose-500/20 active:scale-95">
+                            <i data-lucide="log-out" class="w-5 h-5"></i>
+                            <span>Logout System</span>
+                        </button>
+                    </form>
+                </div>
             </nav>
         </aside>
 
-        {{-- Sidebar Overlay for Mobile --}}
-        <div id="sidebar-overlay" class="md:hidden"></div>
+        {{-- Overlay for Mobile --}}
+        <div id="sidebar-overlay"></div>
 
         {{-- Main Content Wrapper --}}
-        <main class="flex-1 p-6 lg:p-8 flex flex-col">
+        <main class="flex-1 flex flex-col min-w-0">
 
-            {{-- Top Bar for Mobile/Tablet --}}
-            <div class="flex justify-between items-center mb-6 md:hidden w-full">
-                <button id="sidebarToggle"
-                    class="text-white bg-green-700 p-2.5 rounded-md shadow-md hover:bg-green-800 transition-colors focus:outline-none focus:ring-2 focus:ring-green-600">
-                    <iconify-icon icon="mdi:menu" class="w-5 h-5"></iconify-icon>
-                </button>
-                <div class="flex items-center gap-3">
-                    <span class="text-base font-semibold text-green-900">Halo, Admin!</span>
-                    {{-- Ganti dengan avatar asli jika ada, ini placeholder --}}
-                    <img src="https://via.placeholder.com/36/065f46/ffffff?text=AD" alt="Admin Avatar" class="w-9 h-9 rounded-full border-2 border-green-700 shadow-md">
+            {{-- Top Header (Premium Glass) --}}
+            <header class="glass-header sticky top-0 z-30 px-6 py-4">
+                <div class="flex justify-between items-center max-w-full">
+                    <div class="flex items-center gap-6">
+                        <button id="sidebarToggle" class="md:hidden text-white bg-emerald-900 p-2.5 rounded-xl shadow-lg hover:bg-emerald-800 transition-all active:scale-95">
+                            <i data-lucide="menu" class="w-6 h-6"></i>
+                        </button>
+                        <div class="hidden sm:block">
+                            <h2 class="text-sm font-black text-slate-800 uppercase tracking-tight">System Administrator</h2>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                <p id="currentDateTime" class="text-[10px] text-slate-500 font-bold uppercase tracking-widest"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-3 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
+                            <img src="https://ui-avatars.com/api/?name=Admin&background=064e3b&color=fff" class="w-8 h-8 rounded-xl border border-white shadow-sm" alt="Avatar">
+                            <span class="text-[11px] font-black text-slate-700 pr-3 uppercase tracking-wider hidden sm:inline">Admin Mode</span>
+                        </div>
+                    </div>
                 </div>
+            </header>
+
+            {{-- Content Yield --}}
+            <div class="p-6 lg:p-10 animate-fade-in-up">
+                @yield('content')
             </div>
-
-            {{-- Main Content Yield --}}
-            @yield('content')
-
-
 
         </main>
     </div>
 
-    {{-- Footer --}}
-{{-- Footer --}}
-    <footer class="relative bg-[#044e3a] text-white mt-16 overflow-hidden">
-        {{-- Dekorasi Latar Belakang (Soft Glow) --}}
+    {{-- Footer Section --}}
+    <footer class="relative bg-[#044e3a] text-white mt-auto overflow-hidden">
+        {{-- Soft Glow Decoration --}}
         <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 left-0 translate-y-12 -translate-x-12 w-64 h-64 bg-green-500/10 rounded-full blur-3xl"></div>
 
-        <div class="max-w-7xl mx-auto px-6 pt-16 pb-8 relative z-10">
+        <div class="max-w-7xl mx-auto px-8 pt-16 pb-8 relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-sm">
-
-                {{-- Kolom 1: Branding --}}
                 <div class="space-y-6">
                     <div class="flex items-center gap-3">
-                        <img src="{{ asset('img/uin.png') }}" alt="Logo UIN" class="w-14 h-14 brightness-0 invert">
+                        <img src="{{ asset('img/uin.png') }}" alt="Logo UIN" class="w-12 h-12 brightness-0 invert">
                         <div>
-                            <h2 class="text-xl font-bold tracking-tight font-['Poppins'] leading-tight">
-                                Tracer Study
-                            </h2>
-                            <p class="text-emerald-400 font-semibold text-xs uppercase tracking-wider">UIN Raden Mas Said</p>
+                            <h2 class="text-xl font-bold tracking-tight leading-tight">Admin Portal</h2>
+                            <p class="text-emerald-400 font-bold text-[10px] uppercase tracking-[0.2em]">Tracer Alumni Center</p>
                         </div>
                     </div>
-                    <p class="text-emerald-100/70 leading-relaxed italic">
-                        "Menghubungkan Alumni, Membangun Masa Depan Pendidikan Islam yang Unggul dan Inovatif."
+                    <p class="text-emerald-100/50 leading-relaxed text-xs italic">
+                        Manajemen data terpadu untuk membangun masa depan UIN Raden Mas Said Surakarta.
                     </p>
-                    {{-- Sosial Media Resmi --}}
-                    <div class="flex gap-3">
-                        <a href="https://www.facebook.com/uinsaid" target="_blank" class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center hover:bg-blue-600 transition-all duration-300 group">
-                            <i data-lucide="facebook" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
-                        </a>
-                        <a href="https://www.instagram.com/uinsaid_official" target="_blank" class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center hover:bg-pink-600 transition-all duration-300 group">
-                            <i data-lucide="instagram" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
-                        </a>
-                        <a href="https://twitter.com/uinsaid" target="_blank" class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center hover:bg-sky-500 transition-all duration-300 group">
-                            <i data-lucide="twitter" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
-                        </a>
-                        <a href="https://www.youtube.com/@UINRadenMasSaidSurakarta" target="_blank" class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center hover:bg-red-600 transition-all duration-300 group">
-                            <i data-lucide="youtube" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
-                        </a>
-                    </div>
                 </div>
 
-                {{-- Kolom 2: Tautan Cepat --}}
                 <div>
-                    <h3 class="text-lg font-bold mb-6 relative inline-block">
-                        Tautan Terkait
-                        <span class="absolute -bottom-2 left-0 w-12 h-1 bg-emerald-400 rounded-full"></span>
-                    </h3>
-                    <ul class="space-y-4 text-emerald-100/80 font-medium">
-                        <li>
-                            <a href="https://uinsaid.ac.id" target="_blank" class="hover:text-emerald-400 hover:translate-x-1 flex items-center gap-3 transition-all duration-200">
-                                <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i> Website Resmi
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://pmb.uinsaid.ac.id" target="_blank" class="hover:text-emerald-400 hover:translate-x-1 flex items-center gap-3 transition-all duration-200">
-                                <i data-lucide="graduation-cap" class="w-4 h-4 text-emerald-400"></i> PMB Kampus
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://e-journal.uinsaid.ac.id/" target="_blank" class="hover:text-emerald-400 hover:translate-x-1 flex items-center gap-3 transition-all duration-200">
-                                <i data-lucide="book-open" class="w-4 h-4 text-emerald-400"></i> Digital Library
-                            </a>
-                        </li>
+                    <h3 class="text-xs font-black mb-6 uppercase tracking-[0.3em] text-emerald-400">Quick Links</h3>
+                    <ul class="space-y-4 text-emerald-100/80 font-bold text-[11px] uppercase">
+                        <li><a href="https://uinsaid.ac.id" target="_blank" class="hover:text-white flex items-center gap-3 transition-all"><i data-lucide="globe" class="w-4 h-4"></i> Website UIN</a></li>
+                        <li><a href="https://pmb.uinsaid.ac.id" target="_blank" class="hover:text-white flex items-center gap-3 transition-all"><i data-lucide="external-link" class="w-4 h-4"></i> Portal PMB</a></li>
                     </ul>
                 </div>
 
-                {{-- Kolom 3 & 4: Informasi Kontak --}}
                 <div class="lg:col-span-2">
-                    <h3 class="text-lg font-bold mb-6 relative inline-block">
-                        Kontak & Lokasi
-                        <span class="absolute -bottom-2 left-0 w-12 h-1 bg-emerald-400 rounded-full"></span>
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <ul class="space-y-4 text-emerald-100/80">
-                            <li class="flex items-center gap-3 group">
-                                <div class="p-2 rounded-lg bg-white/5 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                    <i data-lucide="mail" class="w-4 h-4"></i>
-                                </div>
-                                <a href="mailto:tracer@uinsaid.ac.id" class="hover:text-emerald-400 transition-colors">tracer@uinsaid.ac.id</a>
-                            </li>
-                            <li class="flex items-center gap-3 group">
-                                <div class="p-2 rounded-lg bg-white/5 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                    <i data-lucide="phone" class="w-4 h-4"></i>
-                                </div>
-                                <span>(0271) 678901</span>
-                            </li>
-                        </ul>
-                        <ul class="space-y-4 text-emerald-100/80">
-                            <li class="flex items-start gap-3 group">
-                                <div class="p-2 rounded-lg bg-white/5 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                    <i data-lucide="map-pin" class="w-4 h-4"></i>
-                                </div>
-                                <span class="leading-relaxed">
-                                    Jl. Pandawa, Pucangan, Kartasura, Sukoharjo, Jawa Tengah 57168
-                                </span>
-                            </li>
-                        </ul>
+                    <h3 class="text-xs font-black mb-6 uppercase tracking-[0.3em] text-emerald-400">System Support</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4">
+                            <i data-lucide="mail" class="w-5 h-5 text-emerald-400"></i>
+                            <span class="text-xs font-bold tracking-tight">it-admin@uinsaid.ac.id</span>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4">
+                            <i data-lucide="shield" class="w-5 h-5 text-emerald-400"></i>
+                            <span class="text-xs font-bold tracking-tight">V2.8 Production Ready</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Bottom Footer --}}
-            <div class="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-emerald-100/40 uppercase tracking-[2px]">
-                <p>&copy; {{ date('Y') }} UIN Raden Mas Said Surakarta. All Rights Reserved.</p>
-                <div class="flex gap-6">
-                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
-                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+            <div class="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] font-black text-emerald-100/30 uppercase tracking-[0.3em]">
+                <p>&copy; {{ date('Y') }} UIN RADEN MAS SAID. LABORATORY MANAGEMENT SYSTEM.</p>
+                <div class="flex gap-6 italic">
+                    <span>Secured Database Control</span>
                 </div>
             </div>
         </div>
     </footer>
-    {{-- Scroll to Top Button --}}
+
+    {{-- Scroll to Top --}}
     <button id="scrollTop" aria-label="Scroll to top"
-        class="fixed bottom-6 right-6 z-50 hidden bg-green-700 hover:bg-green-800 text-white p-3 rounded-full shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500">
-        <iconify-icon icon="mdi:arrow-up-bold" class="w-6 h-6"></iconify-icon>
+        class="fixed bottom-8 right-8 z-50 hidden bg-emerald-600 hover:bg-emerald-500 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:-translate-y-2 active:scale-90">
+        <i data-lucide="chevron-up" class="w-6 h-6"></i>
     </button>
 
-    {{-- Universal Scripts (Sidebar Toggle, Lucide Init, Scroll Top) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // --- Date & Time Update ---
-            const currentDateTimeSpan = document.getElementById('currentDateTime');
+            lucide.createIcons();
 
-            function updateDateTime() {
+            // Real-time Clock
+            function updateClock() {
                 const now = new Date();
-                const options = {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                };
-                if (currentDateTimeSpan) {
-                    currentDateTimeSpan.textContent = now.toLocaleDateString('id-ID', options);
-                }
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                document.getElementById('currentDateTime').textContent = now.toLocaleDateString('id-ID', options);
             }
+            setInterval(updateClock, 1000); updateClock();
 
-            updateDateTime();
-            setInterval(updateDateTime, 1000); // Update every second
-
-
-            // --- Sidebar Toggle for Mobile ---
+            // Sidebar Logic
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-            if (sidebarToggle && sidebar && sidebarOverlay) {
-                const toggleSidebar = () => {
+            if (sidebarToggle) {
+                const toggle = () => {
                     const isOpen = sidebar.classList.toggle('open');
                     sidebarOverlay.style.display = isOpen ? 'block' : 'none';
                     document.body.style.overflow = isOpen ? 'hidden' : '';
                 };
-
-                sidebarToggle.addEventListener('click', toggleSidebar);
-                sidebarOverlay.addEventListener('click', toggleSidebar);
-
-                window.addEventListener('resize', () => {
-                    if (window.innerWidth >= 768) {
-                        sidebar.classList.remove('open');
-                        sidebarOverlay.style.display = 'none';
-                        document.body.style.overflow = '';
-                    }
-                });
+                sidebarToggle.addEventListener('click', toggle);
+                sidebarOverlay.addEventListener('click', toggle);
             }
 
-            // --- Scroll to Top Button Logic ---
-            const scrollTopBtn = document.getElementById('scrollTop');
-            if (scrollTopBtn) {
-                window.addEventListener('scroll', () => {
-                    if (window.scrollY > 250) {
-                        scrollTopBtn.classList.remove('hidden');
-                    } else {
-                        scrollTopBtn.classList.add('hidden');
-                    }
-                });
-                scrollTopBtn.addEventListener('click', () => {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                });
-            }
-
-            // --- Initialize Lucide icons ---
-            lucide.createIcons();
+            // Scroll Top
+            const stp = document.getElementById('scrollTop');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 400) stp.classList.remove('hidden');
+                else stp.classList.add('hidden');
+            });
+            stp.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         });
     </script>
 
-    {{-- Stack for page-specific scripts like Chart.js initialization --}}
     @stack('scripts')
 </body>
-
 </html>

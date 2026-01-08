@@ -1,215 +1,225 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8" />
-    <title>@yield('title', 'Tracer Alumni UIN RMS')</title>
+    <title>@yield('title', 'Tracer Alumni | UIN Raden Mas Said')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link rel="icon" type="image/png" href="{{ asset('img/uin.png') }}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* Global Styles for smooth scroll and font consistency */
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', sans-serif; @apply text-gray-800; }
-        h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-heading { font-family: 'Montserrat', sans-serif; }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f0fdf4; }
-        ::-webkit-scrollbar-thumb { background: #065f46; border-radius: 4px; }
+        /* Custom Scrollbar Modern */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #059669; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #047857; }
 
-        /* Fade in animation */
-        @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fade-in 0.8s ease-out forwards; }
-
-        /* Profile image styling */
-        .profile-img-container {
-            width: 150px; height: 150px; border-radius: 50%; overflow: hidden;
-            border: 4px solid #10b981; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease-in-out;
+        /* Glassmorphism Effect */
+        .glass-nav {
+            background: rgba(6, 78, 59, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .profile-img-container:hover { transform: scale(1.05); }
 
-        /* Input focus glow effect */
-        input:focus, select:focus, textarea:focus {
-            --tw-ring-color: #34d399 !important;
-            border-color: #10b981 !important;
+        /* Modern Hover Animation */
+        .nav-link {
+            position: relative;
+            transition: all 0.3s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #34d399;
+            transition: width 0.3s ease-in-out;
+        }
+        .nav-link:hover::after { width: 100%; }
+
+        /* Card & Section Styles */
+        .footer-gradient {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
         }
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-green-100 via-white to-white min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-900 flex flex-col min-h-screen">
 
-    {{-- Navigation Bar (Header) --}}
-    <nav class="bg-gradient-to-r from-green-900 to-emerald-800 text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('img/uin.png') }}" alt="Logo UIN" class="w-10 h-10 rounded-full bg-white p-0.5 shadow-md" />
-                <span class="text-xl font-extrabold tracking-wide select-none font-['Poppins']">Tracer Alumni</span>
+    {{-- Navigation Bar --}}
+    <nav class="glass-nav text-white sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4 group cursor-pointer">
+                <div class="p-1 bg-white rounded-xl shadow-lg group-hover:rotate-12 transition-transform duration-300">
+                    <img src="{{ asset('img/uin.png') }}" alt="Logo UIN" class="w-9 h-9 object-contain" />
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-lg font-extrabold tracking-tight leading-none uppercase">Tracer Alumni</span>
+                    <span class="text-[10px] text-green-300 font-medium tracking-[0.2em] uppercase">UIN Raden Mas Said</span>
+                </div>
             </div>
-            <ul class="hidden md:flex gap-6 items-center text-sm font-semibold tracking-wide">
-                <li><a href="{{ route('user.dashboard') }}#beranda" class="relative group py-2 hover:text-green-200 transition duration-300">Beranda<span class="absolute left-0 bottom-0 w-full h-0.5 bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a></li>
-                <li><a href="{{ route('user.dashboard') }}#tentang" class="relative group py-2 hover:text-green-200 transition duration-300">Tentang<span class="absolute left-0 bottom-0 w-full h-0.5 bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a></li>
-                <li><a href="{{ route('user.dashboard') }}#galeri" class="relative group py-2 hover:text-green-200 transition duration-300">Galeri<span class="absolute left-0 bottom-0 w-full h-0.5 bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a></li>
-                <li><a href="{{ route('user.dashboard') }}#faq" class="relative group py-2 hover:text-green-200 transition duration-300">FAQ<span class="absolute left-0 bottom-0 w-full h-0.5 bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span></a></li>
-                <li>
-                    <form action="{{ route('logout') }}" method="POST" class="inline">
-                        @csrf
-                        <button
-                            class="bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-400 focus:ring-offset-1 focus:ring-offset-green-900 text-white py-2 px-5 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
-                            Logout <i data-lucide="log-out" class="inline-block w-4 h-4 ml-1"></i>
-                        </button>
-                    </form>
-                </li>
-            </ul>
-            <button id="menuToggle" class="md:hidden focus:outline-none text-white p-2 rounded-md hover:bg-green-700 transition">
-                <span class="iconify" data-icon="mdi:menu" style="font-size: 28px;"></span>
-            </button>
-        </div>
-        <div id="mobileMenu" class="hidden md:hidden bg-green-800 text-white px-5 pb-4 transition-all duration-300 ease-in-out">
-            <ul class="flex flex-col gap-3 pt-2 text-base font-semibold">
-                <li><a href="{{ route('user.dashboard') }}#beranda" class="block py-2 px-3 rounded-md hover:bg-green-700 transition duration-200">Beranda</a></li>
-                <li><a href="{{ route('user.dashboard') }}#tentang" class="block py-2 px-3 rounded-md hover:bg-green-700 transition duration-200">Tentang</a></li>
-                <li><a href="{{ route('user.dashboard') }}#galeri" class="block py-2 px-3 rounded-md hover:bg-green-700 transition duration-200">Galeri</a></li>
-                <li><a href="{{ route('user.dashboard') }}#faq" class="block py-2 px-3 rounded-md hover:bg-green-700 transition duration-200">FAQ</a></li>
-                <li>
+
+            {{-- Desktop Menu --}}
+            <ul class="hidden md:flex gap-8 items-center text-[13px] font-semibold uppercase tracking-wider">
+                <li><a href="{{ route('user.dashboard') }}#beranda" class="nav-link hover:text-green-300">Beranda</a></li>
+                <li><a href="{{ route('user.dashboard') }}#tentang" class="nav-link hover:text-green-300">Tentang</a></li>
+                <li><a href="{{ route('user.dashboard') }}#galeri" class="nav-link hover:text-green-300">Galeri</a></li>
+                <li><a href="{{ route('user.dashboard') }}#faq" class="nav-link hover:text-green-300">FAQ</a></li>
+                <li class="pl-4 border-l border-green-700">
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button
-                            class="w-full bg-red-600 hover:bg-red-700 py-2 rounded-md shadow-md transition duration-300 mt-2">
-                            Logout <i data-lucide="log-out" class="inline-block w-4 h-4 ml-1"></i>
+                        <button class="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 px-5 py-2.5 rounded-lg font-bold text-xs shadow-lg shadow-rose-900/20 transition-all active:scale-95">
+                            LOGOUT <i data-lucide="log-out" class="w-4 h-4"></i>
                         </button>
                     </form>
                 </li>
             </ul>
+
+            {{-- Mobile Toggle --}}
+            <button id="menuToggle" class="md:hidden p-2 hover:bg-white/10 rounded-lg transition">
+                <i data-lucide="menu" id="menuIcon" class="w-6 h-6 text-white"></i>
+            </button>
+        </div>
+
+        {{-- Mobile Menu --}}
+        <div id="mobileMenu" class="hidden md:hidden border-t border-white/10 bg-green-900/95 backdrop-blur-lg">
+            <div class="px-6 py-6 flex flex-col gap-4 font-semibold uppercase text-xs tracking-widest">
+                <a href="{{ route('user.dashboard') }}#beranda" class="py-2 hover:text-green-400">Beranda</a>
+                <a href="{{ route('user.dashboard') }}#tentang" class="py-2 hover:text-green-400">Tentang</a>
+                <a href="{{ route('user.dashboard') }}#galeri" class="py-2 hover:text-green-400">Galeri</a>
+                <a href="{{ route('user.dashboard') }}#faq" class="py-2 hover:text-green-400">FAQ</a>
+                <form action="{{ route('logout') }}" method="POST" class="pt-2">
+                    @csrf
+                    <button class="w-full flex justify-center items-center gap-2 bg-rose-600 py-3 rounded-xl font-bold">
+                        LOGOUT <i data-lucide="log-out" class="w-4 h-4"></i>
+                    </button>
+                </form>
+            </div>
         </div>
     </nav>
 
-    {{-- Main Content Section --}}
-    <div class="flex-grow">
+    {{-- Main Content --}}
+    <main class="flex-grow">
         @yield('content')
-    </div>
+    </main>
 
     {{-- Footer --}}
-    <footer class="bg-gradient-to-r from-green-900 to-emerald-800 text-white mt-16 pt-16 pb-8 shadow-inner">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-sm">
-            <div>
-                <h2 class="text-xl font-bold mb-4 font-['Poppins']">Tracer Alumni UIN RMS</h2>
-                <p class="text-green-200 leading-relaxed text-sm">
-                    Sistem Tracer Alumni ini dirancang untuk menghimpun data alumni, mendukung peningkatan mutu pendidikan, dan akreditasi kampus.
-                    Partisipasi Anda sangat berarti!
+    <footer class="footer-gradient text-white pt-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-bold tracking-tight">Tracer Alumni<br><span class="text-green-400">UIN RMS</span></h2>
+                    <p class="text-green-100/70 leading-relaxed">
+                        Membangun jembatan antara institusi dan alumni untuk masa depan pendidikan yang lebih inklusif dan berkualitas.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="p-2 bg-white/10 hover:bg-white/20 rounded-full transition"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="#" class="p-2 bg-white/10 hover:bg-white/20 rounded-full transition"><i data-lucide="facebook" class="w-5 h-5"></i></a>
+                        <a href="#" class="p-2 bg-white/10 hover:bg-white/20 rounded-full transition"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-6 border-b border-white/10 pb-2 inline-block">Navigasi</h3>
+                    <ul class="space-y-4 text-green-100/80 font-medium">
+                        <li><a href="#" class="hover:text-white flex items-center gap-3 transition"><i data-lucide="chevron-right" class="w-4 h-4 text-green-400"></i> Beranda</a></li>
+                        <li><a href="#" class="hover:text-white flex items-center gap-3 transition"><i data-lucide="chevron-right" class="w-4 h-4 text-green-400"></i> Cari Alumni</a></li>
+                        <li><a href="#" class="hover:text-white flex items-center gap-3 transition"><i data-lucide="chevron-right" class="w-4 h-4 text-green-400"></i> Isi Kuesioner</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-6 border-b border-white/10 pb-2 inline-block">Layanan Kampus</h3>
+                    <ul class="space-y-4 text-green-100/80 font-medium">
+                        <li><a href="https://uinsaid.ac.id" target="_blank" class="hover:text-white flex items-center gap-3 transition"><i data-lucide="external-link" class="w-4 h-4 text-green-400"></i> Website UIN</a></li>
+                        <li><a href="https://pmb.uinsaid.ac.id" target="_blank" class="hover:text-white flex items-center gap-3 transition"><i data-lucide="external-link" class="w-4 h-4 text-green-400"></i> PMB Online</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-6 border-b border-white/10 pb-2 inline-block">Kontak</h3>
+                    <ul class="space-y-4 text-green-100/80">
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="map-pin" class="w-5 h-5 text-green-400 shrink-0"></i>
+                            <span>Jl. Pandawa, Pucangan, Kartasura, Sukoharjo</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i data-lucide="mail" class="w-5 h-5 text-green-400"></i>
+                            <a href="mailto:tracer@uinsaid.ac.id" class="hover:text-white transition">tracer@uinsaid.ac.id</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            {{-- Maps Section --}}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+    <div class="w-full h-80 rounded-xl overflow-hidden shadow-2xl border-2 border-green-700/50">
+        <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3955.126348821033!2d110.7324527!3d-7.5588441!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a14c215cc8bbd%3A0x27ec268341f7725a!2sUniversitas%20Islam%20Negeri%20Raden%20Mas%20Said%20Surakarta!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
+            width="100%"
+            height="100%"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+    </div>
+</div>
+            <div class="py-10 mt-10 border-t border-white/5 text-center">
+                <p class="text-xs text-green-400/60 font-medium tracking-widest">
+                    &copy; {{ date('Y') }} UIN RADEN MAS SAID SURAKARTA. ALL RIGHTS RESERVED.
                 </p>
             </div>
-
-            <div>
-                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 font-['Poppins']" aria-label="Navigasi Cepat">
-                    <i data-lucide="compass" class="w-5 h-5 text-green-300"></i> Navigasi Cepat
-                </h2>
-                <ul class="space-y-3 text-green-200">
-                    <li>
-                        <a href="{{ route('user.dashboard') }}#beranda" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="info" class="w-4 h-4"></i> Beranda
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.dashboard') }}#tentang" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="info" class="w-4 h-4"></i> Tentang Tracer
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.kuisioner') }}" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="clipboard-check" class="w-4 h-4"></i> Isi Kuesioner
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.cari-alumni') }}" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="search" class="w-4 h-4"></i> Cari Alumni
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.dashboard') }}#galeri" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="image" class="w-4 h-4"></i> Galeri
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('user.dashboard') }}#faq" class="flex items-center gap-2 hover:text-white transition duration-300 ease-in-out">
-                            <i data-lucide="help-circle" class="w-4 h-4"></i> FAQ
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div>
-                <h2 class="text-xl font-bold mb-4 font-['Poppins']">Tautan Terkait</h2>
-                <ul class="space-y-3 text-green-200">
-                    <li>
-                        <a href="https://uinsaid.ac.id" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-2">
-                            <i data-lucide="globe" class="w-4 h-4"></i> Website Resmi UIN RMS
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://pmb.uinsaid.ac.id" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-2">
-                            <i data-lucide="graduation-cap" class="w-4 h-4"></i> PMB UIN RMS
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://e-journal.uinsaid.ac.id/" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-2">
-                            <i data-lucide="book-text" class="w-4 h-4"></i> E-Journal UIN RMS
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div>
-                <h2 class="text-xl font-bold mb-4 font-['Poppins']">Kontak Kami</h2>
-                <ul class="text-green-200 space-y-3">
-                    <li>
-                        <i data-lucide="mail" class="inline-block w-4 h-4 mr-2"></i>
-                        <a href="mailto:tracer@uinsaid.ac.id" class="hover:underline" target="_blank">tracer@uinsaid.ac.id</a>
-                    </li>
-                    <li>
-                        <i data-lucide="phone" class="inline-block w-4 h-4 mr-2"></i> (0271) 678901
-                    </li>
-                    <li>
-                        <i data-lucide="instagram" class="inline-block w-4 h-4 mr-2"></i>
-                        <a href="#" class="hover:underline" target="_blank">@traceruinrms</a>
-                    </li>
-                    <li>
-                        <i data-lucide="map-pin" class="inline-block w-4 h-4 mr-2"></i>
-                        Jl. Pandawa, Pucangan, Kartasura, Sukoharjo, Jawa Tengah 57168
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="text-center text-green-300 text-xs border-t border-green-800 py-6 mt-12">
-            &copy; {{ date('Y') }} UIN Raden Mas Said Surakarta. Hak Cipta Dilindungi Undang-Undang.
         </div>
     </footer>
 
-    {{-- Mobile Menu Toggle Script --}}
+    {{-- Scripts --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Icons
+            lucide.createIcons();
+
+            // Mobile Menu Animation
             const toggleBtn = document.getElementById('menuToggle');
             const mobileMenu = document.getElementById('mobileMenu');
-            if (toggleBtn && mobileMenu) {
-                toggleBtn.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
-            }
-            lucide.createIcons();
+            const menuIcon = document.getElementById('menuIcon');
+
+            toggleBtn.addEventListener('click', () => {
+                const isHidden = mobileMenu.classList.toggle('hidden');
+                // Change icon manually if needed or let Lucide handle it
+                if (!isHidden) {
+                    toggleBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6 text-white"></i>';
+                } else {
+                    toggleBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6 text-white"></i>';
+                }
+                lucide.createIcons();
+            });
+
+            // Navbar scroll effect
+            window.addEventListener('scroll', () => {
+                const nav = document.querySelector('nav');
+                if (window.scrollY > 50) {
+                    nav.classList.add('py-2', 'shadow-2xl');
+                    nav.classList.remove('py-4');
+                } else {
+                    nav.classList.add('py-4');
+                    nav.classList.remove('py-2', 'shadow-2xl');
+                }
+            });
         });
     </script>
 </body>
-
 </html>

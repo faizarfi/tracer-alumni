@@ -82,7 +82,6 @@
         @php
             $metrics = [
                 ['label' => 'Total Responden', 'val' => $aggregateData['total_responden'] ?? 0, 'icon' => 'mdi:account-group', 'color' => 'text-green-600', 'bg' => 'border-green-100'],
-                ['label' => 'Indeks Kepuasan', 'val' => number_format($aggregateData['rata_rata_kepuasan'] ?? 0, 2), 'icon' => 'mdi:star-face', 'color' => 'text-blue-600', 'bg' => 'border-blue-100'],
                 ['label' => 'Partisipasi', 'val' => number_format($aggregateData['persentase_partisipasi'] ?? 0, 1).'%', 'icon' => 'mdi:chart-donut', 'color' => 'text-yellow-600', 'bg' => 'border-yellow-100'],
             ];
         @endphp
@@ -112,17 +111,7 @@
                     <p class="font-bold">Data kuesioner belum tersedia.</p>
                 </div>
             @else
-                @foreach(['p1' => 'Relevansi Pekerjaan', 'p2' => 'Skor Kepuasan'] as $id => $title)
-                <div class="chart-container-wrapper">
-                    <div class="chart-title-box">
-                        <h3 class="text-xs md:text-sm font-bold text-gray-700 uppercase">{{ $title }}</h3>
-                        <div class="chart-loader" id="loader-{{ $id }}"></div>
-                    </div>
-                    <div class="chart-canvas-area">
-                        <canvas id="chart-{{ $id }}" class="hidden"></canvas>
-                    </div>
-                </div>
-                @endforeach
+                {{-- Removed Relevansi Pekerjaan and Skor Kepuasan charts per request --}}
 
                 <div class="chart-container-wrapper lg:col-span-2">
                     <div class="chart-title-box">
@@ -256,12 +245,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             if (kuisionerArray.length > 0) {
-                const p1_data = aggregate(kuisionerArray, 'relevansi_pekerjaan');
-                createPie('chart-p1', ['Relevan', 'Tidak'], [p1_data['1']||0, p1_data['0']||0], [ANSWER_COLORS['Ya, Relevan'], ANSWER_COLORS['Tidak Relevan']]);
-
-                const p2_data = aggregate(kuisionerArray, 'skor_kepuasan');
-                createPie('chart-p2', Object.keys(p2_data).map(k => 'Skor ' + k), Object.values(p2_data), Object.values(ANSWER_COLORS), true);
-
+                // Render only stacked charts (pendidikan & fasilitas) — relevansi & skor removed
                 createStacked('chart-pendidikan', aggregateJson(kuisionerArray, 'pendidikan'), false);
                 createStacked('chart-fasilitas', aggregateJson(kuisionerArray, 'fasilitas'), true);
             }

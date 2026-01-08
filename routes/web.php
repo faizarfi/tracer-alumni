@@ -67,6 +67,7 @@ Route::middleware(['auth', 'role:admin'])
             // Aksi Testimoni
             Route::put('/{user_id}/approve', [AlumniController::class, 'approveTestimonial'])->name('approve');
             Route::delete('/{user_id}/reject', [AlumniController::class, 'rejectTestimonial'])->name('reject');
+            Route::put('/{user_id}/pending', [AlumniController::class, 'pendingTestimonial'])->name('pending'); // ✅ BARU: Kembali ke Review
         });
 
     });

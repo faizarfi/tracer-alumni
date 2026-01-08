@@ -104,29 +104,104 @@ class KuisionerController extends Controller
         // 2. Ambil data kuesioner yang hanya berasal dari alumni Prodi ini
         $kuisionerData = Kuisioner::whereIn('user_id', $alumniIds)->get();
 
-        // ⭐ PERBAIKAN UTAMA UNTUK GRAFIK P1 & P2: Inject Data Dummy jika NULL ⭐
-        $kuisionerData->each(function ($kuisioner) {
-            if (is_null($kuisioner->relevansi_pekerjaan)) {
-                // Set '1' (Ya) sebagai default/dummy untuk demonstrasi P1
-                $kuisioner->relevansi_pekerjaan = '1';
-            }
-            if (is_null($kuisioner->skor_kepuasan)) {
-                // Set '4' sebagai default/dummy untuk demonstrasi P2
-                $kuisioner->skor_kepuasan = '4';
-            }
-        });
-
+        // Hitung agregat tanpa menyisipkan nilai dummy.
         // 3. Agregasi Data
         $totalResponden = $kuisionerData->count();
         $totalAlumniProdi = Alumni::where('jurusan', $kaprodiProdi)->count();
 
-        // Agregasi contoh: Rata-rata skor kepuasan
-        $rataRataKepuasan = $kuisionerData->avg('skor_kepuasan');
+        // Robust parsing: terima numeric string, JSON-encoded, teks berlabel, atau ambil dari bidang `jawaban`
+        $validScores = $kuisionerData->map(function ($k) {
+            $v = $k->skor_kepuasan;
+
+            // Helper untuk mapping label teks ke angka (Indonesia)
+            $mapLabel = function ($s) {
+                if ($s === null) return null;
+                $t = strtolower(trim((string) $s));
+                $mapping = [
+                    'sangat puas' => 5, 'sangat puas sekali' => 5, 'sangat puas.' => 5,
+                    'puas' => 4, 'cukup puas' => 4,
+                    'cukup' => 3, 'cukup puas.' => 3,
+                    'kurang' => 2, 'tidak' => 1, 'tidak puas' => 1,
+                    'tidak sama sekali' => 1,
+                ];
+                foreach ($mapping as $kmap => $val) {
+                    if (strpos($t, $kmap) !== false) return $val;
+                }
+                return null;
+            };
+
+            // Jika sudah ada dan bernilai
+            if ($v !== null && $v !== '') {
+                if (is_numeric($v)) return (float) $v;
+                if (is_string($v) && preg_match('/\d+(?:\.\d+)?/', $v, $m)) return (float) $m[0];
+                $mapped = $mapLabel($v);
+                if ($mapped) return (float) $mapped;
+                // coba decode JSON jika ada
+                if (is_string($v) && (str_starts_with($v, '[') || str_starts_with($v, '{'))) {
+                    $decoded = json_decode($v, true);
+                    if (is_numeric($decoded)) return (float) $decoded;
+                    if (is_array($decoded)) {
+                        foreach ($decoded as $item) {
+                            if (is_numeric($item)) return (float) $item;
+                            $mapped = $mapLabel($item);
+                            if ($mapped) return (float) $mapped;
+                        }
+                    }
+                }
+            }
+
+            // Jika tidak ada di kolom skor_kepuasan, coba ambil dari kolom `jawaban`
+            $jaw = $k->jawaban ?? null;
+            if ($jaw) {
+                if (is_string($jaw)) {
+                    // Jika JSON-encoded, traverse untuk cari kunci yang mengandung 'skor' atau 'kepuasan'
+                    $decoded = json_decode($jaw, true);
+                    if (is_array($decoded)) {
+                        // cari langsung dengan beberapa kemungkinan key
+                        $keys = ['skor_kepuasan','skor','kepuasan','kepuasan_skor','nilai_kepuasan'];
+                        foreach ($keys as $key) {
+                            if (isset($decoded[$key])) {
+                                $cand = $decoded[$key];
+                                if (is_numeric($cand)) return (float) $cand;
+                                $mapped = $mapLabel($cand);
+                                if ($mapped) return (float) $mapped;
+                                if (is_string($cand) && preg_match('/\d+(?:\.\d+)?/', $cand, $m)) return (float) $m[0];
+                            }
+                        }
+                        // jika belum ditemukan, cari secara rekursif nilai numerik atau label
+                        $found = null;
+                        $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($decoded));
+                        foreach ($iterator as $val) {
+                            if (is_numeric($val)) { $found = (float) $val; break; }
+                            $mapped = $mapLabel($val);
+                            if ($mapped) { $found = (float) $mapped; break; }
+                        }
+                        if ($found !== null) return $found;
+                    } else {
+                        // plain text — cari angka atau label
+                        if (preg_match('/\d+(?:\.\d+)?/', $jaw, $m)) return (float) $m[0];
+                        $mapped = $mapLabel($jaw);
+                        if ($mapped) return (float) $mapped;
+                    }
+                }
+            }
+
+            return null;
+        })->filter();
+
+        $rataRataKepuasan = $validScores->count() ? round($validScores->avg(), 2) : 0;
+
+        // Untuk debugging: nilai unik yang tersimpan di DB untuk kolom skor_kepuasan
+        $distinctScores = $kuisionerData->pluck('skor_kepuasan')->unique()->values()->all();
+        // Nilai unik untuk kolom relevansi_pekerjaan (bisa berupa '1','0','Ya','Tidak', dsb.)
+        $distinctRelevansi = $kuisionerData->pluck('relevansi_pekerjaan')->unique()->values()->all();
 
         $aggregateData = [
             'total_responden' => $totalResponden,
             'rata_rata_kepuasan' => $rataRataKepuasan,
             'persentase_partisipasi' => $totalAlumniProdi > 0 ? ($totalResponden / $totalAlumniProdi) * 100 : 0,
+            'distinct_skor_values' => $distinctScores,
+            'distinct_relevansi_values' => $distinctRelevansi,
         ];
 
         // Tampilkan view laporan kuesioner Kaprodi
