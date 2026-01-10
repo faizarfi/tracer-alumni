@@ -162,7 +162,22 @@
                             <div class="p-6 bg-slate-50 rounded-xl border border-slate-100">
                                 <h4 class="text-sm font-black text-slate-900 uppercase mb-2">Komunitas</h4>
                                 <p class="text-xs text-slate-500 mb-4">Gabung grup alumni untuk berjejaring, berbagi informasi karir, atau mencari mentor.</p>
-                                <a href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold">Gabung Sekarang</a>
+                                @if(isset($communities) && $communities->isNotEmpty())
+                                    <ul class="text-xs text-slate-700 space-y-2 mb-3">
+                                        @foreach($communities as $c)
+                                            <li>
+                                                @if($c->url && trim($c->url) !== '')
+                                                    <a href="{{ $c->url }}" target="_blank" class="text-emerald-600 font-medium">{{ $c->name }} @if($c->type) <span class="text-[10px] text-slate-400">({{ $c->type }})</span> @endif</a>
+                                                @else
+                                                    <span class="text-slate-500">{{ $c->name }} @if($c->type) <span class="text-[10px] text-slate-400">({{ $c->type }})</span> @endif — <em>tautan belum diatur</em></span>
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                    <a href="{{ route('community') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold">Lihat Semua Komunitas</a>
+                                @else
+                                    <a href="{{ route('community') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold">Gabung Sekarang</a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -212,6 +227,9 @@
                 <img src="{{ Storage::url($gallery->image_path) }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-6">
                     <h4 class="text-white font-bold text-[10px] uppercase">{{ $gallery->title }}</h4>
+                    @if(!empty($gallery->description))
+                        <p class="text-white text-[11px] mt-2 leading-tight">{{ Str::limit($gallery->description, 100) }}</p>
+                    @endif
                     <p class="text-green-400 text-[9px] mt-1">{{ $gallery->created_at->format('d M Y') }}</p>
                 </div>
             </div>

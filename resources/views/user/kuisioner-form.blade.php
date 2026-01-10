@@ -196,7 +196,7 @@
                         @foreach (['waktu_tunggu' => 'Waktu Tunggu (Bulan)', 'jumlah_lamaran' => 'Jumlah Lamaran', 'jumlah_respon' => 'Jumlah Respon', 'jumlah_wawancara' => 'Jumlah Wawancara'] as $name => $label)
                         <div class="space-y-2">
                             <label class="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">{{ $label }}</label>
-                            <input type="number" name="{{ $name }}" value="{{ old($name) }}" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-green-500 font-medium" placeholder="0">
+                            <input id="{{ $name }}" type="number" name="{{ $name }}" value="{{ old($name) }}" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-green-500 font-medium numeric-sanitize" placeholder="0" inputmode="numeric" pattern="\d*" min="0" step="1">
                         </div>
                         @endforeach
 
@@ -268,7 +268,10 @@
             });
 
             // Button States
-            document.getElementById('backBtn').disabled = current === 0;
+            const backBtn = document.getElementById('backBtn');
+            backBtn.disabled = current === 0;
+            // Hide the back button entirely on the first page (page 1)
+            backBtn.classList.toggle('hidden', current === 0);
             document.getElementById('nextBtn').classList.toggle('hidden', current === sections.length - 1);
             document.getElementById('submitBtn').classList.toggle('hidden', current !== sections.length - 1);
 
@@ -346,6 +349,25 @@
         });
 
         updateUI();
+    });
+
+    // Sanitize numeric-only fields (no minus, no non-digit characters) and enforce min=0
+    document.addEventListener('DOMContentLoaded', () => {
+        const names = ['waktu_tunggu', 'jumlah_lamaran', 'jumlah_respon', 'jumlah_wawancara'];
+        names.forEach(name => {
+            const el = document.querySelector(`input[name="${name}"]`);
+            if (!el) return;
+            // remove any non-digit characters on input
+            el.addEventListener('input', (e) => {
+                const cleaned = e.target.value.replace(/[^0-9]/g, '');
+                if (e.target.value !== cleaned) e.target.value = cleaned;
+            });
+            // on blur, ensure min 0
+            el.addEventListener('blur', (e) => {
+                const v = parseInt(e.target.value || '0', 10);
+                if (isNaN(v) || v < 0) e.target.value = '0';
+            });
+        });
     });
 </script>
 @endsection

@@ -158,11 +158,12 @@
                             </div>
                             <div class="space-y-2">
                                 <label class="text-sm font-bold text-slate-700 ml-1">Tahun Masuk</label>
-                                <input type="number" name="tahun_masuk" value="{{ old('tahun_masuk', $alumni->tahun_masuk ?? '') }}" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-green-500 transition-all font-medium" placeholder="2018" required>
+                                <input id="tahun_masuk" type="number" name="tahun_masuk" value="{{ old('tahun_masuk', $alumni->tahun_masuk ?? '') }}" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-green-500 transition-all font-medium" placeholder="2018" required inputmode="numeric" pattern="\d*" min="1900" step="1">
                             </div>
                             <div class="space-y-2">
                                 <label class="text-sm font-bold text-slate-700 ml-1">Tahun Keluar</label>
-                                <input type="number" name="tahun_keluar" value="{{ old('tahun_keluar', $alumni->tahun_keluar ?? '') }}" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-green-500 transition-all font-medium" placeholder="2022" required>
+                                <input id="tahun_keluar" type="number" name="tahun_keluar" value="{{ old('tahun_keluar', $alumni->tahun_keluar ?? '') }}" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-green-500 transition-all font-medium" placeholder="2022" required inputmode="numeric" pattern="\d*" min="1900" step="1">
+                                <p id="tahun-error" class="text-sm text-rose-600 mt-2 hidden"></p>
                             </div>
                         </div>
 
@@ -284,6 +285,63 @@
         }
         selectFakultas.addEventListener('change', updateJurusan);
         updateJurusan();
+
+        // Validasi UX: Tahun Keluar tidak boleh kurang dari Tahun Masuk
+        const form = document.querySelector('form');
+        const tmInput = document.querySelector('input[name="tahun_masuk"], #tahun_masuk');
+        const tkInput = document.querySelector('input[name="tahun_keluar"], #tahun_keluar');
+        const tahunError = document.getElementById('tahun-error');
+
+        function validateYears() {
+            if (!tmInput || !tkInput) return true;
+            const tmRaw = tmInput.value;
+            const tkRaw = tkInput.value;
+            const tm = parseInt(tmRaw, 10);
+            const tk = parseInt(tkRaw, 10);
+            const minYear = 1900;
+
+            if ((tmRaw && (isNaN(tm) || tm < minYear)) || (tkRaw && (isNaN(tk) || tk < minYear))) {
+                const msg = 'Masukkan tahun valid (hanya angka, minimal ' + minYear + ').';
+                if (typeof tkInput.setCustomValidity === 'function') tkInput.setCustomValidity(msg);
+                if (tahunError) { tahunError.textContent = msg; tahunError.classList.remove('hidden'); }
+                return false;
+            }
+
+            if (!isNaN(tm) && !isNaN(tk) && tk < tm) {
+                const msg = 'Tahun keluar tidak boleh kurang dari tahun masuk.';
+                if (typeof tkInput.setCustomValidity === 'function') tkInput.setCustomValidity(msg);
+                if (tahunError) { tahunError.textContent = msg; tahunError.classList.remove('hidden'); }
+                return false;
+            }
+
+            if (typeof tkInput.setCustomValidity === 'function') tkInput.setCustomValidity('');
+            if (tahunError) { tahunError.textContent = ''; tahunError.classList.add('hidden'); }
+            return true;
+        }
+
+        function sanitizeNumberInput(e) {
+            const el = e.target;
+            const cleaned = el.value.replace(/[^0-9]/g, '');
+            if (el.value !== cleaned) {
+                el.value = cleaned;
+            }
+        }
+
+        if (tmInput && tkInput) {
+            tmInput.addEventListener('input', function(e) { sanitizeNumberInput(e); validateYears(); });
+            tkInput.addEventListener('input', function(e) { sanitizeNumberInput(e); validateYears(); });
+        }
+
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                if (!validateYears()) {
+                    e.preventDefault();
+                    if (typeof tkInput.reportValidity === 'function') tkInput.reportValidity();
+                    else tkInput.focus();
+                    return false;
+                }
+            });
+        }
     });
 </script>
 @endsection

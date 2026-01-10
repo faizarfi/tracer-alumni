@@ -9,6 +9,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\KaprodiController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AdminAnnouncementController;
+use App\Http\Controllers\AdminCommunityController;
 
 // Landing page
 Route::get('/', function () {
@@ -26,8 +27,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
 Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show'])->name('announcements.show');
 
-// Community / Komunitas (simple static page)
-Route::view('/community', 'community')->name('community');
+// Community / Komunitas (dynamic from DB)
+Route::get('/community', function () {
+    $communities = \App\Models\Community::where('active', true)->orderBy('sort_order')->get();
+    return view('community', compact('communities'));
+})->name('community');
 
 
 // ====================  ADMIN ROUTES  ====================
@@ -44,6 +48,14 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/announcements/{announcement}/edit', [AdminAnnouncementController::class, 'edit'])->name('announcements.edit');
         Route::put('/announcements/{announcement}', [AdminAnnouncementController::class, 'update'])->name('announcements.update');
         Route::delete('/announcements/{announcement}', [AdminAnnouncementController::class, 'destroy'])->name('announcements.destroy');
+
+        // --- Manajemen Komunitas ---
+        Route::get('/community', [AdminCommunityController::class, 'index'])->name('community.index');
+        Route::get('/community/create', [AdminCommunityController::class, 'create'])->name('community.create');
+        Route::post('/community', [AdminCommunityController::class, 'store'])->name('community.store');
+        Route::get('/community/{community}/edit', [AdminCommunityController::class, 'edit'])->name('community.edit');
+        Route::put('/community/{community}', [AdminCommunityController::class, 'update'])->name('community.update');
+        Route::delete('/community/{community}', [AdminCommunityController::class, 'destroy'])->name('community.destroy');
 
         // --- Manajemen Alumni ---
         Route::get('/alumni', [AlumniController::class, 'index'])->name('alumni');

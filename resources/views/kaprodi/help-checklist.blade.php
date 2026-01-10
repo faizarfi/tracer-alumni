@@ -26,7 +26,9 @@
         }
 
         .container {
-            padding: 40px 50px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 20px 20px;
         }
 
         /* Header Modern Tanpa Logo */
@@ -67,9 +69,9 @@
         /* Hero / Summary Section */
         .hero-card {
             background: #f1f5f9;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 40px;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 24px;
         }
 
         .hero-card h2 {
@@ -90,47 +92,55 @@
         }
 
         .step-item {
-            margin-bottom: 30px;
+            margin-bottom: 14px;
             width: 100%;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
         }
 
         .step-number-box {
             background: #10b981;
             color: white;
-            width: 32px;
-            height: 32px;
-            line-height: 32px;
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
             text-align: center;
             border-radius: 8px;
             font-weight: bold;
-            float: left;
+            flex: none;
+            font-size: 13px;
         }
 
         .step-body {
-            margin-left: 50px;
+            margin-left: 0;
+            flex: 1;
         }
 
         .step-heading {
             font-size: 12pt;
-            font-weight: bold;
-            color: #1e293b;
+            font-weight: 700;
+            color: #0f172a;
             margin-bottom: 4px;
             display: block;
         }
 
         .step-text {
             font-size: 10pt;
-            color: #64748b;
+            color: #475569;
             display: block;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+            text-align: justify;
+            text-justify: inter-word;
+            line-height: 1.45;
         }
 
         /* Alert / Note Box */
         .alert-box {
             background-color: #ecfdf5;
             border-left: 4px solid #10b981;
-            padding: 12px 18px;
-            margin-top: 10px;
+            padding: 10px 14px;
+            margin-top: 8px;
             border-radius: 4px;
         }
 
@@ -150,20 +160,28 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-            padding: 20px 50px;
+            box-sizing: border-box;
+            padding: 8px 18px;
             border-top: 1px solid #f1f5f9;
             background: #f8fafc;
         }
 
         .footer-table {
             width: 100%;
+            table-layout: fixed;
             font-size: 8.5pt;
             color: #94a3b8;
         }
 
+        .footer-table td:first-child { width: 60%; }
+        .footer-table td:last-child { width: 40%; }
+
         .text-right {
             text-align: right;
+            white-space: normal;
         }
+
+        .footer-table td { word-break: break-word; }
 
         .accent-text {
             color: #10b981;
@@ -180,8 +198,8 @@
             <table class="brand-section">
                 <tr>
                     <td>
-                        <div class="sub-title">User Guide Protocol</div>
-                        <h1 class="document-title">Pemberitahuan Tata Cara</h1>
+                        <div class="sub-title">Panduan Pengguna</div>
+                        <h1 class="document-title">Panduan Kaprodi — Tracer Study</h1>
                         <div class="doc-number">REF NO: {{ date('Y') }}/TS/KPD/001</div>
                     </td>
                     <td class="text-right" style="vertical-align: bottom;">
@@ -195,8 +213,8 @@
         </div>
 
         <div class="hero-card">
-            <h2>Petunjuk Teknis Kaprodi</h2>
-            <p>Prosedur standar pengoperasian sistem untuk keperluan verifikasi, validasi, dan penarikan data alumni pada Program Studi guna mendukung pelaporan akreditasi dan evaluasi internal.</p>
+            <h2>Panduan Singkat untuk Kaprodi</h2>
+            <p>Prosedur operasional singkat bagi Koordinator Program Studi untuk verifikasi, validasi, dan pengunduhan data alumni. Data ini digunakan untuk keperluan pelaporan akreditasi dan evaluasi mutu program studi.</p>
         </div>
 
         <div class="step-wrapper">
@@ -205,7 +223,7 @@
                 <div class="step-number-box">01</div>
                 <div class="step-body">
                     <span class="step-heading">Otentikasi & Akses Menu</span>
-                    <span class="step-text">Masuk ke Dashboard RMS menggunakan akun resmi. Navigasikan pada menu utama, kemudian pilih sub-menu <strong>"Data Alumni"</strong> untuk membuka basis data responden.</span>
+                    <span class="step-text">Masuk ke Dashboard Kaprodi dengan akun resmi. Pada menu utama pilih <strong>"Data Alumni"</strong> untuk mengakses basis data responden.</span>
                 </div>
             </div>
 
@@ -213,7 +231,7 @@
                 <div class="step-number-box">02</div>
                 <div class="step-body">
                     <span class="step-heading">Penyaringan Data (Filtering)</span>
-                    <span class="step-text">Gunakan fitur pemfilteran di bagian atas tabel. Sesuaikan parameter <strong>Program Studi</strong> dan <strong>Tahun Lulus</strong> untuk memisahkan data sesuai kebutuhan analisis.</span>
+                    <span class="step-text">Gunakan filter di bagian atas tabel. Pilih <strong>Program Studi</strong>, <strong>Tahun Lulus</strong>, dan parameter lain untuk menyaring data sesuai kebutuhan analisis.</span>
                 </div>
             </div>
 
@@ -221,10 +239,10 @@
                 <div class="step-number-box">03</div>
                 <div class="step-body">
                     <span class="step-heading">Validasi Kuantitas Responden</span>
-                    <span class="step-text">Pantau jumlah responden yang masuk secara real-time.</span>
+                    <span class="step-text">Pantau jumlah responden secara real-time dan bandingkan dengan target partisipasi program studi.</span>
                     <div class="alert-box">
                         <strong>Kriteria Minimum:</strong>
-                        <p>Jika jumlah responden < 30 orang, harap segera berkoordinasi dengan koordinator angkatan untuk meningkatkan tingkat partisipasi (Response Rate).</p>
+                        <p>Jika jumlah responden kurang dari 30, segera koordinasikan dengan koordinator angkatan untuk meningkatkan tingkat partisipasi.</p>
                     </div>
                 </div>
             </div>
@@ -233,7 +251,7 @@
                 <div class="step-number-box">04</div>
                 <div class="step-body">
                     <span class="step-heading">Verifikasi Kualitas Data</span>
-                    <span class="step-text">Lakukan audit data dengan menekan tombol <strong>"Detail"</strong>. Pastikan konsistensi antara riwayat pekerjaan dengan jawaban kuesioner yang diberikan alumni.</span>
+                    <span class="step-text">Lakukan audit menggunakan tombol <strong>"Detail"</strong>. Pastikan konsistensi riwayat pekerjaan dan informasi lain dengan jawaban kuesioner; tandai atau koreksi data yang tidak konsisten.</span>
                 </div>
             </div>
 
@@ -241,7 +259,7 @@
                 <div class="step-number-box">05</div>
                 <div class="step-body">
                     <span class="step-heading">Finalisasi & Ekstraksi</span>
-                    <span class="step-text">Lakukan unduhan data melalui fungsi <strong>"Export Excel"</strong>. Data ini merupakan dokumen valid untuk lampiran borang akreditasi atau laporan kinerja Program Studi.</span>
+                    <span class="step-text">Ekspor data melalui fitur <strong>"Export Excel"</strong> atau format lain yang tersedia. Gunakan dataset yang sudah diverifikasi sebagai lampiran borang akreditasi dan laporan program studi.</span>
                 </div>
             </div>
 
@@ -252,12 +270,12 @@
         <table class="footer-table">
             <tr>
                 <td>
-                    Dicetak secara sistematis oleh <span class="accent-text">Tracer Study System</span><br>
+                    Dicetak otomatis oleh <span class="accent-text">Tracer Study System</span><br>
                     UIN Raden Mas Said Surakarta
                 </td>
                 <td class="text-right">
                     Waktu Cetak: {{ date('d M Y, H:i') }}<br>
-                    Support: <span class="accent-text">it-tracer@uinsaid.ac.id</span>
+                    Dukungan: <span class="accent-text">it-tracer@uinsaid.ac.id</span>
                 </td>
             </tr>
         </table>

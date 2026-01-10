@@ -255,6 +255,9 @@ class DashboardController extends Controller
         // Pengumuman terbaru (ditampilkan di dashboard)
         $announcements = \App\Models\Announcement::latest('published_at')->take(3)->get();
 
+        // Komunitas aktif untuk ditampilkan di dashboard user
+        $communities = \App\Models\Community::where('active', true)->orderBy('sort_order')->get();
+
         // Testimoni yang sudah disetujui ('approved')
         $approvedTestimonials = Alumni::whereNotNull('testimonial_quote')
                                       ->where('testimonial_status', 'approved')
@@ -271,7 +274,8 @@ class DashboardController extends Controller
             'isiKuisioner',
             'galleries',
             'testimonials',
-            'announcements'
+            'announcements',
+            'communities'
         ));
     }
 }

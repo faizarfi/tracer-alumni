@@ -223,9 +223,9 @@
                 </div>
             </div>
             <div class="flex gap-6">
-                <a href="#" class="text-[11px] font-bold text-slate-400 hover:text-green-600 tracking-widest uppercase transition-colors">Documentation</a>
-                <a href="#" class="text-[11px] font-bold text-slate-400 hover:text-green-600 tracking-widest uppercase transition-colors">Support</a>
-                <a href="#" class="text-[11px] font-bold text-slate-400 hover:text-green-600 tracking-widest uppercase transition-colors">Privacy Policy</a>
+                <a href="{{ route('kaprodi.help') }}" class="text-[11px] font-bold text-slate-600 hover:text-green-600 tracking-widest uppercase transition-colors">Panduan Kaprodi</a>
+                <a href="{{ route('kaprodi.kuisioner.report') }}" class="text-[11px] font-bold text-slate-600 hover:text-green-600 tracking-widest uppercase transition-colors">Unduh Laporan</a>
+                <a href="mailto:tracer@uinsaid.ac.id" class="text-[11px] font-bold text-slate-600 hover:text-green-600 tracking-widest uppercase transition-colors">Kontak</a>
             </div>
         </div>
     </footer>

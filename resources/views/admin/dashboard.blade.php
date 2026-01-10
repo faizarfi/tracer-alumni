@@ -203,6 +203,7 @@
             <h2 class="text-sm font-black text-slate-800 uppercase tracking-widest">Pengumuman Terbaru</h2>
             <div class="flex items-center gap-3">
                 <a href="{{ route('admin.announcements.create') }}" class="text-[10px] font-black bg-emerald-600 text-white px-3 py-2 rounded-lg hover:bg-emerald-700">Buat Pengumuman</a>
+                <a href="{{ route('admin.community.index') }}" class="text-[10px] font-black bg-sky-600 text-white px-3 py-2 rounded-lg hover:bg-sky-700">Kelola Komunitas</a>
                 <a href="{{ route('announcements.index') }}" class="text-[10px] font-black text-slate-600 px-3 py-2 rounded-lg border">Lihat Publik</a>
             </div>
         </div>
