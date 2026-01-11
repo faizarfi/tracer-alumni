@@ -49,8 +49,6 @@ class AuthController extends Controller
                 'email',
                 'max:255',
                 'unique:users',
-                // MENGUBAH REGEX: Hanya izinkan domain @student.uin.ac.id
-                'regex:/^[^@\s]+@student\.uin\.ac\.id$/i'
             ],
             'password' => [
                 'required',
@@ -60,7 +58,6 @@ class AuthController extends Controller
                 'regex:/^(?=.*[A-Z])(?=.*\d).+$/'
             ],
         ], [
-            'email.regex' => 'Email harus menggunakan domain @student.uin.ac.id',
             'password.regex' => 'Password harus mengandung minimal satu huruf besar dan satu angka.',
         ]);
 

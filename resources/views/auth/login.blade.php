@@ -126,6 +126,9 @@
                         @error('password')
                             <p class="text-red-500 text-[10px] mt-1 ml-1">{{ $message }}</p>
                         @enderror
+                        <div class="flex justify-end mt-2">
+                            <a href="{{ route('password.request') }}" class="text-sm text-green-700 font-medium hover:underline">Lupa Kata Sandi?</a>
+                        </div>
                     </div>
 
                     <button type="submit"

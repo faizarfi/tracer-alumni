@@ -28,7 +28,7 @@ class AdminSeeder extends Seeder
 
         // 2. Akun User/Alumni (Contoh data user yang sering hilang)
         User::updateOrCreate(
-            ['email' => 'alumni@student.uin.ac.id'],
+            ['email' => 'alumni@example.com'],
             [
                 'name' => 'Alumni Contoh',
                 'password' => Hash::make('Alumni123'), // Password default: Alumni123

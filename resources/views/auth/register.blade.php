@@ -97,11 +97,11 @@
                 </div>
 
                 <div class="space-y-1">
-                    <label for="email" class="block text-gray-700 text-sm font-semibold ml-1">Email Kampus</label>
+                    <label for="email" class="block text-gray-700 text-sm font-semibold ml-1">Email</label>
                     <div class="relative group">
                         <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-green-600"></i>
                         <input type="email" name="email" id="email" value="{{ old('email') }}" required
-                            placeholder="nama@student.uin.ac.id"
+                            placeholder="nama@example.com"
                             class="input-field w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm text-gray-800">
                     </div>
                     @error('email') <p class="text-red-500 text-[10px] mt-1 ml-1">{{ $message }}</p> @enderror
