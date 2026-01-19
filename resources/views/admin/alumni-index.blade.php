@@ -91,7 +91,7 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
 
                 {{-- Search --}}
-                <div class="md:col-span-6">
+                <div class="md:col-span-5">
                     <label class="filter-label">Cari Alumni (Nama/NIM)</label>
                     <div class="relative group">
                         <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-600 transition-colors"></i>
@@ -99,8 +99,22 @@
                     </div>
                 </div>
 
-                {{-- Filter Status Kerja --}}
+                {{-- Filter Fakultas --}}
                 <div class="md:col-span-3">
+                    <label class="filter-label">Fakultas</label>
+                    <div class="relative">
+                        <select name="fakultas" onchange="this.form.submit()" class="input-premium pr-10 border-slate-300">
+                            <option value="">Semua Fakultas</option>
+                            @foreach($faculties as $fak)
+                                <option value="{{ $fak->name }}" {{ request('fakultas') == $fak->name ? 'selected' : '' }}>{{ $fak->name }}</option>
+                            @endforeach
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-600 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                {{-- Filter Status Kerja --}}
+                <div class="md:col-span-2">
                     <label class="filter-label">Status Karir</label>
                     <div class="relative">
                         <select name="status_kerja" onchange="this.form.submit()" class="input-premium pr-10 border-slate-300">
@@ -113,7 +127,7 @@
                 </div>
 
                 {{-- Sort --}}
-                <div class="md:col-span-3">
+                <div class="md:col-span-2">
                     <label class="filter-label">Urutkan Data</label>
                     <div class="relative">
                         <select name="sort" onchange="this.form.submit()" class="input-premium pr-10 border-slate-300">

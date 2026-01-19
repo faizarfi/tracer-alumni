@@ -145,8 +145,8 @@
                                 <label class="text-sm font-bold text-slate-700 ml-1">Fakultas</label>
                                 <select name="fakultas" id="fakultas" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-green-500 transition-all font-medium text-slate-700 appearance-none" required>
                                     <option value="">-- Pilih Fakultas --</option>
-                                    @foreach(['Fakultas Adab dan Bahasa', 'Fakultas Ekonomi Dan Bisnis Islam', 'Fakultas Ilmu Tarbiyah', 'Fakultas Ushuluddin dan Dakwah', 'Fakultas Syariah'] as $f)
-                                        <option value="{{ $f }}" {{ old('fakultas', $alumni->fakultas ?? '') == $f ? 'selected' : '' }}>{{ $f }}</option>
+                                    @foreach($faculties as $f)
+                                        <option value="{{ $f->name }}" {{ old('fakultas', $alumni->fakultas ?? '') == $f->name ? 'selected' : '' }}>{{ $f->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -265,13 +265,8 @@
         const selectJurusan = document.getElementById('jurusan');
         const oldJurusanValue = "{{ old('jurusan', $alumni->jurusan ?? '') }}";
 
-        const jurusanOptions = {
-            "Fakultas Adab dan Bahasa": ["S1 - Bahasa dan Sastra Arab", "S1 - Ilmu Perpustakaan", "S1 - Pendidikan Bahasa Inggris", "S1 - Sastra Inggris", "S1 - Sejarah Peradaban Islam", "S1 - Tadris Bahasa Indonesia"],
-            "Fakultas Ekonomi Dan Bisnis Islam": ["S1 - Akuntansi Syariah", "S1 - Ekonomi Syariah", "S1 - Manajemen Bisnis Syariah", "S1 - Perbankan Syariah", "S1 - Manajemen Zakat dan Wakaf", "S1 - Bisnis Digital"],
-            "Fakultas Ilmu Tarbiyah": ["S1 - Manajemen Pendidikan Islam", "S1 - Pendidikan Agama Islam", "S1 - Pendidikan Bahasa Arab", "S1 - PGMI", "S1 - PIAUD", "S1 - Tadris Biologi", "S1 - Tadris Matematika", "S1 - Informatika"],
-            "Fakultas Ushuluddin dan Dakwah": ["S1 - Aqidah dan Filsafat Islam", "S1 - Bimbingan dan Konseling Islam", "S1 - IQT", "S1 - Komunikasi dan Penyiaran Islam", "S1 - Psikologi Islam"],
-            "Fakultas Syariah": ["S1 - Hukum Ekonomi Syariah", "S1 - Hukum Keluarga Islam", "S1 - Hukum Pidana Islam", "S1 - Hukum Bisnis"]
-        };
+        // jurusanOptions disediakan oleh controller sebagai array: { "Fakultas Name": ["Prog1","Prog2"] }
+        const jurusanOptions = {!! json_encode($jurusanOptions ?? []) !!};
 
         function updateJurusan() {
             const val = selectFakultas.value;

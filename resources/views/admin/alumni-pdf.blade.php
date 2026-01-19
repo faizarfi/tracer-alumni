@@ -86,6 +86,8 @@
         <h1>Laporan Data Alumni</h1>
         <div class="meta">
             Dicetak pada: {{ date('d F Y') }} | Total: <strong>{{ $alumnis->count() }}</strong> alumni terdaftar
+            <br>
+            Sudah Bekerja: <strong>{{ $countBekerja }}</strong> ({{ $percentBekerja }}%) &nbsp;|&nbsp; Belum Bekerja: <strong>{{ $countBelum }}</strong> ({{ $percentBelum }}%)
         </div>
     </div>
 

@@ -9,9 +9,7 @@
         <a href="{{ route('admin.community.create') }}" class="px-4 py-2 bg-emerald-600 text-white rounded-lg">Tambah Komunitas</a>
     </div>
 
-    @if(session('success'))
-        <div class="mb-4 p-3 bg-emerald-50 text-emerald-700 rounded">{{ session('success') }}</div>
-    @endif
+    @include('admin.partials.flash')
 
     @if($communities->isEmpty())
         <div class="p-6 bg-white rounded border">Belum ada komunitas.</div>

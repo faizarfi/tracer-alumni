@@ -1,20 +1,22 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AlumniController;
-use App\Http\Controllers\KuisionerController;
-use App\Http\Controllers\GalleryController;
-use App\Http\Controllers\KaprodiController;
-use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AdminAnnouncementController;
 use App\Http\Controllers\AdminCommunityController;
+use App\Http\Controllers\Admin\FacultyController;
+use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\AlumniController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\KaprodiController;
+use App\Http\Controllers\KuisionerController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 // Landing page
 Route::get('/', function () {
@@ -80,7 +82,7 @@ Route::get('/announcements/{announcement}', [AnnouncementController::class, 'sho
 // Community / Komunitas (dynamic from DB)
 Route::get('/community', function () {
     $communities = \App\Models\Community::where('active', true)->orderBy('sort_order')->get();
-    return view('community', compact('communities'));
+    return view('user.community', compact('communities'));
 })->name('community');
 
 
@@ -93,64 +95,76 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 
         // --- Manajemen Pengumuman (Hanya Admin) ---
-        Route::get('/announcements/create', [AdminAnnouncementController::class, 'create'])->name('announcements.create');
-        Route::post('/announcements', [AdminAnnouncementController::class, 'store'])->name('announcements.store');
-        Route::get('/announcements/{announcement}/edit', [AdminAnnouncementController::class, 'edit'])->name('announcements.edit');
-        Route::put('/announcements/{announcement}', [AdminAnnouncementController::class, 'update'])->name('announcements.update');
-        Route::delete('/announcements/{announcement}', [AdminAnnouncementController::class, 'destroy'])->name('announcements.destroy');
+        Route::resource('announcements', AdminAnnouncementController::class)->except(['index', 'show']);
 
         // --- Manajemen Komunitas ---
-        Route::get('/community', [AdminCommunityController::class, 'index'])->name('community.index');
-        Route::get('/community/create', [AdminCommunityController::class, 'create'])->name('community.create');
-        Route::post('/community', [AdminCommunityController::class, 'store'])->name('community.store');
-        Route::get('/community/{community}/edit', [AdminCommunityController::class, 'edit'])->name('community.edit');
-        Route::put('/community/{community}', [AdminCommunityController::class, 'update'])->name('community.update');
-        Route::delete('/community/{community}', [AdminCommunityController::class, 'destroy'])->name('community.destroy');
+        Route::resource('community', AdminCommunityController::class)->except(['show']);
 
         // --- Manajemen Alumni ---
-        Route::get('/alumni', [AlumniController::class, 'index'])->name('alumni');
+        Route::resource('alumni', AlumniController::class)
+            ->only(['index', 'edit', 'update', 'destroy'])
+            ->parameters(['alumni' => 'user'])
+            ->names([
+                'index' => 'alumni',
+                'edit' => 'alumni.edit',
+                'update' => 'alumni.update',
+                'destroy' => 'alumni.destroy',
+            ]);
+
+        // Custom exports
         Route::get('/alumni/export-csv', [AlumniController::class, 'exportCsv'])->name('alumni.exportCsv');
         Route::get('/alumni/export-pdf', [AlumniController::class, 'exportPdf'])->name('alumni.exportPdf');
-        Route::get('/alumni/{user}/edit', [AlumniController::class, 'edit'])->name('alumni.edit');
-        Route::put('/alumni/{user}', [AlumniController::class, 'update'])->name('alumni.update');
-        Route::delete('/alumni/{user}', [AlumniController::class, 'destroy'])->name('alumni.destroy');
 
         // --- Manajemen Kuisioner ---
-        Route::get('/kuisioner', [KuisionerController::class, 'adminIndex'])->name('kuisioner');
-        Route::get('/kuisioner/{id}/detail', [KuisionerController::class, 'show'])->name('kuisioner.detail');
-        Route::delete('/kuisioner/{id}', [KuisionerController::class, 'destroy'])->name('kuisioner.destroy');
-        Route::get('/kuisioner/export-csv', [KuisionerController::class, 'exportCsv'])->name('kuisioner.exportCsv');
+        Route::controller(KuisionerController::class)->group(function () {
+            Route::get('/kuisioner', 'adminIndex')->name('kuisioner');
+            Route::get('/kuisioner/export-csv', 'exportCsv')->name('kuisioner.exportCsv');
+            Route::get('/kuisioner/{id}/detail', 'show')->name('kuisioner.detail');
+            Route::delete('/kuisioner/{id}', 'destroy')->name('kuisioner.destroy');
+        });
 
         // --- Manajemen Gallery ---
-        Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
-        Route::post('/gallery', [GalleryController::class, 'store'])->name('gallery.store');
-        Route::put('/gallery/{id}', [GalleryController::class, 'update'])->name('gallery.update');
-        Route::delete('/gallery/{id}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
+        Route::resource('gallery', GalleryController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->parameters(['gallery' => 'id'])
+            ->names([
+                'index' => 'gallery',
+                'store' => 'gallery.store',
+                'update' => 'gallery.update',
+                'destroy' => 'gallery.destroy',
+            ]);
 
         // --- Manajemen Kaprodi ---
-        Route::get('/kaprodi', [KaprodiController::class, 'index'])->name('kaprodi');
-        Route::get('/kaprodi/create', [KaprodiController::class, 'create'])->name('kaprodi.create');
-        Route::post('/kaprodi', [KaprodiController::class, 'store'])->name('kaprodi.store');
-        Route::get('/kaprodi/{id}/edit', [KaprodiController::class, 'edit'])->name('kaprodi.edit');
-        Route::put('/kaprodi/{id}', [KaprodiController::class, 'update'])->name('kaprodi.update');
-        Route::delete('/kaprodi/{id}', [KaprodiController::class, 'destroy'])->name('kaprodi.destroy');
+        Route::resource('kaprodi', KaprodiController::class)
+            ->except(['show'])
+            ->parameters(['kaprodi' => 'id'])
+            ->names([
+                'index' => 'kaprodi',
+            ]);
 
         // --- Statistik ---
         Route::get('/statistics', [AlumniController::class, 'statistics'])->name('statistics');
 
+        // --- Manajemen Fakultas & Program Studi ---
+        Route::resource('faculties', FacultyController::class)->except(['show']);
+        Route::resource('programs', ProgramController::class)->except(['show']);
+
         // --- Testimoni Alumni ---
-        Route::prefix('testimonials')->name('testimonials.')->group(function () {
+        Route::controller(AlumniController::class)
+            ->prefix('testimonials')
+            ->name('testimonials.')
+            ->group(function () {
 
-            // List Testimoni
-            Route::get('/review', [AlumniController::class, 'reviewTestimonials'])->name('review');
-            Route::get('/approved', [AlumniController::class, 'approvedTestimonials'])->name('approved');
-            Route::get('/rejected', [AlumniController::class, 'rejectedTestimonials'])->name('rejected');
+                // List Testimoni
+                Route::get('/review', 'reviewTestimonials')->name('review');
+                Route::get('/approved', 'approvedTestimonials')->name('approved');
+                Route::get('/rejected', 'rejectedTestimonials')->name('rejected');
 
-            // Aksi Testimoni
-            Route::put('/{user_id}/approve', [AlumniController::class, 'approveTestimonial'])->name('approve');
-            Route::delete('/{user_id}/reject', [AlumniController::class, 'rejectTestimonial'])->name('reject');
-            Route::put('/{user_id}/pending', [AlumniController::class, 'pendingTestimonial'])->name('pending'); // ✅ BARU: Kembali ke Review
-        });
+                // Aksi Testimoni
+                Route::put('/{user_id}/approve', 'approveTestimonial')->name('approve');
+                Route::delete('/{user_id}/reject', 'rejectTestimonial')->name('reject');
+                Route::put('/{user_id}/pending', 'pendingTestimonial')->name('pending');
+            });
 
     });
 
@@ -160,23 +174,23 @@ Route::middleware(['auth', 'role:kaprodi'])
     ->prefix('kaprodi')
     ->name('kaprodi.')
     ->group(function () {
+        Route::controller(DashboardController::class)->group(function () {
+            Route::get('/dashboard', 'kaprodi')->name('dashboard');
+            Route::get('/help', 'kaprodiHelp')->name('help');
+            Route::get('/help/checklist-pdf', 'kaprodiHelpPdf')->name('help.checklistPdf');
+        });
 
-        Route::get('/dashboard', [DashboardController::class, 'kaprodi'])->name('dashboard');
+        Route::controller(KuisionerController::class)->group(function () {
+            Route::get('/laporan-kuisioner', 'kaprodiReport')->name('kuisioner.report');
+            Route::get('/export-kuisioner-pdf', 'exportKaprodiPdf')->name('kuisioner.exportPdf');
+            Route::get('/export-kuisioner-csv', 'exportKaprodiCsv')->name('kuisioner.exportCsv');
+            Route::get('/alumni/{alumni_id}/detail', 'showKaprodiDetail')->name('alumni.detail');
+        });
 
-        Route::get('/laporan-kuisioner', [KuisionerController::class, 'kaprodiReport'])->name('kuisioner.report');
-        Route::get('/data-alumni', [AlumniController::class, 'kaprodiAlumni'])->name('alumni');
-        Route::get('/export-kuisioner-pdf', [KuisionerController::class, 'exportKaprodiPdf'])->name('kuisioner.exportPdf');
-
-        // Ekspor PDF khusus Kaprodi (menggunakan DomPDF jika tersedia)
-        Route::get('/alumni/export-pdf', [AlumniController::class, 'kaprodiExportPdf'])->name('alumni.exportPdf');
-
-        // Perbaiki error RouteNotFound
-        Route::get('/alumni/{alumni_id}/detail', [KuisionerController::class, 'showKaprodiDetail'])->name('alumni.detail');
-
-        Route::get('/export-kuisioner-csv', [KuisionerController::class, 'exportKaprodiCsv'])->name('kuisioner.exportCsv');
-
-        Route::get('/help', [DashboardController::class, 'kaprodiHelp'])->name('help');
-        Route::get('/help/checklist-pdf', [DashboardController::class, 'kaprodiHelpPdf'])->name('help.checklistPdf');
+        Route::controller(AlumniController::class)->group(function () {
+            Route::get('/data-alumni', 'kaprodiAlumni')->name('alumni');
+            Route::get('/alumni/export-pdf', 'kaprodiExportPdf')->name('alumni.exportPdf');
+        });
     });
 
 
@@ -188,15 +202,17 @@ Route::middleware(['auth', 'role:user'])
 
         Route::get('/dashboard', [DashboardController::class, 'user'])->name('dashboard');
 
-        // Profil
-        Route::get('/profil', [AlumniController::class, 'form'])->name('profil');
-        Route::put('/profil', [AlumniController::class, 'save'])->name('profil.update');
-        Route::post('/profil', [AlumniController::class, 'save'])->name('profil.save');
+        // Profil, Kuisioner, dan Pencarian pengguna
+        Route::controller(AlumniController::class)->group(function () {
+            Route::get('/profil', 'form')->name('profil');
+            Route::put('/profil', 'save')->name('profil.update');
+            Route::post('/profil', 'save')->name('profil.save');
 
-        // Kuisioner
-        Route::get('/kuisioner', [KuisionerController::class, 'form'])->name('kuisioner');
-        Route::post('/kuisioner', [KuisionerController::class, 'store'])->name('kuisioner.store');
+            Route::get('/cari-alumni', 'search')->name('cari-alumni');
+        });
 
-        // Cari Alumni
-        Route::get('/cari-alumni', [AlumniController::class, 'search'])->name('cari-alumni');
+        Route::controller(KuisionerController::class)->group(function () {
+            Route::get('/kuisioner', 'form')->name('kuisioner');
+            Route::post('/kuisioner', 'store')->name('kuisioner.store');
+        });
     });

@@ -149,11 +149,9 @@
                     <label class="label-premium">Fakultas</label>
                     <select name="fakultas" id="fakultas" class="input-premium" style="padding-left: 1rem;">
                         <option value="">-- Pilih Fakultas --</option>
-                        <option value="Fakultas Adab dan Bahasa" {{ old('fakultas', $alumni->fakultas) == 'Fakultas Adab dan Bahasa' ? 'selected' : '' }}>Fakultas Adab dan Bahasa</option>
-                        <option value="Fakultas Ekonomi Dan Bisnis Islam" {{ old('fakultas', $alumni->fakultas) == 'Fakultas Ekonomi Dan Bisnis Islam' ? 'selected' : '' }}>Fakultas Ekonomi Dan Bisnis Islam</option>
-                        <option value="Fakultas Ilmu Tarbiyah" {{ old('fakultas', $alumni->fakultas) == 'Fakultas Ilmu Tarbiyah' ? 'selected' : '' }}>Fakultas Ilmu Tarbiyah</option>
-                        <option value="Fakultas Ushuluddin dan Dakwah" {{ old('fakultas', $alumni->fakultas) == 'Fakultas Ushuluddin dan Dakwah' ? 'selected' : '' }}>Fakultas Ushuluddin dan Dakwah</option>
-                        <option value="Fakultas Syariah" {{ old('fakultas', $alumni->fakultas) == 'Fakultas Syariah' ? 'selected' : '' }}>Fakultas Syariah</option>
+                        @foreach($faculties as $f)
+                            <option value="{{ $f->name }}" {{ old('fakultas', $alumni->fakultas) == $f->name ? 'selected' : '' }}>{{ $f->name }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -210,13 +208,18 @@
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons();
 
-        // LOGIKA DROPDOWN JURUSAN
+        // LOGIKA DROPDOWN JURUSAN — dibangun dari DB
         const jurusanOptions = {
-            "Fakultas Adab dan Bahasa": ["S1 - Bahasa dan Sastra Arab", "S1 - Ilmu Perpustakaan dan Informasi Islam", "S1 - Pendidikan Bahasa Inggris", "S1 - Sastra Inggris", "S1 - Sejarah Peradaban Islam", "S1 - Tadris Bahasa Indonesia"],
-            "Fakultas Ekonomi Dan Bisnis Islam": ["S1 - Akuntansi Syariah", "S1 - Ekonomi Syariah", "S1 - Manajemen Bisnis Syariah", "S1 - Perbankan Syariah", "S1 - Manajemen Zakat dan Wakaf", "S1 - Bisnis Digital"],
-            "Fakultas Ilmu Tarbiyah": ["S1 - Bioteknologi", "S1 - Ilmu Lingkungan", "S1 - Manajemen Pendidikan Islam", "S1 - Pendidikan Agama Islam", "S1 - Pendidikan Bahasa Arab", "S1 - Pendidikan Guru Madrasah Ibtidaiyah", "S1 - Pendidikan Islam Anak Usia Dini", "S1 - Sains Data", "S1 - Tadris Biologi", "S1 - Tadris Matematika", "S1 - Teknologi Pangan", "S1 - Informatika"],
-            "Fakultas Ushuluddin dan Dakwah": ["S1 - Aqidah dan Filsafat Islam", "S1 - Bimbingan dan Konseling Islam", "S1 - Ilmu Al-Qur’an dan Tafsir", "S1 - Komunikasi dan Penyiaran Islam", "S1 - Manajemen Dakwah", "S1 - Psikologi Islam", "S1 - Pemikiran Politik Islam", "S1 - Tasawuf dan Psikoterapi"],
-            "Fakultas Syariah": ["S1 - Hukum Ekonomi Syariah", "S1 - Hukum Keluarga Islam", "S1 - Hukum Pidana Islam", "S1 - Hukum Bisnis"]
+            @php
+                $grouped = $programs->groupBy(function($p){ return $p->faculty->name ?? 'Lainnya'; });
+            @endphp
+            @foreach($grouped as $facultyName => $progs)
+                "{{ addslashes($facultyName) }}": [
+                    @foreach($progs as $idx => $pg)
+                        "{{ addslashes($pg->name) }}"{{ $idx < $progs->count()-1 ? ',' : '' }}
+                    @endforeach
+                ]{{ !$loop->last ? ',' : '' }}
+            @endforeach
         };
 
         const selectFakultas = document.getElementById('fakultas');

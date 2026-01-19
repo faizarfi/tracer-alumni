@@ -182,6 +182,16 @@
                     <span>Manajemen Kaprodi</span>
                 </a>
 
+                <a href="{{ route('admin.faculties.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-white/80 font-medium text-sm {{ Request::routeIs('admin.faculties.*') ? 'active' : '' }}">
+                    <i data-lucide="building-2" class="w-5 h-5 text-amber-400"></i>
+                    <span>Manajemen Fakultas</span>
+                </a>
+
+                <a href="{{ route('admin.programs.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-white/80 font-medium text-sm {{ Request::routeIs('admin.programs.*') ? 'active' : '' }}">
+                    <i data-lucide="book" class="w-5 h-5 text-cyan-400"></i>
+                    <span>Manajemen Program Studi</span>
+                </a>
+
                 {{-- Logout --}}
                 <div class="mt-auto pt-10">
                     <form action="{{ route('logout') }}" method="POST">

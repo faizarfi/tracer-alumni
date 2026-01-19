@@ -6,12 +6,15 @@ use App\Models\Alumni;
 use App\Models\Kuisioner;
 use App\Models\Gallery;
 use App\Models\Announcement;
+use App\Models\Community;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Concerns\PdfGenerator;
 
 class DashboardController extends Controller
 {
+    use PdfGenerator;
     /**
      * Tampilkan dashboard untuk pengguna Admin (Superuser).
      * Menyediakan metrik global untuk semua data alumni.
@@ -69,10 +72,7 @@ class DashboardController extends Controller
     {
         // Ambil data user yang sedang login
         $user = Auth::user();
-
-        // Ambil nama program studi dari user. Ganti 'prodi' jika nama kolom berbeda.
-        // Menambahkan trim untuk memastikan tidak ada spasi tersembunyi yang membuat query gagal.
-        $prodiName = trim($user->prodi) ?? 'Program Studi Tidak Ditemukan';
+        $prodiName = trim($user->prodi ?? '') ?: 'Program Studi Tidak Ditemukan';
 
         // 1. Metrik Utama
         // Menggunakan query langsung agar data benar-benar sinkron dengan filter prodi.
@@ -139,27 +139,9 @@ class DashboardController extends Controller
                             ->get(['nama', 'user_id', 'created_at']);
 
         $recentActivity = collect();
-        foreach ($recentKuisioners as $k) {
-            $recentActivity->push([
-                'type' => 'kuisioner',
-                'text' => ($k->nama ?? 'Pengguna') . ' mengisi kuesioner',
-                'time' => $k->created_at->diffForHumans(),
-                'ts' => $k->created_at->getTimestamp(),
-            ]);
-        }
-        foreach ($recentAlumni as $a) {
-            $recentActivity->push([
-                'type' => 'alumni',
-                'text' => ($a->nama ?? 'Alumni') . ' terdaftar',
-                'time' => $a->created_at->diffForHumans(),
-                'ts' => $a->created_at->getTimestamp(),
-            ]);
-        }
-
-        // Urutkan berdasarkan timestamp dan ambil 8 teratas
-        $recentActivity = $recentActivity->sortByDesc('ts')->values()->take(8)->map(function ($i) {
-            return ['text' => $i['text'], 'time' => $i['time']];
-        })->toArray();
+        $recentKuisioners->each(fn($k) => $recentActivity->push(['text' => ($k->nama ?? 'Pengguna') . ' mengisi kuesioner', 'time' => $k->created_at->diffForHumans(), 'ts' => $k->created_at->getTimestamp()]));
+        $recentAlumni->each(fn($a) => $recentActivity->push(['text' => ($a->nama ?? 'Alumni') . ' terdaftar', 'time' => $a->created_at->diffForHumans(), 'ts' => $a->created_at->getTimestamp()]));
+        $recentActivity = $recentActivity->sortByDesc('ts')->values()->take(8)->map(fn($i) => ['text' => $i['text'], 'time' => $i['time']])->toArray();
 
         // 4. Agregasi data yang akan dikirim ke view
         $kaprodiData = [
@@ -196,46 +178,15 @@ class DashboardController extends Controller
     {
         // Blade view: resources/views/kaprodi/help-checklist.blade.php
         try {
-            // 1) Preferred: facade if available
-            if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
-                // enable remote images (public_path) and HTML5 parser
-                \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
-                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('kaprodi.help-checklist');
-                return $pdf->download('checklist-kaprodi.pdf');
-            }
-
-            // 2) If the package's binding exists in the container
-            if (app()->bound('dompdf.wrapper')) {
-                $pdf = app('dompdf.wrapper');
-                if (method_exists($pdf, 'setOptions')) {
-                    $pdf->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
-                }
-                $pdf->loadView('kaprodi.help-checklist');
-                return $pdf->download('checklist-kaprodi.pdf');
-            }
-
-            // 3) Fallback: use Dompdf directly (if installed)
-            if (class_exists(\Dompdf\Dompdf::class)) {
-                $html = view('kaprodi.help-checklist')->render();
-                $options = new \Dompdf\Options();
-                $options->set('isRemoteEnabled', true);
-                $dompdf = new \Dompdf\Dompdf($options);
-                $dompdf->loadHtml($html);
-                $dompdf->setPaper('A4', 'portrait');
-                $dompdf->render();
-                $output = $dompdf->output();
-                return response($output, 200, [
-                    'Content-Type' => 'application/pdf',
-                    'Content-Disposition' => 'attachment; filename="checklist-kaprodi.pdf"',
-                ]);
-            }
+            return $this->generatePdf('kaprodi.help-checklist', [], 'checklist-kaprodi.pdf');
         } catch (\Throwable $e) {
-            // Log the error for debugging
             logger()->error('kaprodiHelpPdf error: ' . $e->getMessage());
         }
 
         return redirect()->route('kaprodi.help')->with('error', 'PDF export tidak tersedia — instal DomPDF atau hubungi tim IT.');
     }
+
+    // PDF generation provided by PdfGenerator trait
 
     /**
      * Tampilkan dashboard untuk pengguna umum (Alumni/Guest).

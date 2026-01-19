@@ -91,7 +91,20 @@ class KaprodiSeeder extends Seeder
             }
         }
 
-        // Masukkan data ke tabel users
-        User::insert($kaprodiData);
+        // Masukkan data ke tabel users dengan aman (hindari duplikat email)
+        foreach ($kaprodiData as $data) {
+            User::firstOrCreate(
+                ['email' => $data['email']],
+                [
+                    'name' => $data['name'],
+                    'password' => $data['password'],
+                    'role' => $data['role'],
+                    'fakultas' => $data['fakultas'],
+                    'prodi' => $data['prodi'],
+                    'created_at' => $data['created_at'],
+                    'updated_at' => $data['updated_at'],
+                ]
+            );
+        }
     }
 }

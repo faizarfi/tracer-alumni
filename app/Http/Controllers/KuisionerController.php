@@ -8,10 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Illuminate\Support\Str; // ⭐ DITAMBAHKAN: Import Facade Str ⭐
+use Illuminate\Support\Str;
+use App\Http\Controllers\Concerns\PdfGenerator;
 
 class KuisionerController extends Controller
 {
+    use PdfGenerator;
     public function form()
     {
         $userId = Auth::id();
@@ -221,7 +223,6 @@ class KuisionerController extends Controller
 
         $kuisioners = Kuisioner::whereIn('user_id', $alumniIds)->with('user')->get();
 
-        // ⭐ PERBAIKAN str_slug() ⭐
         $filename = 'kuisioner_prodi_' . Str::slug($kaprodiProdi) . '_' . now()->format('Ymd_His') . '.csv';
 
         $headers = [
@@ -320,41 +321,16 @@ class KuisionerController extends Controller
         $data = compact('kuisioners', 'kaprodiProdi', 'aggPendidikan', 'aggFasilitas');
 
         try {
-            if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
-                \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
-                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('kaprodi.kuisioner-pdf', $data)->setPaper('a4', 'portrait');
-                return $pdf->download('kuisioner_' . Str::slug($kaprodiProdi) . '_' . now()->format('Ymd_His') . '.pdf');
-            }
-
-            if (app()->bound('dompdf.wrapper')) {
-                $pdf = app('dompdf.wrapper');
-                if (method_exists($pdf, 'setOptions')) {
-                    $pdf->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
-                }
-                $pdf->loadView('kaprodi.kuisioner-pdf', $data);
-                return $pdf->download('kuisioner_' . Str::slug($kaprodiProdi) . '_' . now()->format('Ymd_His') . '.pdf');
-            }
-
-            if (class_exists(\Dompdf\Dompdf::class)) {
-                $html = view('kaprodi.kuisioner-pdf', $data)->render();
-                $options = new \Dompdf\Options();
-                $options->set('isRemoteEnabled', true);
-                $dompdf = new \Dompdf\Dompdf($options);
-                $dompdf->loadHtml($html);
-                $dompdf->setPaper('A4', 'portrait');
-                $dompdf->render();
-                $output = $dompdf->output();
-                return response($output, 200, [
-                    'Content-Type' => 'application/pdf',
-                    'Content-Disposition' => 'attachment; filename="kuisioner_' . Str::slug($kaprodiProdi) . '_' . now()->format('Ymd_His') . '.pdf"',
-                ]);
-            }
+            $filename = 'kuisioner_' . Str::slug($kaprodiProdi) . '_' . now()->format('Ymd_His') . '.pdf';
+            return $this->generatePdf('kaprodi.kuisioner-pdf', $data, $filename);
         } catch (\Throwable $e) {
             // fallback
         }
 
         return redirect()->back()->with('error', 'Fitur PDF belum tersedia. Jalankan: composer require barryvdh/laravel-dompdf.');
     }
+
+    // PDF generation provided by PdfGenerator trait
 
     // --- METODE LAMA (ADMIN) ---
 
@@ -390,7 +366,6 @@ class KuisionerController extends Controller
     {
         $kuisioners = Kuisioner::with('user')->get();
 
-        // ⭐ PERBAIKAN str_slug() ⭐
         $filename = 'kuisioner_' . now()->format('Ymd_His') . '.csv';
 
         $headers = [

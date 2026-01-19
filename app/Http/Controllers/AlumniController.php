@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumni;
+use App\Models\Faculty;
+use App\Models\Program;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Concerns\PdfGenerator;
 
 class AlumniController extends Controller
 {
+    use PdfGenerator;
     // Fungsi untuk menghapus alumni
     public function destroy($user_id)
     {
@@ -29,22 +33,18 @@ class AlumniController extends Controller
         }
     }
 
-    // Menampilkan form profil alumni
     public function form()
     {
-        // Cari data Alumni berdasarkan user_id.
-        $alumni = Alumni::where('user_id', Auth::id())->first();
+        $alumni = Alumni::where('user_id', Auth::id())->first() ?? tap(new Alumni(), fn($a) => $a->user_id = Auth::id());
 
-        // --- PERBAIKAN LOGIKA INI ---
-        // Jika tidak ditemukan, buat objek Alumni baru (kosong) agar view tidak error
-        if (!$alumni) {
-            $alumni = new Alumni();
-            // Opsional: Isi user_id agar tombol save/update tahu relasi ID saat pertama kali diisi
-            $alumni->user_id = Auth::id();
-        }
+        $faculties = Faculty::orderBy('name')->get();
+        $programs = Program::with('faculty')->orderBy('name')->get();
 
-        // Memuat view yang benar: user.alumni-form
-        return view('user.alumni-form', compact('alumni'));
+        $jurusanOptions = $programs->groupBy(fn($p) => $p->faculty?->name ?? 'Lainnya')
+            ->map(fn($group) => $group->pluck('name')->all())
+            ->all();
+
+        return view('user.alumni-form', compact('alumni', 'faculties', 'jurusanOptions'));
     }
 
     /**
@@ -78,7 +78,7 @@ class AlumniController extends Controller
         try {
             DB::beginTransaction();
 
-            // 1. Penanganan Foto Profil
+                // 1. Penanganan Foto Profil
             if ($request->hasFile('foto')) {
                 // Hapus foto lama jika ada
                 if ($alumni->foto_path) {
@@ -92,7 +92,7 @@ class AlumniController extends Controller
             // 2. Penanganan Data Profil Utama
             $alumni->fill($validatedData);
             $alumni->user_id = Auth::id();
-            $alumni->tempat_bekerja = ($validatedData['sudah_bekerja'] == 1) ? $validatedData['tempat_bekerja'] : null;
+            $alumni->tempat_bekerja = $validatedData['sudah_bekerja'] == 1 ? $validatedData['tempat_bekerja'] : null;
 
             // 3. LOGIKA PENANGANAN STATUS TESTIMONI
             $quote = trim($request->testimonial_quote);
@@ -135,8 +135,7 @@ class AlumniController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Log::error("Error saving alumni profile: " . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi. Debug: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data.');
         }
     }
 
@@ -168,6 +167,12 @@ class AlumniController extends Controller
             $query->where('tahun_keluar', $request->tahun);
         }
 
+        // Filter: Status Karir (sudah bekerja / belum)
+        $statusKerja = $request->input('status_kerja');
+        if ($statusKerja !== null && $statusKerja !== '') {
+            $query->where('sudah_bekerja', (int) $statusKerja);
+        }
+
         // Ambil data untuk pagination
         $alumniData = $query->orderBy('tahun_keluar', 'desc')->paginate(15)->appends($request->query());
 
@@ -196,43 +201,22 @@ class AlumniController extends Controller
 
         $alumnis = $query->orderBy('nama')->get();
 
-        $data = compact('alumnis', 'prodi');
+        // Hitung statistik status karir untuk laporan
+        $countTotal = $alumnis->count();
+        $countBekerja = $alumnis->where('sudah_bekerja', 1)->count();
+        $countBelum = $countTotal - $countBekerja;
+
+        // Persentase (satu desimal)
+        $percentBekerja = $countTotal ? round(($countBekerja / $countTotal) * 100, 1) : 0;
+        $percentBelum = $countTotal ? round(($countBelum / $countTotal) * 100, 1) : 0;
+
+        $data = compact('alumnis', 'prodi', 'countTotal', 'countBekerja', 'countBelum', 'percentBekerja', 'percentBelum');
 
         try {
-            if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
-                \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
-                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.alumni-pdf', $data)->setPaper('a4', 'portrait');
-                return $pdf->download('data_alumni_' . date('Ymd_His') . '.pdf');
-            }
-
-            if (app()->bound('dompdf.wrapper')) {
-                $pdf = app('dompdf.wrapper');
-                if (method_exists($pdf, 'setOptions')) {
-                    $pdf->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
-                }
-                $pdf->loadView('admin.alumni-pdf', $data);
-                return $pdf->download('data_alumni_' . date('Ymd_His') . '.pdf');
-            }
-
-            if (class_exists(\Dompdf\Dompdf::class)) {
-                $html = view('admin.alumni-pdf', $data)->render();
-                $options = new \Dompdf\Options();
-                $options->set('isRemoteEnabled', true);
-                $dompdf = new \Dompdf\Dompdf($options);
-                $dompdf->loadHtml($html);
-                $dompdf->setPaper('A4', 'portrait');
-                $dompdf->render();
-                $output = $dompdf->output();
-                return response($output, 200, [
-                    'Content-Type' => 'application/pdf',
-                    'Content-Disposition' => 'attachment; filename="data_alumni_' . date('Ymd_His') . '.pdf"',
-                ]);
-            }
+            return $this->generatePdf('admin.alumni-pdf', $data, 'data_alumni_' . date('Ymd_His') . '.pdf');
         } catch (\Throwable $e) {
-            // ignore and fallback to error message below
+            return redirect()->back()->with('error', 'Fitur PDF belum tersedia. Jalankan: composer require barryvdh/laravel-dompdf.');
         }
-
-        return redirect()->back()->with('error', 'Fitur PDF belum tersedia. Jalankan: composer require barryvdh/laravel-dompdf.');
     }
 
     // =========================================================
@@ -276,7 +260,10 @@ class AlumniController extends Controller
 
         $alumnis = $query->paginate(10)->appends($request->query());
 
-        return view('admin.alumni-index', compact('alumnis'));
+        // Ambil daftar fakultas untuk filter
+        $faculties = \App\Models\Faculty::orderBy('name')->get();
+
+        return view('admin.alumni-index', compact('alumnis', 'faculties'));
     }
 
     // Fungsi untuk pencarian alumni dari sisi user
@@ -349,7 +336,11 @@ class AlumniController extends Controller
     public function edit($user_id)
     {
         $alumni = Alumni::where('user_id', $user_id)->firstOrFail();
-        return view('admin.alumni-edit', compact('alumni'));
+
+        $faculties = \App\Models\Faculty::orderBy('name')->get();
+        $programs = \App\Models\Program::orderBy('name')->get();
+
+        return view('admin.alumni-edit', compact('alumni', 'faculties', 'programs'));
     }
 
     // Fungsi untuk update data alumni (SISI ADMIN)
@@ -438,48 +429,38 @@ class AlumniController extends Controller
      */
     public function exportPdf(Request $request)
     {
-        $alumnis = Alumni::orderBy('nama')->get();
-
-        $data = compact('alumnis');
-
-        try {
-            // Coba gunakan facade PDF jika tersedia
-            if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
-                \Barryvdh\DomPDF\Facade\Pdf::setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
-                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.alumni-pdf', $data)->setPaper('a4', 'portrait');
-                return $pdf->download('data_alumni_' . date('Ymd_His') . '.pdf');
-            }
-
-            if (app()->bound('dompdf.wrapper')) {
-                $pdf = app('dompdf.wrapper');
-                if (method_exists($pdf, 'setOptions')) {
-                    $pdf->setOptions(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
-                }
-                $pdf->loadView('admin.alumni-pdf', $data);
-                return $pdf->download('data_alumni_' . date('Ymd_His') . '.pdf');
-            }
-
-            if (class_exists(\Dompdf\Dompdf::class)) {
-                $html = view('admin.alumni-pdf', $data)->render();
-                $options = new \Dompdf\Options();
-                $options->set('isRemoteEnabled', true);
-                $dompdf = new \Dompdf\Dompdf($options);
-                $dompdf->loadHtml($html);
-                $dompdf->setPaper('A4', 'portrait');
-                $dompdf->render();
-                $output = $dompdf->output();
-                return response($output, 200, [
-                    'Content-Type' => 'application/pdf',
-                    'Content-Disposition' => 'attachment; filename="data_alumni_' . date('Ymd_His') . '.pdf"',
-                ]);
-            }
-        } catch (\Throwable $e) {
-            // lanjut ke fallback
+        // Ambil data (respek ke request filters jika ada)
+        $query = Alumni::query();
+        if ($request->filled('status_kerja')) {
+            $query->where('sudah_bekerja', (int)$request->input('status_kerja'));
+        }
+        if ($request->filled('cari')) {
+            $q = $request->cari;
+            $query->where(function($qq) use ($q) {
+                $qq->where('nama', 'like', "%{$q}%")
+                   ->orWhere('nim', 'like', "%{$q}%");
+            });
         }
 
-        // Jika package belum terpasang berikan petunjuk instalasi
-        return redirect()->back()->with('error', 'Fitur PDF belum tersedia. Jalankan: composer require barryvdh/laravel-dompdf lalu tambah alias Service Provider jika perlu.');
+        $alumnis = $query->orderBy('nama')->get();
+
+        // Statistik untuk header (mirip kaprodiExportPdf)
+        $countTotal = $alumnis->count();
+        $countBekerja = $alumnis->where('sudah_bekerja', 1)->count();
+        $countBelum = $countTotal - $countBekerja;
+        $percentBekerja = $countTotal ? round(($countBekerja / $countTotal) * 100, 1) : 0;
+        $percentBelum = $countTotal ? round(($countBelum / $countTotal) * 100, 1) : 0;
+
+        $data = compact('alumnis', 'countTotal', 'countBekerja', 'countBelum', 'percentBekerja', 'percentBelum');
+
+        try {
+            return $this->generatePdf('admin.alumni-pdf', $data, 'data_alumni_' . date('Ymd_His') . '.pdf');
+        } catch (\Throwable $e) {
+            return view('admin.alumni-pdf', $data);
+        }
     }
+
+    // PDF generation provided by PdfGenerator trait
 
     // =========================================================
     // ADMINISTRASI TESTIMONI BARU (Menggunakan status ENUM)
@@ -490,7 +471,6 @@ class AlumniController extends Controller
      */
     public function reviewTestimonials()
     {
-        // FIX: Tambahkan reorder untuk mengatasi masalah caching/ordering database
         $testimonialsToReview = Alumni::where('testimonial_status', 'pending')
                                             ->whereNotNull('testimonial_quote')
                                             ->latest()
@@ -533,15 +513,12 @@ class AlumniController extends Controller
     {
         try {
             $alumni = Alumni::where('user_id', $user_id)->firstOrFail();
-
-            // Perbarui status menjadi 'approved'
             $alumni->testimonial_status = 'approved';
-            $alumni->save(); // MENGGUNAKAN SAVE() UNTUK MEMASTIKAN UPDATE BERHASIL
-
-            // REDIRECT HARUS KE HALAMAN TUJUAN (Approved)
-            return redirect()->route('admin.testimonials.approved')->with('success', 'Testimoni berhasil disetujui dan dipublikasikan. Ia kini berada di daftar Disetujui.');
+            $alumni->save();
+            return redirect()->route('admin.testimonials.approved')->with('success', 'Testimoni berhasil disetujui dan dipublikasikan.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menyetujui testimoni. Debug: ' . $e->getMessage());
+            logger()->error('approveTestimonial error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menyetujui testimoni.');
         }
     }
 
@@ -551,29 +528,17 @@ class AlumniController extends Controller
      */
     public function rejectTestimonial($user_id)
     {
-          try {
+        try {
             $alumni = Alumni::where('user_id', $user_id)->firstOrFail();
-
-            // Ambil status sebelum update untuk menentukan redirect
             $previousStatus = $alumni->testimonial_status;
-
-            // Perbarui status menjadi 'rejected'
             $alumni->testimonial_status = 'rejected';
-            $alumni->save(); // MENGGUNAKAN SAVE() UNTUK MEMASTIKAN UPDATE BERHASIL
-
-            // Menentukan redirect: Jika sebelumnya approved (aksi Tarik Publikasi),
-            // redirect kembali ke halaman Approved. Jika tidak, redirect ke Rejected.
-            $redirectTo = ($previousStatus === 'approved')
-                                    ? 'admin.testimonials.approved'
-                                    : 'admin.testimonials.rejected';
-
-            $message = ($previousStatus === 'approved')
-                        ? 'Publikasi testimoni berhasil ditarik dan dipindahkan ke daftar Ditolak.'
-                        : 'Testimoni berhasil ditolak dan dipindahkan ke daftar Ditolak.';
-
+            $alumni->save();
+            $redirectTo = ($previousStatus === 'approved') ? 'admin.testimonials.approved' : 'admin.testimonials.rejected';
+            $message = ($previousStatus === 'approved') ? 'Publikasi testimoni berhasil ditarik.' : 'Testimoni berhasil ditolak.';
             return redirect()->route($redirectTo)->with('success', $message);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menolak testimoni. Debug: ' . $e->getMessage());
+            logger()->error('rejectTestimonial error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menolak testimoni.');
         }
     }
 
@@ -585,14 +550,12 @@ class AlumniController extends Controller
     {
         try {
             $alumni = Alumni::where('user_id', $user_id)->firstOrFail();
-
-            // Perbarui status menjadi 'pending' (Review)
             $alumni->testimonial_status = 'pending';
             $alumni->save();
-
             return redirect()->route('admin.testimonials.review')->with('success', 'Testimoni berhasil dikembalikan ke daftar Review.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengembalikan testimoni. Debug: ' . $e->getMessage());
+            logger()->error('pendingTestimonial error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengembalikan testimoni.');
         }
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 // Import Model User
 use App\Models\User;
+use App\Models\Alumni;
 
 class Kuisioner extends Model
 {
@@ -41,6 +42,10 @@ class Kuisioner extends Model
     protected $casts = [
         'pendidikan' => 'array',
         'fasilitas' => 'array',
+        'waktu_tunggu' => 'integer',
+        'jumlah_lamaran' => 'integer',
+        'jumlah_respon' => 'integer',
+        'jumlah_wawancara' => 'integer',
     ];
 
     // --- RELASI BARU UNTUK ADMIN ---

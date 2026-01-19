@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
-use App\Models\Kuisioner; // ⭐ PASTIKAN NAMA MODEL INI BENAR ⭐
+use App\Models\Kuisioner;
 
 class Alumni extends Model
 {
@@ -37,28 +37,21 @@ class Alumni extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    // --- RELASI DAN ACCESSOR BARU UNTUK KUESIONER ---
-
     /**
-     * Definisikan relasi ke Model Kuisioner.
-     * Asumsi: Model Kuisioner menggunakan foreign key 'user_id'.
+     * Relasi: alumni -> kuisioner (one-to-one by user_id)
      */
     public function kuesioner()
     {
         // Ganti Kuisioner::class jika nama Model Kuesioner Anda berbeda
         return $this->hasOne(Kuisioner::class, 'user_id', 'user_id');
     }
-
     /**
-     * Accessor untuk properti has_filled_questionnaire.
-     * Inilah yang akan memperbaiki status "Belum Mengisi" di tabel daftar alumni.
+     * Accessor untuk properti has_filled_questionnaire
      */
     public function getHasFilledQuestionnaireAttribute() : bool
     {
         return $this->kuesioner()->exists();
     }
-
-    // --- AKHIR RELASI DAN ACCESSOR BARU ---
 
     public function user()
     {

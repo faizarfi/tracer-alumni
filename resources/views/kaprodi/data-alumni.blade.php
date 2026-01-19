@@ -90,12 +90,15 @@
                 <p class="text-xl font-black text-blue-800 leading-none">{{ $alumniData->total() ?? 0 }} <span class="text-xs font-medium text-slate-400">Orang</span></p>
             </div>
             <i data-lucide="database" class="w-8 h-8 header-stat-icon"></i>
+            <a href="{{ route('kaprodi.alumni.exportPdf', request()->query()) }}" class="ml-4 inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl font-bold text-xs hover:bg-slate-700 transition-all" target="_blank">
+                <i data-lucide="download" class="w-4 h-4"></i> Unduh PDF
+            </a>
         </div>
     </header>
 
     {{-- FILTER SECTION --}}
     <section class="glass-card-alumni p-6 shadow-xl shadow-slate-200/50">
-        <form action="{{ route('kaprodi.alumni') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <form action="{{ route('kaprodi.alumni') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div class="md:col-span-2 relative group">
                 <i data-lucide="search" class="absolute left-4 top-3 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
                 <input type="search" name="cari" value="{{ request('cari') }}" placeholder="Cari Nama atau NIM Alumni..." class="input-filter pl-11">
@@ -109,6 +112,15 @@
                             <option value="{{ $year }}" {{ request('tahun') == $year ? 'selected' : '' }}>Angkatan {{ $year }}</option>
                         @endforeach
                     @endif
+                </select>
+                <i data-lucide="chevron-down" class="absolute right-4 top-3 w-4 h-4 text-slate-400 pointer-events-none"></i>
+            </div>
+
+            <div class="relative">
+                <select name="status_kerja" class="input-filter appearance-none cursor-pointer pr-10">
+                    <option value="">Semua Status Karir</option>
+                    <option value="1" {{ request('status_kerja') === '1' ? 'selected' : '' }}>Sudah Bekerja</option>
+                    <option value="0" {{ request('status_kerja') === '0' ? 'selected' : '' }}>Belum Bekerja</option>
                 </select>
                 <i data-lucide="chevron-down" class="absolute right-4 top-3 w-4 h-4 text-slate-400 pointer-events-none"></i>
             </div>

@@ -12,8 +12,7 @@ use Illuminate\Validation\Rule;
 
 class KaprodiController extends Controller
 {
-    // Tetap pakai daftar fakultas + prodi sebagai opsi pilihan,
-    // tapi tidak membatasi input prodi (validasi sudah dibebaskan).
+    // Daftar program/studi statis sebagai opsi untuk form
     private const PROGRAMS = [
         "Fakultas Adab dan Bahasa" => [
             "S1 - Bahasa dan Sastra Arab",
@@ -63,9 +62,6 @@ class KaprodiController extends Controller
         ]
     ];
 
-    /**
-     * Tampilkan daftar Kaprodi
-     */
     public function index(Request $request)
     {
         $allProdi = collect(self::PROGRAMS)->flatten();
@@ -86,9 +82,6 @@ class KaprodiController extends Controller
         return view('admin.kaprodi', compact('kaprodiList', 'allProdi'));
     }
 
-    /**
-     * Form tambah
-     */
     public function create()
     {
         $programs = self::PROGRAMS;
@@ -126,9 +119,6 @@ class KaprodiController extends Controller
         return redirect()->route('admin.kaprodi')->with('success', 'Data Kaprodi berhasil ditambahkan.');
     }
 
-    /**
-     * Form edit
-     */
     public function edit($id)
     {
         $kaprodi = User::where('role', 'kaprodi')->findOrFail($id);
@@ -174,9 +164,6 @@ class KaprodiController extends Controller
         return redirect()->route('admin.kaprodi')->with('success', 'Data Kaprodi berhasil diperbarui.');
     }
 
-    /**
-     * Hapus Kaprodi
-     */
     public function destroy($id)
     {
         try {
