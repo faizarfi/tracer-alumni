@@ -48,7 +48,7 @@
 <div class="py-16 px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen">
     <div class="max-w-6xl mx-auto">
 
-        {{-- Header Navigation --}}
+        {{-- Navigasi Header --}}
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
             <div>
                 <h1 class="text-4xl font-black text-slate-900 tracking-tight">Profil <span class="text-green-600">Alumni</span></h1>
@@ -61,7 +61,7 @@
             </a>
         </div>
 
-        {{-- Flash messages shown via SweetAlert in layout --}}
+        {{-- Pesan flash ditampilkan via SweetAlert di layout --}}
 
         <form action="{{ url('/user/profil') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -69,7 +69,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                {{-- Left Side: Avatar & Basic Stats --}}
+                {{-- Sisi Kiri: Avatar & Statistik Dasar --}}
                 <div class="lg:col-span-4 space-y-6">
                     <div class="glass-form-card p-8 rounded-[2.5rem] text-center shadow-xl shadow-slate-200/50">
                         <div class="relative inline-block mb-6">
@@ -91,7 +91,7 @@
                     </div>
                 </div>
 
-                {{-- Right Side: Form Details --}}
+                {{-- Sisi Kanan: Detail Formulir --}}
                 <div class="lg:col-span-8 space-y-8">
                     <div class="glass-form-card p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50">
 
@@ -118,7 +118,7 @@
                                 </div>
                             </div>
                             <div class="space-y-2">
-                                <label class="text-sm font-bold text-slate-700 ml-1">Asal Daerah</label>
+                                <label class="text-sm font-bold text-slate-700 ml-1">Alamat Lengkap</label>
                                 <div class="relative group input-group-focus border border-slate-200 rounded-2xl transition-all">
                                     <i data-lucide="map-pin" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
                                     <input type="text" name="asal" value="{{ old('asal', $alumni->asal ?? '') }}" class="w-full bg-transparent pl-12 pr-4 py-3.5 outline-none text-slate-700 font-medium" placeholder="Contoh: Surakarta" required>
@@ -212,7 +212,7 @@
                             </div>
                         </div>
 
-                        {{-- Footer Form --}}
+                        {{-- Footer Formulir --}}
                         <div class="mt-10 pt-8 border-t border-slate-100 flex justify-end">
                             <button type="submit" class="flex items-center gap-3 bg-green-700 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-green-900/20 hover:bg-green-800 transition-all active:scale-95">
                                 <i data-lucide="save" class="w-5 h-5"></i>

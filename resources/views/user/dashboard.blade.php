@@ -4,7 +4,7 @@
 
 @section('content')
 <style>
-    /* Premium Glassmorphism & Effects */
+    /* Efek Glassmorphism Premium & Animasi */
     .glass-card-white {
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(10px);
@@ -33,7 +33,7 @@
     }
     .animate-float { animation: float 5s ease-in-out infinite; }
 
-    /* Custom Warning Animation */
+    /* Animasi Peringatan Kustom */
     @keyframes pulse-soft {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.8; }

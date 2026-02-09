@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Faculty;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
+# Controller untuk mengelola Kaprodi (CRUD akun kaprodi, view, export)
 class KaprodiController extends Controller
 {
-    // Daftar program/studi statis sebagai opsi untuk form
+    # Daftar program/studi statis sebagai opsi untuk form
     private const PROGRAMS = [
         "Fakultas Adab dan Bahasa" => [
             "S1 - Bahasa dan Sastra Arab",
@@ -62,6 +64,7 @@ class KaprodiController extends Controller
         ]
     ];
 
+    # Menangani: index(Request $request) - daftar Kaprodi (admin)
     public function index(Request $request)
     {
         $allProdi = collect(self::PROGRAMS)->flatten();
@@ -82,15 +85,34 @@ class KaprodiController extends Controller
         return view('admin.kaprodi', compact('kaprodiList', 'allProdi'));
     }
 
+    # Menangani: create() - tampilkan form buat Kaprodi
     public function create()
     {
-        $programs = self::PROGRAMS;
+        # Ambil data fakultas + program studi dari database jika tersedia,
+        # fallback ke konstanta `PROGRAMS` jika tabel belum terisi.
+        $programs = [];
+
+        try {
+            $faculties = Faculty::with('programs')->orderBy('name')->get();
+            if ($faculties->isNotEmpty()) {
+                foreach ($faculties as $f) {
+                    $programs[$f->name] = $f->programs->pluck('name')->toArray();
+                }
+            } else {
+                $programs = self::PROGRAMS;
+            }
+        } catch (\Exception $e) {
+            # Jika gagal mengakses DB, gunakan konstanta sebagai cadangan
+            $programs = self::PROGRAMS;
+        }
+
         return view('admin.kaprodi-create', compact('programs'));
     }
 
     /**
      * Simpan Kaprodi baru
      */
+    # Menangani: store(Request $request) - simpan Kaprodi baru
     public function store(Request $request)
     {
         $request->validate([
@@ -100,6 +122,16 @@ class KaprodiController extends Controller
             'email'     => 'required|email|unique:users,email',
             'password'  => 'required|string|min:8|confirmed',
         ]);
+
+        # Cek apakah sudah ada kaprodi untuk kombinasi fakultas + prodi
+        $exists = User::where('role', 'kaprodi')
+            ->where('fakultas', $request->fakultas)
+            ->where('prodi', $request->prodi)
+            ->exists();
+
+        if ($exists) {
+            return back()->withInput()->withErrors(['prodi' => 'Sudah ada akun Kaprodi untuk Program Studi dan Fakultas ini.']);
+        }
 
         try {
             User::create([
@@ -119,6 +151,7 @@ class KaprodiController extends Controller
         return redirect()->route('admin.kaprodi')->with('success', 'Data Kaprodi berhasil ditambahkan.');
     }
 
+    # Menangani: edit($id) - tampilkan form edit Kaprodi
     public function edit($id)
     {
         $kaprodi = User::where('role', 'kaprodi')->findOrFail($id);
@@ -130,6 +163,7 @@ class KaprodiController extends Controller
     /**
      * Update Kaprodi
      */
+    # Menangani: update(Request $request, $id) - perbarui data Kaprodi
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -164,6 +198,7 @@ class KaprodiController extends Controller
         return redirect()->route('admin.kaprodi')->with('success', 'Data Kaprodi berhasil diperbarui.');
     }
 
+    # Menangani: destroy($id) - hapus akun Kaprodi
     public function destroy($id)
     {
         try {

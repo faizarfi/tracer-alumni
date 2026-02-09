@@ -37,12 +37,12 @@
 
         h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; }
 
-        /* Custom scrollbar */
+        /* Scrollbar Kustom */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: var(--primary-green); border-radius: 10px; }
 
-        /* Sidebar Glassmorphism */
+        /* Efek Glassmorphism Sidebar */
         #sidebar {
             position: fixed;
             top: 0;
@@ -66,7 +66,7 @@
             }
         }
 
-        /* Desktop collapsed state (icon-only) */
+        /* Mode terlipat desktop (ikon saja) */
         #sidebar.collapsed {
             width: 72px;
         }
@@ -82,7 +82,7 @@
         #sidebar.collapsed .mt-auto { padding-bottom: 1rem; }
         #sidebar.collapsed h2, #sidebar.collapsed p { display: none; }
 
-        /* Sidebar Nav Styling */
+        /* Gaya Navigasi Sidebar */
         .sidebar-link {
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
@@ -101,7 +101,7 @@
             font-weight: 700;
         }
 
-        /* Glass Header */
+        /* Header Glass */
         .glass-header {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Alumni;
 
+// Model Kuisioner: menyimpan jawaban kuisioner alumni dan relasi terkait
 class Kuisioner extends Model
 {
     use HasFactory;
@@ -54,6 +55,7 @@ class Kuisioner extends Model
      * Relasi ke model User.
      * Digunakan oleh AdminController untuk mendapatkan data pengguna (nama, email, dll.)
      */
+    // Relasi: kuisioner dimiliki oleh user (user_id)
     public function user()
     {
         // Asumsi foreign key di tabel 'kuisioners' adalah 'user_id'
@@ -65,6 +67,7 @@ class Kuisioner extends Model
     /**
      * Relasi ke model Alumni (opsional, tapi baik untuk keutuhan data)
      */
+    // Relasi: kuisioner dapat terhubung ke data alumni (opsional)
     public function alumni()
     {
         return $this->belongsTo(Alumni::class, 'user_id', 'user_id');

@@ -35,13 +35,13 @@
 
         h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; }
 
-        /* Custom Scrollbar */
+        /* Scrollbar Kustom */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: var(--primary-green); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--secondary-green); }
 
-        /* Sidebar Styling */
+        /* Gaya Sidebar */
         #sidebar {
             position: fixed;
             top: 0;
@@ -56,7 +56,7 @@
 
         #sidebar.open { transform: translateX(0); }
 
-        /* Collapsed sidebar for desktop */
+        /* Sidebar terlipat untuk desktop */
         #sidebar.collapsed { width: 88px; }
         #sidebar.collapsed .px-4 span { display: none; }
         #sidebar.collapsed .px-4 { padding-left: 0.9rem; padding-right: 0.9rem; justify-content: center; }
@@ -71,7 +71,7 @@
             }
         }
 
-        /* Sidebar Link Hover Effect */
+        /* Efek Hover Link Sidebar */
         .sidebar-link {
             transition: all 0.2s ease;
             border-left: 4px solid transparent;
@@ -89,7 +89,7 @@
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
 
-        /* Content Area Glassmorphism */
+        /* Area Konten Efek Glassmorphism */
         .glass-header {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);

@@ -19,13 +19,13 @@
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, .font-heading { font-family: 'Montserrat', sans-serif; }
 
-        /* Custom Scrollbar Modern */
+        /* Scrollbar Kustom Modern */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #059669; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #047857; }
 
-        /* Glassmorphism Effect */
+        /* Efek Glassmorphism */
         .glass-nav {
             background: rgba(6, 78, 59, 0.85);
             backdrop-filter: blur(12px);
@@ -33,7 +33,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Modern Hover Animation */
+        /* Animasi Hover Modern */
         .nav-link {
             position: relative;
             transition: all 0.3s;
@@ -50,7 +50,7 @@
         }
         .nav-link:hover::after { width: 100%; }
 
-        /* Card & Section Styles */
+        /* Gaya Kartu & Bagian */
         .footer-gradient {
             background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
         }
@@ -252,7 +252,7 @@
             }
         }, true);
 
-        // Server-side flash messages -> SweetAlert2
+        // Pesan flash dari server -> SweetAlert2
         @if(session('success'))
             Swal.fire({icon:'success', title:'Berhasil', text: @json(session('success'))});
         @endif

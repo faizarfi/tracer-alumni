@@ -9,6 +9,7 @@ use App\Notifications\ResetPasswordNotification;
 use App\Models\Alumni;
 use App\Models\Kuisioner;
 
+// Model User: representasi pengguna aplikasi dan relasi dasar
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -32,13 +33,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // Relasi ke tabel alumni
+    # Relasi ke tabel alumni
     public function alumni()
     {
         return $this->hasOne(Alumni::class);
     }
 
-    // Relasi ke tabel kuisioner
+    # Relasi ke tabel kuisioner
     public function kuisioner()
     {
         return $this->hasOne(Kuisioner::class);

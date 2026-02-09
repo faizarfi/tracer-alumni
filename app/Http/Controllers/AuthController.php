@@ -7,13 +7,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+// Controller untuk otentikasi: login, register, logout
 class AuthController extends Controller
 {
+    # Menangani: showLogin() - tampilkan form login
     public function showLogin()
     {
         return view('auth.login');
     }
 
+    # Menangani: login(Request $request) - proses autentikasi user
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -33,11 +36,13 @@ class AuthController extends Controller
         return redirect()->back()->withErrors('Email atau Password salah');
     }
 
+    # Menangani: showRegister() - tampilkan form pendaftaran
     public function showRegister()
     {
         return view('auth.register');
     }
 
+    # Menangani: register(Request $request) - proses pembuatan akun baru
     public function register(Request $request)
     {
         $request->validate([
@@ -72,6 +77,7 @@ class AuthController extends Controller
         return redirect()->route('user.dashboard');
     }
 
+    # Menangani: logout() - keluar dari sesi user
     public function logout()
     {
         Auth::logout();

@@ -3,7 +3,7 @@
 @section('title', 'Tambah Kaprodi Baru')
 
 @section('header')
-    {{-- Header/Title Section --}}
+    {{-- Bagian Header/Judul --}}
     <header class="mb-6 p-3 bg-white rounded-xl shadow-md flex items-center justify-between animate-fade-in">
         {{-- TOMBOL TOGGLE SIDEBAR (Diperlukan untuk Mobile) - Tombol ini seharusnya ada di layout induk atau di luar @section, tapi kita pertahankan strukturnya dari input Anda. --}}
         <button id="sidebarToggle" class="mr-3 text-emerald-700 md:hidden p-2 rounded hover:bg-emerald-100 transition duration-150" aria-label="Toggle Menu">
@@ -26,7 +26,7 @@
 
     <div class="container mx-auto bg-white rounded-xl shadow-md border border-gray-200 p-4 flex-1 max-w-4xl">
 
-        {{-- Flash messages handled by layout (SweetAlert) --}}
+        {{-- Pesan flash ditangani oleh layout (SweetAlert) --}}
         @if ($errors->any())
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 animate-fade-in" role="alert">
                 <p class="font-semibold">Mohon periksa kesalahan berikut:</p>
@@ -62,21 +62,29 @@
                 </div>
 
                 <div>
-                    <label for="prodi" class="block text-sm font-medium text-gray-700 mb-1">Program Studi yang Diampu <span class="text-red-500">*</span></label>
-                    <input type="text" name="prodi" id="prodi" value="{{ old('prodi') }}" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm text-gray-900 hover:border-emerald-400"
-                        placeholder="Contoh: Manajemen Pendidikan Islam"/>
-                </div>
-
-                <div>
                     <label for="fakultas" class="block text-sm font-medium text-gray-700 mb-1">Fakultas <span class="text-red-500">*</span></label>
                     <select name="fakultas" id="fakultas" required
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm text-gray-900 hover:border-emerald-400">
                         <option value="" disabled {{ old('fakultas') ? '' : 'selected' }}>Pilih Fakultas</option>
-                        {{-- Options akan diisi oleh JavaScript --}}
+                        @foreach(array_keys($programs ?? []) as $fak)
+                            <option value="{{ $fak }}" {{ old('fakultas') === $fak ? 'selected' : '' }}>{{ $fak }}</option>
+                        @endforeach
                     </select>
                 </div>
-            </div> {{-- End Data Dasar --}}
+
+                <div>
+                    <label for="prodi" class="block text-sm font-medium text-gray-700 mb-1">Program Studi yang Diampu <span class="text-red-500">*</span></label>
+                    <select name="prodi" id="prodi" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm text-gray-900 hover:border-emerald-400">
+                        <option value="" disabled {{ old('prodi') ? '' : 'selected' }}>Pilih Program Studi</option>
+                        @if(old('fakultas') && isset($programs[old('fakultas')]))
+                            @foreach($programs[old('fakultas')] as $p)
+                                <option value="{{ $p }}" {{ old('prodi') === $p ? 'selected' : '' }}>{{ $p }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div> {{-- Akhir Data Dasar --}}
 
 
             <div class="space-y-4 p-4 border border-yellow-100 rounded-lg bg-yellow-50">
@@ -101,7 +109,7 @@
                         <i data-lucide="eye" class="w-4 h-4"></i>
                     </button>
                 </div>
-            </div> {{-- End Data Akun --}}
+            </div> {{-- Akhir Data Akun --}}
 
 
             <div class="flex justify-between pt-6">
@@ -121,34 +129,31 @@
 @endsection
 
 @push('scripts')
-    <script>
-        // Data Fakultas yang akan di-populate
-        const FAKULTAS_LIST = [
-            "Fakultas Adab dan Bahasa",
-            "Fakultas Ekonomi Dan Bisnis Islam",
-            "Fakultas Ilmu Tarbiyah",
-            "Fakultas Ushuluddin dan Dakwah",
-            "Fakultas Syariah"
-        ];
+        <script>
+        // PROGRAMS dikirim dari controller
+        const PROGRAMS = @json($programs ?? []);
         const SELECTED_FAKULTAS = "{{ old('fakultas') ?? '' }}";
+        const SELECTED_PRODI = "{{ old('prodi') ?? '' }}";
 
-        function populateFakultas() {
-            const fakultasSelect = document.getElementById('fakultas');
-            if (!fakultasSelect) return;
+        function populateProdiForFakultas(fakultas) {
+            const prodiSelect = document.getElementById('prodi');
+            if (!prodiSelect) return;
 
-            // Clear all dynamic options except the placeholder
-            while (fakultasSelect.options.length > 1) {
-                fakultasSelect.remove(1);
+            // Clear existing dynamic options except placeholder
+            while (prodiSelect.options.length > 1) {
+                prodiSelect.remove(1);
             }
 
-            FAKULTAS_LIST.forEach(fakultasName => {
+            if (!fakultas || !PROGRAMS[fakultas]) return;
+
+            PROGRAMS[fakultas].forEach(p => {
                 const option = document.createElement('option');
-                option.value = fakultasName;
-                option.textContent = fakultasName;
-                if (SELECTED_FAKULTAS && SELECTED_FAKULTAS === fakultasName) {
+                option.value = p;
+                option.textContent = p;
+                if (SELECTED_PRODI && SELECTED_PRODI === p) {
                     option.selected = true;
                 }
-                fakultasSelect.appendChild(option);
+                prodiSelect.appendChild(option);
             });
         }
 
@@ -174,8 +179,18 @@
 
         // --- Init Logic ---
         document.addEventListener('DOMContentLoaded', function() {
-            // Populate fakultas dropdown
-            populateFakultas();
+            // Jika ada fakultas/old selected, ensure prodi list di-populate
+            if (SELECTED_FAKULTAS) {
+                populateProdiForFakultas(SELECTED_FAKULTAS);
+            }
+
+            // Ketika fakultas berubah, isi ulang prodi
+            const fakultasSelect = document.getElementById('fakultas');
+            if (fakultasSelect) {
+                fakultasSelect.addEventListener('change', function() {
+                    populateProdiForFakultas(this.value);
+                });
+            }
 
             // Setup Password Toggle untuk kedua field password
             setupPasswordToggle('togglePassword', 'password');

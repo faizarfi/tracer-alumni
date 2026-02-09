@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+// Model Community: representasi komunitas eksternal/tautan
 class Community extends Model
 {
     use HasFactory;

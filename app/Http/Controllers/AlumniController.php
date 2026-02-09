@@ -11,10 +11,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Concerns\PdfGenerator;
 
+// Controller untuk mengelola data Alumni (user & admin)
 class AlumniController extends Controller
 {
     use PdfGenerator;
-    // Fungsi untuk menghapus alumni
+    # Fungsi untuk menghapus alumni
+    # Menangani: destroy($user_id)
     public function destroy($user_id)
     {
         try {
@@ -33,6 +35,7 @@ class AlumniController extends Controller
         }
     }
 
+    # Menangani: form() - tampilkan form profil alumni untuk user
     public function form()
     {
         $alumni = Alumni::where('user_id', Auth::id())->first() ?? tap(new Alumni(), fn($a) => $a->user_id = Auth::id());
@@ -50,6 +53,7 @@ class AlumniController extends Controller
     /**
      * Menyimpan atau memperbarui profil alumni (SISI USER)
      */
+    # Menangani: save(Request $request) - simpan/perbarui profil alumni
     public function save(Request $request)
     {
         // Tentukan aturan validasi
@@ -146,6 +150,7 @@ class AlumniController extends Controller
     /**
      * Menampilkan data alumni yang difilter khusus untuk Program Studi Kaprodi.
      */
+    // Menangani: kaprodiAlumni(Request $request) - daftar alumni untuk Kaprodi
     public function kaprodiAlumni(Request $request)
     {
         // Mendapatkan Program Studi Kaprodi yang sedang login
@@ -190,6 +195,7 @@ class AlumniController extends Controller
     /**
      * Ekspor data alumni khusus untuk Kaprodi (filter berdasarkan prodi yang login)
      */
+    // Menangani: kaprodiExportPdf(Request $request) - ekspor PDF alumni untuk Kaprodi
     public function kaprodiExportPdf(Request $request)
     {
         $prodi = Auth::user()->prodi ?? null;
@@ -224,6 +230,7 @@ class AlumniController extends Controller
     // =========================================================
 
     // Menampilkan daftar alumni untuk admin
+    // Menangani: index(Request $request) - daftar alumni (admin)
     public function index(Request $request)
     {
         $query = Alumni::query();
@@ -267,6 +274,7 @@ class AlumniController extends Controller
     }
 
     // Fungsi untuk pencarian alumni dari sisi user
+    // Menangani: search(Request $request) - pencarian alumni (user)
     public function search(Request $request)
     {
         $query = $request->input('query');
@@ -320,6 +328,7 @@ class AlumniController extends Controller
 
 
     // Statistik alumni bekerja dan belum bekerja
+    // Menangani: statistics(Request $request)
     public function statistics(Request $request)
     {
         $workingStats = Alumni::select(
@@ -333,6 +342,7 @@ class AlumniController extends Controller
     }
 
     // Menampilkan form untuk mengedit data alumni
+    // Menangani: edit($user_id) - tampilkan form edit (admin)
     public function edit($user_id)
     {
         $alumni = Alumni::where('user_id', $user_id)->firstOrFail();
@@ -344,6 +354,7 @@ class AlumniController extends Controller
     }
 
     // Fungsi untuk update data alumni (SISI ADMIN)
+    // Menangani: update(Request $request, $user_id) - update data alumni (admin)
     public function update(Request $request, $user_id)
     {
         $request->validate([
@@ -378,6 +389,7 @@ class AlumniController extends Controller
     }
 
     // Fungsi untuk ekspor alumni ke CSV
+    // Menangani: exportCsv() - ekspor data alumni ke CSV
     public function exportCsv()
     {
         $alumnis = Alumni::all();
@@ -543,7 +555,6 @@ class AlumniController extends Controller
     }
 
     /**
-     * ✅ BARU: Mengembalikan testimoni ke status 'pending' (Review).
      * Digunakan ketika admin ingin mengembalikan dari Rejected atau Approved ke Review.
      */
     public function pendingTestimonial($user_id)

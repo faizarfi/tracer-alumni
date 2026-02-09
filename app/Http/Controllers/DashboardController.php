@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Concerns\PdfGenerator;
 
+// Controller dashboard untuk Admin/Kaprodi/User — menyediakan metrik dan laporan singkat
 class DashboardController extends Controller
 {
     use PdfGenerator;
@@ -21,24 +22,25 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\View\View
      */
+    # Menangani: admin() - tampilan dashboard untuk admin
     public function admin()
     {
-        // Total Alumni terdaftar
+        # Total Alumni terdaftar
         $totalAlumni = Alumni::count();
 
-        // Alumni yang sudah bekerja (sudah_bekerja = 1)
+        # Alumni yang sudah bekerja (sudah_bekerja = 1)
         $bekerja = Alumni::where('sudah_bekerja', 1)->count();
 
-        // Alumni yang belum bekerja (sudah_bekerja = 0)
+        # Alumni yang belum bekerja (sudah_bekerja = 0)
         $belumBekerja = Alumni::where('sudah_bekerja', 0)->count();
 
-        // Jumlah responden Kuisioner (diambil dari user_id yang unik di tabel Kuisioner)
+        # Jumlah responden Kuisioner (diambil dari user_id yang unik di tabel Kuisioner)
         $isiKuisioner = Kuisioner::distinct('user_id')->count();
 
-        // 5 Alumni Terbaru yang terdaftar
+        # 5 Alumni Terbaru yang terdaftar
         $latestAlumni = Alumni::latest()->take(5)->get();
 
-        // 3 Testimoni Terbaru yang menunggu review/persetujuan (diasumsikan testimonial_status 'pending' atau null)
+        # 3 Testimoni Terbaru yang menunggu review/persetujuan (diasumsikan testimonial_status 'pending' atau null)
         $latestTestimonials = Alumni::whereNotNull('testimonial_quote')
                                     ->where(function ($query) {
                                         $query->where('testimonial_status', 'pending')
@@ -48,7 +50,7 @@ class DashboardController extends Controller
                                     ->take(3)
                                     ->get();
 
-        // Pengumuman terbaru untuk admin (cek dan kelola)
+        # Pengumuman terbaru untuk admin (cek dan kelola)
         $announcements = Announcement::latest('published_at')->take(5)->get();
 
         return view('admin.dashboard', compact(
@@ -68,24 +70,25 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\View\View
      */
+    # Menangani: kaprodi() - tampilan dashboard untuk Kaprodi
     public function kaprodi()
     {
-        // Ambil data user yang sedang login
+        # Ambil data user yang sedang login
         $user = Auth::user();
         $prodiName = trim($user->prodi ?? '') ?: 'Program Studi Tidak Ditemukan';
 
-        // 1. Metrik Utama
-        // Menggunakan query langsung agar data benar-benar sinkron dengan filter prodi.
+        # 1. Metrik Utama
+        # Menggunakan query langsung agar data benar-benar sinkron dengan filter prodi.
         $totalAlumni = Alumni::where('jurusan', $prodiName)->count();
         $alumniUserIds = Alumni::where('jurusan', $prodiName)->pluck('user_id');
 
-        // Jumlah Responden Kuisioner dari Prodi ini
+        # Jumlah Responden Kuisioner dari Prodi ini
         $totalResponden = Kuisioner::whereIn('user_id', $alumniUserIds)
                                      ->distinct('user_id')
                                      ->count();
 
-        // 2. Data Grafik 1: Alumni Berdasarkan Tahun Keluar
-        // Diubah menjadi ASC (urut naik) agar grafik tahun tampil dari lama ke baru.
+        # 2. Data Grafik 1: Alumni Berdasarkan Tahun Keluar
+        # Diubah menjadi ASC (urut naik) agar grafik tahun tampil dari lama ke baru.
         $alumniByYear = Alumni::where('jurusan', $prodiName)
             ->whereNotNull('tahun_keluar')
             ->select('tahun_keluar', DB::raw('count(*) as total'))
@@ -94,40 +97,40 @@ class DashboardController extends Controller
             ->pluck('total', 'tahun_keluar')
             ->toArray();
 
-        // 3. Data Grafik 2: Distribusi Status Kerja
+        # 3. Data Grafik 2: Distribusi Status Kerja
         $statusKerjaResult = Alumni::where('jurusan', $prodiName)
             ->select('sudah_bekerja', DB::raw('count(*) as total'))
             ->groupBy('sudah_bekerja')
             ->pluck('total', 'sudah_bekerja')
             ->toArray();
 
-        // Memastikan array memiliki kunci '0' dan '1' agar chart tidak error jika salah satu data kosong.
-        // Menangani kemungkinan key berupa string atau integer dari database.
+        # Memastikan array memiliki kunci '0' dan '1' agar chart tidak error jika salah satu data kosong.
+        # Menangani kemungkinan key berupa string atau integer dari database.
         $statusKerja = [
             '1' => (int)($statusKerjaResult[1] ?? $statusKerjaResult['1'] ?? 0), // Bekerja
             '0' => (int)($statusKerjaResult[0] ?? $statusKerjaResult['0'] ?? 0), // Belum Bekerja
         ];
 
-        // 4a. Rata-rata waktu mendapat kerja (dalam bulan) — gunakan field `waktu_tunggu` dari Kuisioner
+        # 4a. Rata-rata waktu mendapat kerja (dalam bulan) — gunakan field `waktu_tunggu` dari Kuisioner
         $avgTimeRaw = Kuisioner::whereIn('user_id', $alumniUserIds)
                         ->whereNotNull('waktu_tunggu')
                         ->where('waktu_tunggu', '!=', '')
                         ->avg(DB::raw('CAST(waktu_tunggu AS SIGNED)'));
         $avgTimeToJob = $avgTimeRaw ? round($avgTimeRaw, 1) : null;
 
-        // 4b. Tingkat serapan kerja (%)
+        # 4b. Tingkat serapan kerja (%)
         $employabilityRate = 0;
         if ($totalAlumni > 0) {
             $employabilityRate = round((($statusKerja['1'] ?? 0) / $totalAlumni) * 100, 1);
         }
 
-        // 4c. Responden baru 30 hari
+        # 4c. Responden baru 30 hari
         $recentRespondents30d = Kuisioner::whereIn('user_id', $alumniUserIds)
                                     ->where('created_at', '>=', now()->subDays(30))
                                     ->distinct('user_id')
                                     ->count('user_id');
 
-        // 4d. Recent activity: gabungkan pengisian kuesioner dan pendaftaran alumni (urut berdasarkan waktu)
+        # 4d. Recent activity: gabungkan pengisian kuesioner dan pendaftaran alumni (urut berdasarkan waktu)
         $recentKuisioners = Kuisioner::whereIn('user_id', $alumniUserIds)
                                 ->latest()
                                 ->take(8)
@@ -143,40 +146,42 @@ class DashboardController extends Controller
         $recentAlumni->each(fn($a) => $recentActivity->push(['text' => ($a->nama ?? 'Alumni') . ' terdaftar', 'time' => $a->created_at->diffForHumans(), 'ts' => $a->created_at->getTimestamp()]));
         $recentActivity = $recentActivity->sortByDesc('ts')->values()->take(8)->map(fn($i) => ['text' => $i['text'], 'time' => $i['time']])->toArray();
 
-        // 4. Agregasi data yang akan dikirim ke view
+        # 4. Agregasi data yang akan dikirim ke view
         $kaprodiData = [
             'prodi_name' => $prodiName,
             'total_alumni' => $totalAlumni,
             'total_responden' => $totalResponden,
-            // Data Grafik
+            # Data Grafik
             'alumni_by_year' => $alumniByYear,
             'status_kerja' => $statusKerja,
-            // Additional insights
+            # Additional insights
             'avg_time_to_job' => $avgTimeToJob,
             'employability_rate' => $employabilityRate,
             'recent_respondents_30d' => $recentRespondents30d,
             'recent_activity' => $recentActivity,
         ];
 
-        // 5. Tampilkan view dashboard Kaprodi
+        # 5. Tampilkan view dashboard Kaprodi
         return view('kaprodi.dashboard', compact('kaprodiData'));
     }
 
     /**
      * Tampilkan halaman bantuan/panduan untuk pengguna Kaprodi.
      */
+    # Menangani: kaprodiHelp(Request $request) - halaman bantuan Kaprodi
     public function kaprodiHelp(Request $request)
     {
-        // Asumsi view 'kaprodi.help' berisi FAQ, panduan penggunaan dashboard, dll.
+        # Asumsi view 'kaprodi.help' berisi FAQ, panduan penggunaan dashboard, dll.
         return view('kaprodi.help');
     }
 
     /**
      * Download printable checklist PDF for Kaprodi (guarded: requires barryvdh/laravel-dompdf).
      */
+    # Menangani: kaprodiHelpPdf(Request $request) - unduh checklist PDF Kaprodi
     public function kaprodiHelpPdf(Request $request)
     {
-        // Blade view: resources/views/kaprodi/help-checklist.blade.php
+        # Blade view: resources/views/kaprodi/help-checklist.blade.php
         try {
             return $this->generatePdf('kaprodi.help-checklist', [], 'checklist-kaprodi.pdf');
         } catch (\Throwable $e) {
@@ -186,7 +191,7 @@ class DashboardController extends Controller
         return redirect()->route('kaprodi.help')->with('error', 'PDF export tidak tersedia — instal DomPDF atau hubungi tim IT.');
     }
 
-    // PDF generation provided by PdfGenerator trait
+    # PDF generation provided by PdfGenerator trait
 
     /**
      * Tampilkan dashboard untuk pengguna umum (Alumni/Guest).
@@ -194,28 +199,29 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\View\View
      */
+    # Menangani: user() - tampilan dashboard publik/user
     public function user()
     {
-        // Statistik publik
+        # Statistik publik
         $bekerja = Alumni::where('sudah_bekerja', 1)->count();
         $isiKuisioner = Kuisioner::distinct('user_id')->count();
 
-        // 8 item terbaru dari Galeri
+        # 8 item terbaru dari Galeri
         $galleries = Gallery::latest()->take(8)->get();
 
-        // Pengumuman terbaru (ditampilkan di dashboard)
+        # Pengumuman terbaru (ditampilkan di dashboard)
         $announcements = \App\Models\Announcement::latest('published_at')->take(3)->get();
 
-        // Komunitas aktif untuk ditampilkan di dashboard user
+        # Komunitas aktif untuk ditampilkan di dashboard user
         $communities = \App\Models\Community::where('active', true)->orderBy('sort_order')->get();
 
-        // Testimoni yang sudah disetujui ('approved')
+        # Testimoni yang sudah disetujui ('approved')
         $approvedTestimonials = Alumni::whereNotNull('testimonial_quote')
                                       ->where('testimonial_status', 'approved')
                                       ->inRandomOrder() // Acak agar lebih variatif
                                       ->get();
 
-        // Logika duplikasi data untuk carousel di view, jika jumlah testimoni kurang.
+        # Logika duplikasi data untuk carousel di view, jika jumlah testimoni kurang.
         $testimonials = $approvedTestimonials->isNotEmpty()
                                           ? $approvedTestimonials->merge($approvedTestimonials)
                                           : collect();

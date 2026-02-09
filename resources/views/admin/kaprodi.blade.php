@@ -77,7 +77,7 @@
         </a>
     </header>
 
-    {{-- Flash messages handled by layout (SweetAlert) --}}
+    {{-- Pesan flash ditangani oleh layout (SweetAlert) --}}
 
     {{-- SEARCH & FILTER --}}
 <section class="p-8 bg-white rounded-[2rem] shadow-xl border border-slate-200 animate-fade-in">

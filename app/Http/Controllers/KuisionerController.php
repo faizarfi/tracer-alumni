@@ -11,14 +11,16 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Concerns\PdfGenerator;
 
+# Controller untuk mengelola kuesioner: form, simpan, laporan, dan export
 class KuisionerController extends Controller
 {
     use PdfGenerator;
+    # Menampilkan form kuesioner untuk user yang sedang login
     public function form()
     {
         $userId = Auth::id();
 
-        // Cek apakah user sudah mengisi profil di tabel alumnis
+        # Cek apakah user sudah mengisi profil di tabel alumnis
         $alumni = Alumni::where('user_id', $userId)->first();
 
         if (!$alumni) {
@@ -30,6 +32,7 @@ class KuisionerController extends Controller
         return view('user.kuisioner-form', compact('kuisioner'));
     }
 
+    # Menyimpan atau memperbarui jawaban kuesioner dari user
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -46,10 +49,10 @@ class KuisionerController extends Controller
             'jenis_pekerjaan' => 'nullable|string',
             'alamat_perusahaan' => 'nullable|string',
             'jawaban' => 'required|string',
-            // Tambahkan validasi untuk kolom kuesioner lainnya di sini
-            'relevansi_pekerjaan' => 'nullable|string', // Untuk Chart P1
-            'skor_kepuasan' => 'nullable|string',      // Untuk Chart P2
-            // Asumsi field lain dari view detail (seperti kritik_saran) harus divalidasi juga
+            # Tambahkan validasi untuk kolom kuesioner lainnya di sini
+            'relevansi_pekerjaan' => 'nullable|string', # Untuk Chart P1
+            'skor_kepuasan' => 'nullable|string',      # Untuk Chart P2
+            # Asumsi field lain dari view detail (seperti kritik_saran) harus divalidasi juga
             'kritik_saran' => 'nullable|string|max:1000',
         ]);
 
@@ -63,7 +66,7 @@ class KuisionerController extends Controller
             $data['nim'] = $alumniProfile->nim ?? null;
         }
 
-        // Menghapus kritik_saran dari data jika ada, karena disimpan di kolom 'jawaban'
+        # Menghapus kritik_saran dari data jika ada, karena disimpan di kolom 'jawaban'
         unset($data['kritik_saran']);
 
         Kuisioner::updateOrCreate(['user_id' => $userId], $data);
@@ -71,17 +74,18 @@ class KuisionerController extends Controller
         return redirect()->back()->with('success', 'Jawaban Anda berhasil disimpan. Terima kasih!');
     }
 
-    // --- METODE BARU UNTUK KAPRODI ---
+    # --- METODE BARU UNTUK KAPRODI ---
 
     /**
      * Menampilkan detail kuesioner alumni spesifik (untuk Kaprodi).
      */
+    # Menampilkan detail kuesioner seorang alumni untuk Kaprodi
     public function showKaprodiDetail(string $alumni_id)
     {
-        // 1. Ambil data Alumni (untuk nama, NIM, dll. & relasi kuesioner)
+        # 1. Ambil data Alumni (untuk nama, NIM, dll. & relasi kuesioner)
         $alumni = Alumni::where('user_id', $alumni_id)->firstOrFail();
 
-        // 2. Ambil data Kuesioner (jawaban) melalui relasi
+        # 2. Ambil data Kuesioner (jawaban) melalui relasi
         $kuesioner = $alumni->kuesioner;
 
         if (!$kuesioner) {
@@ -94,28 +98,29 @@ class KuisionerController extends Controller
     /**
      * Tampilkan Laporan Hasil Kuesioner yang disaring untuk Kaprodi yang sedang login.
      */
+    # Menyusun dan menampilkan laporan kuesioner yang disaring untuk Kaprodi
     public function kaprodiReport(Request $request)
     {
         $kaprodi = Auth::user();
         $kaprodiProdi = $kaprodi->prodi;
 
-        // 1. Ambil ID Alumni yang memiliki jurusan yang sama dengan Kaprodi
+        # 1. Ambil ID Alumni yang memiliki jurusan yang sama dengan Kaprodi
         $alumniIds = Alumni::where('jurusan', $kaprodiProdi)
                            ->pluck('user_id');
 
-        // 2. Ambil data kuesioner yang hanya berasal dari alumni Prodi ini
+        # 2. Ambil data kuesioner yang hanya berasal dari alumni Prodi ini
         $kuisionerData = Kuisioner::whereIn('user_id', $alumniIds)->get();
 
-        // Hitung agregat tanpa menyisipkan nilai dummy.
-        // 3. Agregasi Data
+        # Hitung agregat tanpa menyisipkan nilai dummy.
+        # 3. Agregasi Data
         $totalResponden = $kuisionerData->count();
         $totalAlumniProdi = Alumni::where('jurusan', $kaprodiProdi)->count();
 
-        // Robust parsing: terima numeric string, JSON-encoded, teks berlabel, atau ambil dari bidang `jawaban`
+        # Robust parsing: terima numeric string, JSON-encoded, teks berlabel, atau ambil dari bidang `jawaban`
         $validScores = $kuisionerData->map(function ($k) {
             $v = $k->skor_kepuasan;
 
-            // Helper untuk mapping label teks ke angka (Indonesia)
+            # Helper untuk mapping label teks ke angka (Indonesia)
             $mapLabel = function ($s) {
                 if ($s === null) return null;
                 $t = strtolower(trim((string) $s));
@@ -132,13 +137,13 @@ class KuisionerController extends Controller
                 return null;
             };
 
-            // Jika sudah ada dan bernilai
+            # Jika sudah ada dan bernilai
             if ($v !== null && $v !== '') {
                 if (is_numeric($v)) return (float) $v;
                 if (is_string($v) && preg_match('/\d+(?:\.\d+)?/', $v, $m)) return (float) $m[0];
                 $mapped = $mapLabel($v);
                 if ($mapped) return (float) $mapped;
-                // coba decode JSON jika ada
+                # coba decode JSON jika ada
                 if (is_string($v) && (str_starts_with($v, '[') || str_starts_with($v, '{'))) {
                     $decoded = json_decode($v, true);
                     if (is_numeric($decoded)) return (float) $decoded;
@@ -152,14 +157,14 @@ class KuisionerController extends Controller
                 }
             }
 
-            // Jika tidak ada di kolom skor_kepuasan, coba ambil dari kolom `jawaban`
+            # Jika tidak ada di kolom skor_kepuasan, coba ambil dari kolom `jawaban`
             $jaw = $k->jawaban ?? null;
             if ($jaw) {
                 if (is_string($jaw)) {
-                    // Jika JSON-encoded, traverse untuk cari kunci yang mengandung 'skor' atau 'kepuasan'
+                    # Jika JSON-encoded, traverse untuk cari kunci yang mengandung 'skor' atau 'kepuasan'
                     $decoded = json_decode($jaw, true);
                     if (is_array($decoded)) {
-                        // cari langsung dengan beberapa kemungkinan key
+                        # cari langsung dengan beberapa kemungkinan key
                         $keys = ['skor_kepuasan','skor','kepuasan','kepuasan_skor','nilai_kepuasan'];
                         foreach ($keys as $key) {
                             if (isset($decoded[$key])) {
@@ -170,7 +175,7 @@ class KuisionerController extends Controller
                                 if (is_string($cand) && preg_match('/\d+(?:\.\d+)?/', $cand, $m)) return (float) $m[0];
                             }
                         }
-                        // jika belum ditemukan, cari secara rekursif nilai numerik atau label
+                        # jika belum ditemukan, cari secara rekursif nilai numerik atau label
                         $found = null;
                         $iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($decoded));
                         foreach ($iterator as $val) {
@@ -180,7 +185,7 @@ class KuisionerController extends Controller
                         }
                         if ($found !== null) return $found;
                     } else {
-                        // plain text — cari angka atau label
+                        # plain text — cari angka atau label
                         if (preg_match('/\d+(?:\.\d+)?/', $jaw, $m)) return (float) $m[0];
                         $mapped = $mapLabel($jaw);
                         if ($mapped) return (float) $mapped;
@@ -193,9 +198,9 @@ class KuisionerController extends Controller
 
         $rataRataKepuasan = $validScores->count() ? round($validScores->avg(), 2) : 0;
 
-        // Untuk debugging: nilai unik yang tersimpan di DB untuk kolom skor_kepuasan
+        # Untuk debugging: nilai unik yang tersimpan di DB untuk kolom skor_kepuasan
         $distinctScores = $kuisionerData->pluck('skor_kepuasan')->unique()->values()->all();
-        // Nilai unik untuk kolom relevansi_pekerjaan (bisa berupa '1','0','Ya','Tidak', dsb.)
+        # Nilai unik untuk kolom relevansi_pekerjaan (bisa berupa '1','0','Ya','Tidak', dsb.)
         $distinctRelevansi = $kuisionerData->pluck('relevansi_pekerjaan')->unique()->values()->all();
 
         $aggregateData = [
@@ -206,7 +211,7 @@ class KuisionerController extends Controller
             'distinct_relevansi_values' => $distinctRelevansi,
         ];
 
-        // Tampilkan view laporan kuesioner Kaprodi
+        # Tampilkan view laporan kuesioner Kaprodi
         return view('kaprodi.kuisioner-report', compact('kuisionerData', 'aggregateData', 'kaprodiProdi'));
     }
 
@@ -214,6 +219,7 @@ class KuisionerController extends Controller
      * Export data kuesioner yang disaring khusus untuk Prodi Kaprodi.
      * @return StreamedResponse
      */
+    # Mengekspor data kuesioner Prodi Kaprodi ke format CSV
     public function exportKaprodiCsv(): StreamedResponse
     {
         $kaprodiProdi = Auth::user()->prodi;
@@ -272,6 +278,7 @@ class KuisionerController extends Controller
     /**
      * Ekspor laporan kuesioner Kaprodi menjadi PDF (menggunakan DomPDF jika tersedia)
      */
+    # Mengekspor data kuesioner Prodi Kaprodi ke PDF (jika tersedia)
     public function exportKaprodiPdf()
     {
         $kaprodiProdi = Auth::user()->prodi;
@@ -281,7 +288,7 @@ class KuisionerController extends Controller
 
         $kuisioners = Kuisioner::whereIn('user_id', $alumniIds)->with('user')->get();
 
-        // Build aggregated maps for pendidikan and fasilitas
+        # Build aggregated maps for pendidikan and fasilitas
         $agg = function($items, $field) {
             $out = [];
             foreach ($items as $it) {
@@ -292,7 +299,7 @@ class KuisionerController extends Controller
                 }
 
                 if (is_array($raw)) {
-                    // associative (question => answer) or numeric-list
+                    # associative (question => answer) or numeric-list
                     $isAssoc = array_keys($raw) !== range(0, count($raw) - 1);
                     if ($isAssoc) {
                         foreach ($raw as $q => $ans) {
@@ -302,7 +309,7 @@ class KuisionerController extends Controller
                             $out[$qKey][$aVal] = ($out[$qKey][$aVal] ?? 0) + 1;
                         }
                     } else {
-                        // list of values — aggregate under generic items
+                        # list of values — aggregate under generic items
                         foreach ($raw as $idx => $val) {
                             $qKey = 'Item ' . ($idx + 1);
                             $aVal = is_array($val) ? implode(', ', $val) : (string) ($val ?? '-');
@@ -324,16 +331,17 @@ class KuisionerController extends Controller
             $filename = 'kuisioner_' . Str::slug($kaprodiProdi) . '_' . now()->format('Ymd_His') . '.pdf';
             return $this->generatePdf('kaprodi.kuisioner-pdf', $data, $filename);
         } catch (\Throwable $e) {
-            // fallback
+            # fallback
         }
 
         return redirect()->back()->with('error', 'Fitur PDF belum tersedia. Jalankan: composer require barryvdh/laravel-dompdf.');
     }
 
-    // PDF generation provided by PdfGenerator trait
+    # PDF generation provided by PdfGenerator trait
 
-    // --- METODE LAMA (ADMIN) ---
+    # --- METODE LAMA (ADMIN) ---
 
+    # Menampilkan daftar kuesioner untuk admin dengan pencarian dan sorting
     public function adminIndex(Request $request)
     {
         $search = $request->input('search');
@@ -362,6 +370,7 @@ class KuisionerController extends Controller
         return view('admin.kuisioner-index', compact('kuisioners', 'search', 'sort'));
     }
 
+    # Mengekspor semua data kuesioner ke format CSV (untuk admin)
     public function exportCsv(): StreamedResponse
     {
         $kuisioners = Kuisioner::with('user')->get();
@@ -411,6 +420,7 @@ class KuisionerController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
+    # Menampilkan detail kuesioner tertentu (untuk admin)
     public function show($id)
     {
         $kuisioner = Kuisioner::with('user')->findOrFail($id);
@@ -419,7 +429,8 @@ class KuisionerController extends Controller
 
     public function destroy($id)
     {
-        // Logika hapus kuesioner
+        # Menghapus data kuesioner berdasarkan ID
+        # (penanganan error tetap sama)
         try {
             Kuisioner::destroy($id);
             return redirect()->route('admin.kuisioner')->with('success', 'Data kuesioner berhasil dihapus.');

@@ -28,7 +28,7 @@
 
     <div class="container mx-auto max-w-4xl bg-white rounded-2xl shadow-xl border border-gray-200 p-6 md:p-8 animate-fade-in">
 
-        {{-- Flash messages handled by layout (SweetAlert) --}}
+        {{-- Pesan flash ditangani oleh layout (SweetAlert) --}}
 
         <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
             <i data-lucide="user-cog" class="text-emerald-600"></i>

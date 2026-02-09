@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Kuisioner;
 
+# Model Alumni: representasi data alumni dan relasinya
 class Alumni extends Model
 {
     use HasFactory;
@@ -40,14 +41,16 @@ class Alumni extends Model
     /**
      * Relasi: alumni -> kuisioner (one-to-one by user_id)
      */
+    # Relasi: satu alumni memiliki satu kuesioner
     public function kuesioner()
     {
-        // Ganti Kuisioner::class jika nama Model Kuesioner Anda berbeda
+        # Ganti Kuisioner::class jika nama Model Kuesioner Anda berbeda
         return $this->hasOne(Kuisioner::class, 'user_id', 'user_id');
     }
     /**
      * Accessor untuk properti has_filled_questionnaire
      */
+    # Accessor: cek apakah alumni sudah mengisi kuesioner
     public function getHasFilledQuestionnaireAttribute() : bool
     {
         return $this->kuesioner()->exists();

@@ -61,7 +61,7 @@
             </div>
         </div>
 
-        {{-- flash messages handled by SweetAlert in layout --}}
+        {{-- Pesan flash ditangani oleh layout (SweetAlert) --}}
 
         <div class="glass-kuesioner rounded-[2.5rem] shadow-2xl shadow-slate-200/60 overflow-hidden">
             <form id="kuisionerForm" action="{{ route('user.kuisioner') }}" method="POST" class="p-8 md:p-12" novalidate>

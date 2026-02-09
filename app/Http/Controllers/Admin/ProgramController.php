@@ -8,8 +8,10 @@ use App\Models\Program;
 use App\Models\Faculty;
 use Illuminate\Support\Str;
 
+// Controller admin untuk mengelola program studi
 class ProgramController extends Controller
 {
+    // Menangani: index(Request $request) - daftar program studi
     public function index(Request $request)
     {
         $q = $request->get('q');
@@ -28,12 +30,14 @@ class ProgramController extends Controller
         return view('admin.programs.index', compact('programs'));
     }
 
+    // Menangani: create() - tampilkan form tambah program studi
     public function create()
     {
         $faculties = Faculty::orderBy('name')->get();
         return view('admin.programs.create', compact('faculties'));
     }
 
+    // Menangani: store(Request $request) - simpan program studi baru
     public function store(Request $request)
     {
         $request->validate([
@@ -50,12 +54,14 @@ class ProgramController extends Controller
         return redirect()->route('admin.programs.index')->with('success', 'Program Studi berhasil ditambahkan.');
     }
 
+    // Menangani: edit(Program $program) - tampilkan form edit program
     public function edit(Program $program)
     {
         $faculties = Faculty::orderBy('name')->get();
         return view('admin.programs.edit', compact('program', 'faculties'));
     }
 
+    // Menangani: update(Request $request, Program $program) - perbarui program studi
     public function update(Request $request, Program $program)
     {
         $request->validate([
@@ -72,6 +78,7 @@ class ProgramController extends Controller
         return redirect()->route('admin.programs.index')->with('success', 'Program Studi diperbarui.');
     }
 
+    // Menangani: destroy(Program $program) - hapus program studi
     public function destroy(Program $program)
     {
         $program->delete();

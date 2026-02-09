@@ -7,14 +7,17 @@ use App\Models\Gallery;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+// Controller untuk mengelola galeri gambar (Admin)
 class GalleryController extends Controller
 {
+    # Menangani: index() - tampilkan daftar gambar
     public function index()
     {
         $galleries = Gallery::latest()->get();
         return view('admin.gallery', compact('galleries'));
     }
 
+    # Menangani: store(Request $request) - unggah gambar baru
     public function store(Request $request)
     {
         $request->validate([
@@ -35,6 +38,7 @@ class GalleryController extends Controller
         return redirect()->back()->with('success', 'Gambar berhasil diunggah!');
     }
 
+    # Menangani: update(Request $request, $id) - perbarui metadata atau file gambar
     public function update(Request $request, $id)
     {
         $gallery = Gallery::findOrFail($id);
@@ -45,17 +49,17 @@ class GalleryController extends Controller
             'image_edit'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        // Update title dan description
+        # Update title dan description
         $gallery->title = $request->title_edit;
         $gallery->description = $request->description_edit;
 
-        // Update image jika ada file baru
+        # Update image jika ada file baru
         if ($request->hasFile('image_edit')) {
-            // Hapus file lama
+            # Hapus file lama
             if ($gallery->image_path) {
                 Storage::disk('public')->delete($gallery->image_path);
             }
-            // Simpan file baru
+            # Simpan file baru
             $path = $request->file('image_edit')->store('galleries', 'public');
             $gallery->image_path = $path;
         }
@@ -65,6 +69,7 @@ class GalleryController extends Controller
         return redirect()->back()->with('success', 'Gambar berhasil diperbarui!');
     }
 
+    # Menangani: destroy($id) - hapus gambar
     public function destroy($id)
     {
         $gallery = Gallery::findOrFail($id);

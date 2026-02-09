@@ -18,19 +18,19 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
-// Landing page
+# Landing page
 Route::get('/', function () {
     return view('home');
 });
 
-// ====================  AUTH ROUTES  ====================
+# AUTH ROUTES
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ==================== PASSWORD RESET (Forgot Password) ====================
+# PASSWORD RESET (Forgot Password)
 Route::get('/forgot-password', function () {
     return view('auth.passwords.email');
 })->name('password.request');
@@ -75,18 +75,18 @@ Route::post('/reset-password', function (Request $request) {
                 : back()->withErrors(['email' => [__($status)]]);
 })->name('password.update');
 
-// Announcements
+# Announcements
 Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
 Route::get('/announcements/{announcement}', [AnnouncementController::class, 'show'])->name('announcements.show');
 
-// Community / Komunitas (dynamic from DB)
+# Community / Komunitas (dynamic from DB)
 Route::get('/community', function () {
     $communities = \App\Models\Community::where('active', true)->orderBy('sort_order')->get();
     return view('user.community', compact('communities'));
 })->name('community');
 
 
-// ====================  ADMIN ROUTES  ====================
+# ADMIN ROUTES
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
@@ -94,13 +94,13 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 
-        // --- Manajemen Pengumuman (Hanya Admin) ---
+        # Manajemen Pengumuman (Hanya Admin)
         Route::resource('announcements', AdminAnnouncementController::class)->except(['index', 'show']);
 
-        // --- Manajemen Komunitas ---
+        # Manajemen Komunitas
         Route::resource('community', AdminCommunityController::class)->except(['show']);
 
-        // --- Manajemen Alumni ---
+        # Manajemen Alumni
         Route::resource('alumni', AlumniController::class)
             ->only(['index', 'edit', 'update', 'destroy'])
             ->parameters(['alumni' => 'user'])
@@ -111,11 +111,11 @@ Route::middleware(['auth', 'role:admin'])
                 'destroy' => 'alumni.destroy',
             ]);
 
-        // Custom exports
+        # Custom exports
         Route::get('/alumni/export-csv', [AlumniController::class, 'exportCsv'])->name('alumni.exportCsv');
         Route::get('/alumni/export-pdf', [AlumniController::class, 'exportPdf'])->name('alumni.exportPdf');
 
-        // --- Manajemen Kuisioner ---
+        # Manajemen Kuisioner
         Route::controller(KuisionerController::class)->group(function () {
             Route::get('/kuisioner', 'adminIndex')->name('kuisioner');
             Route::get('/kuisioner/export-csv', 'exportCsv')->name('kuisioner.exportCsv');
@@ -123,7 +123,8 @@ Route::middleware(['auth', 'role:admin'])
             Route::delete('/kuisioner/{id}', 'destroy')->name('kuisioner.destroy');
         });
 
-        // --- Manajemen Gallery ---
+
+        # Manajemen Gallery
         Route::resource('gallery', GalleryController::class)
             ->only(['index', 'store', 'update', 'destroy'])
             ->parameters(['gallery' => 'id'])
@@ -134,7 +135,8 @@ Route::middleware(['auth', 'role:admin'])
                 'destroy' => 'gallery.destroy',
             ]);
 
-        // --- Manajemen Kaprodi ---
+
+        # Manajemen Kaprodi
         Route::resource('kaprodi', KaprodiController::class)
             ->except(['show'])
             ->parameters(['kaprodi' => 'id'])
@@ -142,25 +144,26 @@ Route::middleware(['auth', 'role:admin'])
                 'index' => 'kaprodi',
             ]);
 
-        // --- Statistik ---
+
+        # Statistik
         Route::get('/statistics', [AlumniController::class, 'statistics'])->name('statistics');
 
-        // --- Manajemen Fakultas & Program Studi ---
+        # Manajemen Fakultas & Program Studi
         Route::resource('faculties', FacultyController::class)->except(['show']);
         Route::resource('programs', ProgramController::class)->except(['show']);
 
-        // --- Testimoni Alumni ---
+        # Testimoni Alumni
         Route::controller(AlumniController::class)
             ->prefix('testimonials')
             ->name('testimonials.')
             ->group(function () {
 
-                // List Testimoni
+                # List Testimoni
                 Route::get('/review', 'reviewTestimonials')->name('review');
                 Route::get('/approved', 'approvedTestimonials')->name('approved');
                 Route::get('/rejected', 'rejectedTestimonials')->name('rejected');
 
-                // Aksi Testimoni
+                # Aksi Testimoni
                 Route::put('/{user_id}/approve', 'approveTestimonial')->name('approve');
                 Route::delete('/{user_id}/reject', 'rejectTestimonial')->name('reject');
                 Route::put('/{user_id}/pending', 'pendingTestimonial')->name('pending');

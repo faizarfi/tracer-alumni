@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Program;
 
+// Model Faculty: representasi fakultas dan relasi ke program studi
 class Faculty extends Model
 {
     use HasFactory;

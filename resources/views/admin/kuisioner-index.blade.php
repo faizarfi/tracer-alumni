@@ -69,7 +69,7 @@
         </div>
     </header>
 
-    {{-- Flash messages handled by layout (SweetAlert) --}}
+    {{-- Pesan flash ditangani oleh layout (SweetAlert) --}}
 
     {{-- SEARCH & FILTER SECTION --}}
     <section class="glass-card-table p-6 shadow-xl shadow-slate-200/50">

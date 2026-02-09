@@ -47,7 +47,7 @@
         </div>
     </header>
 
-    {{-- Flash messages handled by layout (SweetAlert) --}}
+    {{-- Pesan flash ditangani oleh layout (SweetAlert) --}}
 
     {{-- REJECTED LIST GRID --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
