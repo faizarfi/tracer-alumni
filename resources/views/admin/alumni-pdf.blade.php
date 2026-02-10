@@ -96,7 +96,7 @@
             <tr>
                 <th style="width: 30px; text-align: center;">No</th>
                 <th>Nama Lengkap</th>
-                <th style="width: 100px;">NIM</th>
+                <th style="width: 100px;">NIM mahasiswa</th>
                 <th>Program Studi / Fakultas</th>
                 <th style="text-align: center;">Lulus</th>
                 <th style="text-align: center;">Status</th>

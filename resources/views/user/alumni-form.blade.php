@@ -125,6 +125,13 @@
                                 </div>
                             </div>
                             <div class="space-y-2">
+                                <label class="text-sm font-bold text-slate-700 ml-1">Nomor Telepon</label>
+                                <div class="relative group input-group-focus border border-slate-200 rounded-2xl transition-all">
+                                    <i data-lucide="phone" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
+                                    <input type="tel" name="nomor_telepon" value="{{ old('nomor_telepon', $alumni->nomor_telepon ?? '') }}" maxlength="14" class="w-full bg-transparent pl-12 pr-4 py-3.5 outline-none text-slate-700 font-medium" placeholder="0812xxxx" required>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
                                 <label class="text-sm font-bold text-slate-700 ml-1">Tanggal Lahir</label>
                                 <div class="relative group input-group-focus border border-slate-200 rounded-2xl transition-all">
                                     <i data-lucide="calendar" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
@@ -132,6 +139,7 @@
                                 </div>
                             </div>
                         </div>
+
 
                         {{-- Section: Academic --}}
                         <div class="section-divider">
@@ -325,6 +333,18 @@
         if (tmInput && tkInput) {
             tmInput.addEventListener('input', function(e) { sanitizeNumberInput(e); validateYears(); });
             tkInput.addEventListener('input', function(e) { sanitizeNumberInput(e); validateYears(); });
+        }
+
+        // Validasi & sanitasi Nomor Telepon: larang '-' dan batasi 14 karakter (hanya angka)
+        const phoneInput = document.querySelector('input[name="nomor_telepon"]');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let v = e.target.value || '';
+                // Hapus tanda '-' dan semua karakter non-digit
+                v = v.replace(/-/g, '').replace(/\D/g, '');
+                if (v.length > 14) v = v.slice(0, 14);
+                e.target.value = v;
+            });
         }
 
         if (form) {

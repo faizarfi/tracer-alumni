@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('nim', 50)->unique();
             $table->date('tanggal_lahir');
             $table->string('asal', 255);
+            $table->string('nomor_telepon', 20);
             $table->unsignedSmallInteger('tahun_masuk'); // Kolom yang duplikat
             $table->unsignedSmallInteger('tahun_keluar'); // Kolom yang duplikat
             $table->string('jurusan', 255);

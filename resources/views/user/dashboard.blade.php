@@ -120,7 +120,7 @@
                 </a>
             </div>
 
-            {{-- 4. FEATURE HIGHLIGHT (menggantikan Statistik) --}}
+            {{-- 4. FEATURE HIGHLIGHT --}}
             <div class="max-w-5xl mx-auto">
                 <div class="relative overflow-hidden bg-white rounded-2xl p-8 md:p-12 shadow-lg border border-slate-100">
                     <div class="absolute -top-8 -right-8 w-36 h-36 bg-emerald-100/30 rounded-full blur-2xl"></div>

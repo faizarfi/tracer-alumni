@@ -62,6 +62,7 @@ class AlumniController extends Controller
             'nim'               => 'required|string|max:50',
             'tanggal_lahir'     => 'required|date',
             'asal'              => 'required|string|max:255',
+            'nomor_telepon'     => ['required','string','max:14','not_regex:/-/'],
             'jurusan'           => 'required|string|max:255',
             'fakultas'          => 'required|string|max:255',
             'sudah_bekerja'     => 'required|boolean',
@@ -362,6 +363,7 @@ class AlumniController extends Controller
             'nim'               => 'required|string|max:50',
             'tanggal_lahir'     => 'required|date',
             'asal'              => 'required|string|max:255',
+            'nomor_telepon'     => ['required','string','max:14','not_regex:/-/'],
             'jurusan'           => 'required|string|max:255',
             'fakultas'          => 'required|string|max:255',
             'sudah_bekerja'     => 'required|boolean',
@@ -376,7 +378,7 @@ class AlumniController extends Controller
 
             // Siapkan data untuk update
             $updateData = $request->only([
-                'nama', 'nim', 'tanggal_lahir', 'asal', 'jurusan', 'fakultas',
+                'nama', 'nim', 'tanggal_lahir', 'asal', 'nomor_telepon', 'jurusan', 'fakultas',
                 'sudah_bekerja', 'tempat_bekerja', 'tahun_masuk', 'tahun_keluar'
             ]);
 

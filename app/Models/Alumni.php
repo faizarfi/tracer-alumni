@@ -18,6 +18,7 @@ class Alumni extends Model
         'nim',
         'tanggal_lahir',
         'asal',
+        'nomor_telepon',
         'jurusan',
         'fakultas',
         'sudah_bekerja',
