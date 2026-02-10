@@ -89,11 +89,12 @@
                     <label for="name" class="block text-gray-700 text-sm font-semibold ml-1">Nama Lengkap</label>
                     <div class="relative group">
                         <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 group-focus-within:text-green-600"></i>
-                        <input type="text" name="name" id="name" value="{{ old('name') }}" required
+                        <input type="text" name="name" id="name" value="{{ old('name') }}" required pattern="[\p{L}\s]+"
                             placeholder="Nama lengkap Anda"
                             class="input-field w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none text-sm text-gray-800">
                     </div>
                     @error('name') <p class="text-red-500 text-[10px] mt-1 ml-1">{{ $message }}</p> @enderror
+                    <p id="name-error" class="text-red-500 text-[10px] mt-1 ml-1 hidden">Nama hanya boleh berisi huruf dan spasi.</p>
                 </div>
 
                 <div class="space-y-1">
@@ -151,6 +152,39 @@
     <script>
         // Inisialisasi awal ikon Lucide
         lucide.createIcons();
+
+        // Validasi client-side untuk Nama: larang angka, hanya huruf dan spasi
+        const nameInput = document.getElementById('name');
+        const nameError = document.getElementById('name-error');
+        if (nameInput) {
+            nameInput.addEventListener('input', function(e) {
+                // Hapus semua karakter selain huruf (unicode) dan spasi
+                const cleaned = e.target.value.replace(/[^\p{L}\s]/gu, '');
+                if (e.target.value !== cleaned) {
+                    e.target.value = cleaned;
+                }
+                // Sembunyikan pesan error saat input valid
+                if (/^[\p{L}\s]+$/u.test(e.target.value) || e.target.value.length === 0) {
+                    nameInput.setCustomValidity('');
+                    if (nameError) nameError.classList.add('hidden');
+                }
+            });
+
+            // Saat submit, cek kembali dan set customValidity jika ada angka
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(ev) {
+                    const v = nameInput.value || '';
+                    if (!/^[\p{L}\s]+$/u.test(v)) {
+                        ev.preventDefault();
+                        nameInput.setCustomValidity('Nama hanya boleh berisi huruf dan spasi.');
+                        if (nameError) nameError.classList.remove('hidden');
+                        nameInput.reportValidity();
+                        return false;
+                    }
+                });
+            }
+        }
 
         // Logika Toggle Password yang lebih bersih dan mendukung banyak input
         document.querySelectorAll('.toggle-password').forEach(button => {

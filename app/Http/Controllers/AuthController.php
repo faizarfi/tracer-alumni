@@ -46,7 +46,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required','string','max:255','regex:/^[\\pL\\s]+$/u'],
             'email' => [
                 'required',
                 'string',
@@ -63,6 +63,7 @@ class AuthController extends Controller
             ],
         ], [
             'password.regex' => 'Password harus mengandung minimal satu huruf besar dan satu angka.',
+            'name.regex' => 'Nama lengkap hanya boleh berisi huruf dan spasi.',
         ]);
 
         $user = User::create([
